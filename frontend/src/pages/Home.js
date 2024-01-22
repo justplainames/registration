@@ -26,11 +26,11 @@ function Home() {
             console.log("Value Increased");
           })
           .catch((error) => {
-            "Error fetcing updated data: ", error;
+            console.log("Error fetcing updated data: ", error);
           });
       })
       .catch((error) => {
-        "Error increasing data: ", error;
+        console.log("Error increasing data: ", error);
       });
   };
 
