@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
 
 router.put("/", async (req, res) => {
   const value = await Values.findByPk(6);
-  const new_value = value + 1;
+  const new_value = Value.counts + 1;
 
   await Values.update(
     { counts: new_value },
@@ -19,7 +19,7 @@ router.put("/", async (req, res) => {
       },
     }
   );
-  res.json(new_value);
+  res.json({ new_value });
 });
 
 module.exports = router;
