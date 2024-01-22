@@ -1,32 +1,18 @@
-// const express = require("express");
-// const app = express();
-
 const port = 3000;
 const hostname = "0.0.0.0";
-
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
-// app.listen(port, hostname, () => {
-//   console.log(`Server running on port ${port}`);
-// });
+const cors = require("cors");
 
 console.log(port, hostname);
+app.use(cors());
 
 const express = require("express");
 const db = require("./models");
-const { Values } = require("./models");
 
 const app = express();
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  Values.create({
-    counts: 5,
-  }).then((value) => {
-    res.json(value);
-  });
-});
+const homeRouter = require("./routes/Home");
+app.use("/home", homeRouter);
 
 db.sequelize
   .authenticate()
