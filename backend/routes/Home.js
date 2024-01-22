@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
 
 router.put("/", async (req, res) => {
   const value = await Values.findByPk(6);
-  const new_value = Value.counts + 1;
+  const new_value = value.counts + 1;
 
   await Values.update(
     { counts: new_value },
