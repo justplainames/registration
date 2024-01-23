@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+import { Form, redirect } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -6,11 +8,9 @@ import {
   Input,
   Button,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
-import React, { useState } from "react";
-import { Form, redirect } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Select } from "chakra-react-select";
 
 export default function CreateEvent() {
   const options = [
@@ -62,7 +62,7 @@ export const createEventAction = async ({ request }) => {
 
   const event = {
     event_name: data.get("event_name"),
-    event_date: data.get("participant_instagram"),
+    event_date: data.get("event_date"),
     categories: data.getAll("categories"),
   };
 

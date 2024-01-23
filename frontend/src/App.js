@@ -1,20 +1,23 @@
-import "./App.css";
-import Dashboard from "./pages/Dashboard";
-import RootLayout from "./layouts/RootLayout";
+// Third-party imports
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
 } from "react-router-dom";
+
+// Local imports
+import "./App.css";
+import Dashboard from "./pages/Dashboard";
+import RootLayout from "./layouts/RootLayout";
 import Scoring from "./pages/Scoring";
 import Brackets from "./pages/Brackets";
 import Participants from "./pages/Participants";
-import AddParticpant from "./pages/AddParticipant";
+import AddParticipant from "./pages/AddParticipant";
 import CreateEvent from "./pages/CreateEvent";
+import FullstackTest from "./pages/FullstackTest";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
-import FullstackTest from "./pages/FullstackTest";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,7 +29,7 @@ const router = createBrowserRouter(
       <Route path="participants" element={<Participants />} />
       <Route
         path="addParticipant"
-        element={<AddParticpant />}
+        element={<AddParticipant />}
         action={addParticipantAction}
       />
       <Route

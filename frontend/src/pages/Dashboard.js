@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { IconClick } from "@tabler/icons-react";
-import { Avatar, Divider, Icon } from "@chakra-ui/react";
-
 import {
+  Avatar,
+  Divider,
+  Icon,
   Button,
   Flex,
   Heading,
@@ -13,7 +14,6 @@ import {
   CardBody,
   CardFooter,
   Box,
-  HStack,
 } from "@chakra-ui/react";
 
 function Dashboard() {

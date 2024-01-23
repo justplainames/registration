@@ -1,3 +1,5 @@
+import React from "react";
+import { Form, redirect } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -9,8 +11,6 @@ import {
   Button,
   CheckboxGroup,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { Form, redirect } from "react-router-dom";
 
 export default function AddParticipant() {
   return (
@@ -72,5 +72,5 @@ export const addParticipantAction = async ({ request }) => {
 
   console.log(participant);
 
-  return redirect("/participtants");
+  return redirect("/participants");
 };
