@@ -1,0 +1,74 @@
+{
+  "events": [
+    {
+       "id":1,
+       "event_name":"The Gathering Vol 2",
+       "description":"Join the dance community at The Gathering Vol 2, where the collective energy creates a dance celebration like no other. Immerse yourself in the unity of beats, rhythms, and dance enthusiasts. Let's gather and dance as one!",
+       "event_date":"2017",
+       "img": "/img/gathering2.png"
+    },
+    {
+       "id":2,
+       "event_name":"Marksman Vol 1",
+       "description":"Join us for an electrifying night at Markman Vol 1, where rhythm meets innovation on the dance floor. Unleash your moves and be part of a dance experience like never before. Mark your presence in the beats of the future!",
+       "event_date":"2017",
+       "img": "/img/marksman1.png"
+    },
+    {
+       "id":3,
+       "event_name":"PowerPop Vol 1",
+       "description":"Ignite your dancing spirit at PowerPop Volume 1, where the dance floor becomes a powerhouse of energy. Feel the surge of beats that pop with intensity, and let the music empower your every move. Power up and dance like never before!",
+       "event_date":"2018",
+       "img": "/img/pp1.png"
+    },
+    {
+       "id":4,
+       "event_name":"The Gathering Vol 3",
+       "description":"Elevate the gathering at The Gathering Vol 3, where the dance floor becomes a haven for unity and rhythm. Experience the synergy of beats, the camaraderie of dancers, and the celebration of movement. Join us for a dance gathering that transcends boundaries!.",
+       "event_date":"2018",
+       "img": "/img/gathering3.png"
+    },
+    {
+       "id":5,
+       "event_name":"Marksman Vol 2",
+       "description":"Dive into the pulsating vibes of Markman Vol 2, a dance event that transcends boundaries. Get ready to elevate your senses as we bring you the latest beats and rhythms to keep you grooving all night long. Don't miss the mark, be part of the extraordinary!",
+       "event_date":"2018",
+       "img": "/img/marksman2.png"
+    },
+    {
+       "id":6,
+       "event_name":"PowerPop Vol 2",
+       "description":"Feel the force at PowerPop Volume 2, where dance and power collide in a dynamic explosion of beats. Join us for a night of electrifying moves, as we bring you a dance experience that resonates with energy and intensity. Power up and let the dance floor come alive!",
+       "event_date":"2019",
+       "img": "/img/pp2.png"
+    },
+    {
+       "id":7,
+       "event_name":"Over and Over Vol 1",
+       "description":"Embark on a rhythmic adventure with Over and Over Vol 1. Get ready to get lost in the beats that loop and groove, creating an atmosphere of continuous dance bliss. Let the music take control, and let's dance over and over again!",
+       "event_date":"2023",
+       "img": "/img/oo1.png"
+    },
+    {
+       "id":8,
+       "event_name":"Under One Groove 2023",
+       "description":"Dive into the groove at UnderOneGroove 2023, a dance event that unites music and movement under one roof. Experience the magic of beats that resonate with the heartbeat of the dance floor. Join the groove, and let's dance together under one rhythm in 2023!",
+       "event_date":"2023",
+       "img": "/img/uog23.png"
+    },
+    {
+       "id":9,
+       "event_name":"Marksman Vol 4",
+       "description":"Step into the rhythm of Markman Vol 4, where dance and music converge into an explosive fusion. This event promises to be a sonic journey, taking you to new heights of euphoria. Join us for an unforgettable night of beats, moves, and limitless energy!",
+       "event_date":"2023",
+       "img": "/img/marksman4.png"
+    },
+    {
+       "id":10,
+       "event_name":"Over and Over Vol 2",
+       "description":"Experience the magic of repetition at Over and Over Vol 2. Join us as we create a dance marathon of beats that will keep you moving relentlessly. Embrace the groove, and let the music be your guide in this never-ending dance journey.",
+       "event_date":"2023",
+       "img": "/img/oo2.png"
+    }
+ ]
+}

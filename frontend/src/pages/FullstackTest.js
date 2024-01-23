@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Heading, Button, Box } from "@chakra-ui/react";
+import { IconPoo } from "@tabler/icons-react";
+import { Icon } from "@chakra-ui/react";
 
-function Home() {
+function FullstackTest() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -35,17 +38,27 @@ function Home() {
   };
 
   return (
-    <div>
-      <h1>{count}</h1>
-      <button
+    <Box
+      as="section"
+      height="100vh" // Set height to 100% of viewport height
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Icon as={IconPoo} boxSize={100} ml={2} color="purple.400" />
+      <Heading p="10px" style={{ textAlign: "center" }}>
+        {count}
+      </Heading>
+      <Button
         onClick={() => {
           increaseNumber();
         }}
       >
         Increase
-      </button>
-    </div>
+      </Button>
+    </Box>
   );
 }
 
-export default Home;
+export default FullstackTest;
