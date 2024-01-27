@@ -32,7 +32,7 @@ function Participants() {
   const handleChange = (category) => {
     axios
       .get(
-        `https://registartion-backend.fly.dev/getParticipants/${eventState.eventId}/${category.category_id_pk}`
+        `https://registartion-backend.fly.dev/addParticipant/getParticipants/${eventState.eventId}/${category.category_id_pk}`
       )
       // .get(`http://localhost:3000/addParticipant/getParticipants/${eventState.eventId}/${category.category_id_pk}`)
       .then((res) => {
@@ -43,7 +43,7 @@ function Participants() {
   useEffect(() => {
     axios
       .get(
-        `https://registartion-backend.fly.dev/getParticipants/${eventState.eventId}`
+        `https://registartion-backend.fly.dev/addParticipant/getParticipants/${eventState.eventId}`
       )
       // .get(
       //   `http://localhost:3000/addParticipant/getCategories/${eventState.eventId}`
