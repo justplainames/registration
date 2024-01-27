@@ -153,7 +153,9 @@ export const addParticipantAction = async ({ request }) => {
   console.log(participant);
 
   axios.post(
-    `https://registartion-backend.fly.dev/${data.get("event_id_pk")}`,
+    `https://registartion-backend.fly.dev/addParticipant/${data.get(
+      "event_id_pk"
+    )}`,
     // `http://localhost:3000/addParticipant/${data.get("event_id_pk")}`,
     participant
   );
