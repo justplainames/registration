@@ -21,6 +21,7 @@ export default function AddParticipant() {
   const [paid, setPaid] = useState(false);
 
   useEffect(() => {
+    console.log(eventState);
     axios
       .get(
         `https://registartion-backend.fly.dev/addParticipant/getCategories/${eventState.eventId}`
