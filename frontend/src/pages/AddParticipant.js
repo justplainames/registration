@@ -30,6 +30,10 @@ export default function AddParticipant() {
       // )
       .then((response) => {
         setCategoryOptions(response.data);
+      })
+      .catch((error) => {
+        console.error("Error making axios request:", error);
+        // Handle the error as needed
       });
   }, []);
 
@@ -152,12 +156,17 @@ export const addParticipantAction = async ({ request }) => {
 
   console.log(participant);
 
-  axios.post(
-    `https://registartion-backend.fly.dev/addParticipant/${data.get(
-      "event_id_pk"
-    )}`,
-    // `http://localhost:3000/addParticipant/${data.get("event_id_pk")}`,
-    participant
-  );
+  axios
+    .post(
+      `https://registartion-backend.fly.dev/addParticipant/${data.get(
+        "event_id_pk"
+      )}`,
+      // `http://localhost:3000/addParticipant/${data.get("event_id_pk")}`,
+      participant
+    )
+    .catch((error) => {
+      console.error("Error making axios request:", error);
+      // Handle the error as needed
+    });
   return redirect("/participants");
 };
