@@ -43,7 +43,7 @@ function Participants() {
   useEffect(() => {
     axios
       .get(
-        `https://registartion-backend.fly.dev/addParticipant/getParticipants/${eventState.eventId}`
+        `https://registartion-backend.fly.dev/addParticipant/getCategories/${eventState.eventId}`
       )
       // .get(
       //   `http://localhost:3000/addParticipant/getCategories/${eventState.eventId}`
@@ -54,7 +54,7 @@ function Participants() {
         setSelectedCategories(first_data);
         axios
           .get(
-            `https://registartion-backend.fly.dev/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
+            `https://registartion-backend.fly.dev/addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
           )
           // .get(
           //   `http://localhost:3000/addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
