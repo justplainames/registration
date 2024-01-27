@@ -171,7 +171,8 @@ export const createEventAction = async ({ request }) => {
   };
 
   axios
-    .post("http://localhost:3000/createEvent/updateEvent", event)
+    .post("https://registartion-backend.fly.dev/createEvent/updateEvent", event)
+    // .post("http://localhost:3000/createEvent/updateEvent", event)
     .then((res) => console.log(res));
 
   return redirect("/");
