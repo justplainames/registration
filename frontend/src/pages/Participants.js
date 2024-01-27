@@ -54,7 +54,7 @@ function Participants() {
         setSelectedCategories(first_data);
         axios
           .get(
-            `https://registartion-backend.fly.dev/getParticipants/${eventState.eventId}/${category.category_id_pk}`
+            `https://registartion-backend.fly.dev/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
           )
           // .get(
           //   `http://localhost:3000/addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
