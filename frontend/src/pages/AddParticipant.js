@@ -23,7 +23,7 @@ export default function AddParticipant() {
   useEffect(() => {
     axios
       .get(
-        `https://registartion-backend.fly.dev/getCategories/${eventState.eventId}`
+        `https://registartion-backend.fly.dev/addParticipant/getCategories/${eventState.eventId}`
       )
       // .get(
       //   `http://localhost:3000/addParticipant/getCategories/${eventState.eventId}`
