@@ -60,6 +60,7 @@ function Participants() {
           //   `http://localhost:3000/addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
           // )
           .then((res) => {
+            console.log(response);
             setListOfParticipants(res.data);
           });
       });
