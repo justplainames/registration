@@ -1,0 +1,14 @@
+Participants:
+
+A participant can only join one event (participants table with a unique constraint on event_id).
+Participants can only join categories that belong to the event they joined (event_categories table).
+Participants are judged by a number of judges based on the category in the event they joined (scores table with relationships to judge_categories and participants).
+Judges:
+
+A judge can be involved in any category in any event (judge_categories table).
+Judges are tasked to judge every participant that joined the category in the event and give a score (scores table).
+Events:
+
+An event can have multiple and different categories (event_categories table).
+Each category in an event is a separate entity with its own set of judges and participants.
+Two categories with the same primary key in one event are considered different entities within that event.

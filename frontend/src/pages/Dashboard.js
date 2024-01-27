@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { IconClick } from "@tabler/icons-react";
 import {
   Avatar,
@@ -15,16 +15,26 @@ import {
   CardFooter,
   Box,
 } from "@chakra-ui/react";
+import { EventContext } from "../helpers/EventContext";
+import axios from "axios";
 
 function Dashboard() {
-  const [events, setEvents] = useState(null);
+  const [events, setEvents] = useState([]);
+  const { eventState, setEventState } = useContext(EventContext);
 
+  const handleClick = (event_name, event_id) => {
+    setEventState({ eventName: event_name, eventId: event_id });
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/db.json"); // Assuming db.json is in the public folder
-        const data = await response.json();
-        setEvents(data);
+        axios
+          .get("https://registartion-backend.fly.dev/getEvents")
+          // axios.get("http://localhost:3000/getEvents")
+          .then((res) => {
+            setEvents(res.data);
+            console.log(events);
+          });
       } catch (error) {
         console.error("Error fetching JSON data:", error);
       }
@@ -33,10 +43,12 @@ function Dashboard() {
     fetchData();
   }, []);
 
+  useEffect(() => {}, [eventState]);
+
   return (
     <SimpleGrid spacing={10} minChildWidth="300px">
-      {events && events.events ? (
-        events.events.map((event) => (
+      {events ? (
+        events.map((event) => (
           <Card
             key={event.id}
             borderTop="8px"
@@ -50,16 +62,20 @@ function Dashboard() {
                   <Heading as="h3" size="sm">
                     {event.event_name}
                   </Heading>
-                  <Text>Year {event.event_date}</Text>
+                  <Text>{event.event_date}</Text>
                 </Box>
               </Flex>
             </CardHeader>
             <CardBody color="gray.500">
-              <Text>{event.description}</Text>
+              <Text>{event.event_description}</Text>
             </CardBody>
             <Divider borderColor="gray.350" />
             <CardFooter textAlign="center">
-              <Button w="300px" mx="auto">
+              <Button
+                w="300px"
+                mx="auto"
+                onClick={() => handleClick(event.event_name, event.event_id_pk)}
+              >
                 <Icon as={IconClick} />
                 Select
               </Button>

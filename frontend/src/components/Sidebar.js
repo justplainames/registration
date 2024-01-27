@@ -7,10 +7,13 @@ import {
   IconPoo,
 } from "@tabler/icons-react";
 import { List, ListItem } from "@chakra-ui/react";
-import React from "react";
+import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
+import { EventContext } from "../helpers/EventContext";
 
 export default function Sidebar() {
+  const { eventState } = useContext(EventContext);
+
   return (
     <List color="white" fontSize="1.2em" spacing={4}>
       <ListItem>
@@ -22,32 +25,36 @@ export default function Sidebar() {
         </NavLink>
       </ListItem>
 
-      <ListItem>
-        <NavLink to="/participants">
-          <Flex align="center">
-            <Icon as={IconFriends} boxSize={5} mr={2} />
-            Participants List
-          </Flex>
-        </NavLink>
-      </ListItem>
+      {eventState.eventName !== "Select Event" && (
+        <>
+          <ListItem>
+            <NavLink to="/participants">
+              <Flex align="center">
+                <Icon as={IconFriends} boxSize={5} mr={2} />
+                Participants List
+              </Flex>
+            </NavLink>
+          </ListItem>
 
-      <ListItem>
-        <NavLink to="/scoring">
-          <Flex align="center">
-            <Icon as={IconTournament} boxSize={5} mr={2} />
-            Scoring
-          </Flex>
-        </NavLink>
-      </ListItem>
+          <ListItem>
+            <NavLink to="/scoring">
+              <Flex align="center">
+                <Icon as={IconTournament} boxSize={5} mr={2} />
+                Scoring
+              </Flex>
+            </NavLink>
+          </ListItem>
 
-      <ListItem>
-        <NavLink to="/brackets">
-          <Flex align="center">
-            <Icon as={IconScoreboard} boxSize={5} mr={2} />
-            Brackets
-          </Flex>
-        </NavLink>
-      </ListItem>
+          <ListItem>
+            <NavLink to="/brackets">
+              <Flex align="center">
+                <Icon as={IconScoreboard} boxSize={5} mr={2} />
+                Brackets
+              </Flex>
+            </NavLink>
+          </ListItem>
+        </>
+      )}
 
       <ListItem>
         <NavLink to="/fullstackTest">

@@ -18,6 +18,8 @@ import CreateEvent from "./pages/CreateEvent";
 import FullstackTest from "./pages/FullstackTest";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
+import { EventContext } from "./helpers/EventContext";
+import { useState } from "react";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,7 +44,16 @@ const router = createBrowserRouter(
 );
 
 function App() {
-  return <RouterProvider router={router} />;
+  const [eventState, setEventState] = useState({
+    eventName: "Select Event",
+    eventId: null,
+  });
+
+  return (
+    <EventContext.Provider value={{ eventState, setEventState }}>
+      <RouterProvider router={router} />
+    </EventContext.Provider>
+  );
 }
 
 export default App;

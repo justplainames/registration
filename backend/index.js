@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./models");
-const homeRouter = require("./routes/Home");
 
 const port = 3000;
 const hostname = "0.0.0.0";
@@ -13,7 +12,12 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use("/home", homeRouter);
+const homeRouter = require("./routes/Home");
+app.use("/", homeRouter);
+const createEventRouter = require("./routes/CreateEvent");
+app.use("/createEvent", createEventRouter);
+const addParticipantRouter = require("./routes/AddParticipant");
+app.use("/addParticipant", addParticipantRouter);
 
 // Database connection and server start
 db.sequelize

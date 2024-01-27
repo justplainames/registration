@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Flex,
   Heading,
@@ -12,9 +12,13 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { IconLogout } from "@tabler/icons-react";
+import { EventContext } from "../helpers/EventContext";
+
 export default function Navbar() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { eventState } = useContext(EventContext);
+  const [headingText, setHeadingText] = useState({});
 
   const showToast = () => {
     toast({
@@ -32,9 +36,13 @@ export default function Navbar() {
     navigate("/createEvent");
   };
 
+  useEffect(() => {
+    setHeadingText(eventState);
+  }, [eventState]);
+
   return (
     <Flex mb="40px" as="nav" p="10px" alignItems="center">
-      <Heading as="h1">Event Manager</Heading>
+      <Heading as="h1">Event Manager | {headingText.eventName}</Heading>
       <Spacer />
 
       <HStack spacing="20px">
