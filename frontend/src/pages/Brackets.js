@@ -1,9 +1,6 @@
 import React from "react";
 import { TabList, Tabs, Tab, TabPanels } from "@chakra-ui/react";
-import { Bracket } from "bt-react-brackets";
-import { simpleSmallBracket } from "./data";
 import Match from "../components/BracketV2/Match";
-import Seed from "../components/BracketV2/Seed";
 import { top8, top16, top32, top64 } from "./dataset.js";
 
 const Brackets = () => {
