@@ -92,6 +92,7 @@ router.post("/:id", async (req, res) => {
     participant_email: content.participant_email,
     participant_instagram: content.participant_instagram,
     participant_paid: content.participant_paid,
+    participant_phone_number: content.participant_phone_number,
   };
 
   const createdParticipant = await Participants.create(participant, {

@@ -21,6 +21,8 @@ import axios from "axios";
 function Dashboard() {
   const [events, setEvents] = useState([]);
   const { eventState, setEventState } = useContext(EventContext);
+  const apiPath = "https://registartion-backend.fly.dev/";
+  // const apiPath = "http://localhost:3000/";
 
   const handleClick = (event_name, event_id) => {
     setEventState({ eventName: event_name, eventId: event_id });
@@ -28,16 +30,10 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        axios
-          .get("https://registartion-backend.fly.dev/getEvents")
-          // axios.get("http://localhost:3000/getEvents")
-          .then((res) => {
-            setEvents(res.data);
-            console.log(events);
-          });
-      } catch (error) {
-        console.error("Error fetching JSON data:", error);
-      }
+        axios.get(`${apiPath}getEvents`).then((res) => {
+          setEvents(res.data);
+        });
+      } catch (error) {}
     };
 
     fetchData();

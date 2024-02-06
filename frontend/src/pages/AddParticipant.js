@@ -19,16 +19,13 @@ export default function AddParticipant() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [paid, setPaid] = useState(false);
+  const apiPath = "https://registartion-backend.fly.dev/";
+  // const apiPath = "http://localhost:3000/";
 
   useEffect(() => {
     console.log(eventState);
     axios
-      .get(
-        `https://registartion-backend.fly.dev/addParticipant/getCategories/${eventState.eventId}`
-      )
-      // .get(
-      //   `http://localhost:3000/addParticipant/getCategories/${eventState.eventId}`
-      // )
+      .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
       .then((response) => {
         setCategoryOptions(response.data);
       })
@@ -41,9 +38,7 @@ export default function AddParticipant() {
   useEffect(() => {}, [eventState]);
 
   const handleCheckboxChange = (event) => {
-    console.log(event.target.name);
     const categoryId = parseInt(event.target.name);
-    console.log(categoryId);
     setSelectedCategories((prev) => {
       const current = [...prev];
       if (current.includes(categoryId)) {
@@ -53,7 +48,6 @@ export default function AddParticipant() {
       }
       return current;
     });
-    console.log(selectedCategories);
   };
 
   const handlePaid = () => {
@@ -145,6 +139,8 @@ export default function AddParticipant() {
 
 export const addParticipantAction = async ({ request }) => {
   const data = await request.formData();
+  const apiPath = "https://registartion-backend.fly.dev/";
+  // const apiPath = "http://localhost:3000/";
 
   const participant = {
     participant_name: data.get("participant_name"),
@@ -158,13 +154,7 @@ export const addParticipantAction = async ({ request }) => {
   console.log(participant);
 
   axios
-    .post(
-      `https://registartion-backend.fly.dev/addParticipant/${data.get(
-        "event_id_pk"
-      )}`,
-      // `http://localhost:3000/addParticipant/${data.get("event_id_pk")}`,
-      participant
-    )
+    .post(`${apiPath}addParticipant/${data.get("event_id_pk")}`, participant)
     .catch((error) => {
       console.error("Error making axios request:", error);
       // Handle the error as needed

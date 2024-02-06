@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     score: {
       type: DataTypes.DECIMAL(3, 2),
       allowNull: false,
+      default: 0,
     },
   });
 

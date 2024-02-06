@@ -19,18 +19,20 @@ export default function CreateEvent() {
   const [judgeOptions, setJudgeOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [judgesByCategory, setJudgesByCategory] = useState({});
+  const apiPath = "https://registartion-backend.fly.dev/";
+  // const apiPath = "http://localhost:3000/";
 
   useEffect(() => {
     axios
-      .get("https://registartion-backend.fly.dev/createEvent/getJudges")
-      // .get("http://localhost:3000/createEvent/getJudges")
+      // .get("https://registartion-backend.fly.dev/createEvent/getJudges")
+      .get("http://localhost:3000/createEvent/getJudges")
       .then((response) => {
         setJudgeOptions(response.data);
       });
 
     axios
-      .get("https://registartion-backend.fly.dev/createEvent/getCategories")
-      // .get("http://localhost:3000/createEvent/getCategories")
+      // .get("https://registartion-backend.fly.dev/createEvent/getCategories")
+      .get("http://localhost:3000/createEvent/getCategories")
       .then((response) => {
         setCategoryOptions(response.data);
       });
@@ -160,6 +162,8 @@ export default function CreateEvent() {
 }
 
 export const createEventAction = async ({ request }) => {
+  const apiPath = "https://registartion-backend.fly.dev/";
+  // const apiPath = "http://localhost:3000/";
   const data = await request.formData();
 
   const event = {
@@ -171,8 +175,7 @@ export const createEventAction = async ({ request }) => {
   };
 
   axios
-    .post("https://registartion-backend.fly.dev/createEvent/updateEvent", event)
-    // .post("http://localhost:3000/createEvent/updateEvent", event)
+    .post(`${apiPath}createEvent/updateEvent`, event)
     .then((res) => console.log(res));
 
   return redirect("/");

@@ -7,7 +7,7 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import ScoringTable from "../components/ScoringTable";
+import ParticipantTable from "../components/PartcipantTable";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { EventContext } from "../helpers/EventContext";
@@ -21,9 +21,26 @@ const data = [
 function Participants() {
   const { eventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState([]);
-  const [selectedCategory, setSelectedCategories] = useState(0);
   const [listOfParticipants, setListOfParticipants] = useState([]);
+  const apiPath = "https://registartion-backend.fly.dev/";
+  // const apiPath = "http://localhost:3000/";
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
+      .then((res) => {
+        setListOfCategories(res.data);
+        const first_data = res.data[0];
+        axios
+          .get(
+            `${apiPath}addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
+          )
+          .then((res) => {
+            setListOfParticipants(res.data);
+          });
+      });
+  }, []);
 
   const AddParticipant = () => {
     navigate("/addParticipant");
@@ -32,39 +49,13 @@ function Participants() {
   const handleChange = (category) => {
     axios
       .get(
-        `https://registartion-backend.fly.dev/addParticipant/getParticipants/${eventState.eventId}/${category.category_id_pk}`
+        `${apiPath}addParticipant/getParticipants/${eventState.eventId}/${category.category_id_pk}`
       )
-      // .get(`http://localhost:3000/addParticipant/getParticipants/${eventState.eventId}/${category.category_id_pk}`)
+
       .then((res) => {
         setListOfParticipants(res.data);
       });
   };
-
-  useEffect(() => {
-    axios
-      .get(
-        `https://registartion-backend.fly.dev/addParticipant/getCategories/${eventState.eventId}`
-      )
-      // .get(
-      //   `http://localhost:3000/addParticipant/getCategories/${eventState.eventId}`
-      // )
-      .then((res) => {
-        setListOfCategories(res.data);
-        const first_data = res.data[0];
-        setSelectedCategories(first_data);
-        axios
-          .get(
-            `https://registartion-backend.fly.dev/addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
-          )
-          // .get(
-          //   `http://localhost:3000/addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
-          // )
-          .then((res) => {
-            console.log(response);
-            setListOfParticipants(res.data);
-          });
-      });
-  }, []);
 
   useEffect(() => {}, [eventState]);
 
@@ -102,7 +93,7 @@ function Participants() {
       </TabList>
       <TabPanels>
         <TabPanels>
-          <ScoringTable headers={headers} data={listOfParticipants} />
+          <ParticipantTable headers={headers} data={listOfParticipants} />
         </TabPanels>
       </TabPanels>
     </Tabs>
