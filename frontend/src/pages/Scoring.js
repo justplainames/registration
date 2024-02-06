@@ -35,7 +35,7 @@ function Scoring() {
         const first_data = response.data[0];
         axios
           .get(
-            `http://localhost:3000/score/${eventState.eventId}/${first_data.category_id_pk}`
+            `${apiPath}score/${eventState.eventId}/${first_data.category_id_pk}`
           )
           .then((response) => {
             console.log(response.data);
