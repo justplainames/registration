@@ -15,7 +15,6 @@ function RoundRight() {
     const addedHeight = maxHeight + (largest / 2 - 1) * 30;
 
     if (maxHeight === numberOfBlocks * 55) {
-      console.log("To Return 43");
       return 46;
     } else {
       const current =

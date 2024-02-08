@@ -23,19 +23,13 @@ export default function CreateEvent() {
   // const apiPath = "http://localhost:3000/";
 
   useEffect(() => {
-    axios
-      // .get("https://registartion-backend.fly.dev/createEvent/getJudges")
-      .get("http://localhost:3000/createEvent/getJudges")
-      .then((response) => {
-        setJudgeOptions(response.data);
-      });
+    axios.get(`${apiPath}createEvent/getJudges`).then((response) => {
+      setJudgeOptions(response.data);
+    });
 
-    axios
-      // .get("https://registartion-backend.fly.dev/createEvent/getCategories")
-      .get("http://localhost:3000/createEvent/getCategories")
-      .then((response) => {
-        setCategoryOptions(response.data);
-      });
+    axios.get(`${apiPath}createEvent/getCategories`).then((response) => {
+      setCategoryOptions(response.data);
+    });
   }, []);
 
   const handleCategoryChange = (selectedOptions) => {

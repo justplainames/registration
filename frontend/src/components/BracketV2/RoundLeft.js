@@ -22,7 +22,6 @@ function RoundLeft() {
     // console.log("Max Height = ", maxHeight);
     // console.log("addedHeight = ", addedHeight);
     if (maxHeight === numberOfBlocks * 55) {
-      console.log("To Return 43");
       return 46;
     } else {
       const current =

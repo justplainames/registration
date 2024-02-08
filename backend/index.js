@@ -34,6 +34,8 @@ const addParticipantRouter = require("./routes/AddParticipant");
 app.use("/addParticipant", addParticipantRouter);
 const scoreRouter = require("./routes/Scoring");
 app.use("/score", scoreRouter);
+const bracketRouter = require("./routes/Brackets");
+app.use("/bracket", bracketRouter);
 
 // Database connection and server start
 db.sequelize

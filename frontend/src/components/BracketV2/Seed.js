@@ -1,6 +1,7 @@
 import { Checkbox, Box, Text, Flex } from "@chakra-ui/react";
 import React, { useState, useContext } from "react";
 import { MatchContext } from "../../helpers/MatchContext";
+import axios from "axios";
 
 // Seed ID will be eventNumber-CatNumber-bracket-(1-64)
 function Seed({
@@ -10,15 +11,27 @@ function Seed({
   y_direction,
   x_direction,
 }) {
-  console.log("y_direction = ", y_direction);
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
   const { matchData, setMatchData } = useContext(MatchContext);
   const data = matchData;
   const match = data.data.matches[bracket].find(
     (match) => match.seed === seedNumber
-  );
+  ); //
 
   const [firstResult, setFirstResult] = useState(match.first.status);
   const [secondResult, setSecondResult] = useState(match.second.status);
+  const seedType =
+    match.prevMatch === null && match.nextMatch === null
+      ? "middle"
+      : match.prevMatch === null
+      ? "outer"
+      : "last";
+
+  // if (matchData) {
+  //   setFirstResult(match.first.status);
+  //   setFirstResult(match.second.status);
+  // }
 
   const seedId = `${data.eventId}-${data.catId}-${data.matchType}-${seedNumber}`;
   const firstOppenent = match.first.stage_name;
@@ -124,6 +137,26 @@ function Seed({
     }
   }
 
+  const handleClick = () => {
+    if (secondResult === null || secondResult === false) {
+      setFirstResult(false);
+      setSecondResult(true);
+      match.first.status = false;
+      match.second.status = true;
+    } else {
+      setFirstResult(true);
+      setSecondResult(false);
+      match.first.status = true;
+      match.second.status = false;
+    }
+    // const temp = matchData;
+    // console.log(temp.data.matches[bracket][seedNumber - 1]);
+    axios.post(`${apiPath}bracket/888/888`, matchData).catch((error) => {
+      console.error("Error making axios request:", error);
+      // Handle the error as needed
+    });
+  };
+
   return (
     <Box
       my="1px"
@@ -151,15 +184,7 @@ function Seed({
             color: "white",
           },
         }}
-        onClick={() => {
-          if (firstResult === null || firstResult === false) {
-            setFirstResult(true);
-            setSecondResult(false);
-          } else {
-            setFirstResult(false);
-            setSecondResult(true);
-          }
-        }}
+        onClick={handleClick}
         borderBottom="1px solid black"
       >
         <Text>{firstOppenent}</Text>
@@ -190,15 +215,7 @@ function Seed({
             color: "white",
           },
         }}
-        onClick={() => {
-          if (secondResult === null || secondResult === false) {
-            setFirstResult(false);
-            setSecondResult(true);
-          } else {
-            setFirstResult(true);
-            setSecondResult(false);
-          }
-        }}
+        onClick={handleClick}
       >
         <Text>{secondOppenent}</Text>
         {secondResult === null ? (

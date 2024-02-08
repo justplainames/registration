@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         key: "event_id_pk",
       },
     },
+    total_score: {
+      type: DataTypes.DECIMAL(3, 2),
+      allowNull: true,
+    },
   });
 
   return ParticipantsCategories;
