@@ -22,8 +22,7 @@ function Participants() {
   const { eventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
-  // const apiPath = "https://registartion-backend.fly.dev/";
-  const apiPath = "http://localhost:3000/";
+  const apiPath = process.env.REACT_APP_API_PATH;
   const navigate = useNavigate();
 
   useEffect(() => {

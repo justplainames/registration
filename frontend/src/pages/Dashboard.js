@@ -21,9 +21,7 @@ import axios from "axios";
 function Dashboard() {
   const [events, setEvents] = useState([]);
   const { eventState, setEventState } = useContext(EventContext);
-  // const apiPath = "https://registartion-backend.fly.dev/";
-  const apiPath = process.env.REACT_APP_API_PATH || process.env.API_PATH;
-  console.log("API PATH = ", apiPath);
+  const apiPath = process.env.REACT_APP_API_PATH;
 
   const handleClick = (event_name, event_id) => {
     setEventState({ eventName: event_name, eventId: event_id });

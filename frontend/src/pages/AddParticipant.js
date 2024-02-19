@@ -19,8 +19,7 @@ export default function AddParticipant() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [paid, setPaid] = useState(false);
-  // const apiPath = "https://registartion-backend.fly.dev/";
-  const apiPath = process.env.API_PATH;
+  const apiPath = process.env.REACT_APP_API_PATH;
 
   useEffect(() => {
     console.log(eventState);
