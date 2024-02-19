@@ -8,6 +8,7 @@ import {
 
 // Local imports
 import "./App.css";
+import "@fontsource/inter";
 import Dashboard from "./pages/Dashboard";
 import RootLayout from "./layouts/RootLayout";
 import Scoring from "./pages/Scoring";
@@ -16,10 +17,12 @@ import Participants from "./pages/Participants";
 import AddParticipant from "./pages/AddParticipant";
 import CreateEvent from "./pages/CreateEvent";
 import FullstackTest from "./pages/FullstackTest";
+import LandingPage from "./pages/LandingPage";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
 import { EventContext } from "./helpers/EventContext";
 import { useState } from "react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,6 +32,7 @@ const router = createBrowserRouter(
       <Route path="scoring" element={<Scoring />} />
       <Route path="brackets" element={<Brackets />} />
       <Route path="participants" element={<Participants />} />
+      <Route path="landingPage" element={<LandingPage />} />
       <Route
         path="addParticipant"
         element={<AddParticipant />}
@@ -43,6 +47,13 @@ const router = createBrowserRouter(
   )
 );
 
+const theme = extendTheme({
+  fonts: {
+    heading: `'inter', 'sans-serif'`,
+    body: `'inter', 'sans-serif'`,
+  },
+});
+
 function App() {
   const [eventState, setEventState] = useState({
     eventName: "Select Event",
@@ -51,7 +62,9 @@ function App() {
 
   return (
     <EventContext.Provider value={{ eventState, setEventState }}>
-      <RouterProvider router={router} />
+      <ChakraProvider theme={theme}>
+        <RouterProvider router={router} />
+      </ChakraProvider>
     </EventContext.Provider>
   );
 }

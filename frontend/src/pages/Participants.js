@@ -22,8 +22,8 @@ function Participants() {
   const { eventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
   const navigate = useNavigate();
 
   useEffect(() => {

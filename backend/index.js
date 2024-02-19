@@ -26,6 +26,7 @@ app.use(cors());
 //   next();
 // });
 // Routes
+console.log("TESTING");
 const homeRouter = require("./routes/Home");
 app.use("/", homeRouter);
 const createEventRouter = require("./routes/CreateEvent");

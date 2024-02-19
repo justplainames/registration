@@ -6,6 +6,7 @@ import { HStack, Box, VStack } from "@chakra-ui/react";
 function RoundLeft() {
   const { matchData, setMatchData } = useContext(MatchContext);
   let check = parseInt(matchData.data.matchType.split("-")[1]) || null;
+  console.log("Round Left data");
 
   let fullComponents = [];
   const largest = check / 2;
@@ -39,6 +40,7 @@ function RoundLeft() {
       const column = [];
       let counter = Math.floor(check / 4);
       matchData.data.matches[`top${check}`].every((array, index) => {
+        console.log("Array in roundleft = ", array);
         if (parseInt(counter) === 0) {
           check = Math.floor(check / 2);
           return false;
@@ -46,6 +48,7 @@ function RoundLeft() {
         if (array.seed % 2 === 1) {
           column.push(
             <Seed
+              nextMatch={array.nextMatch}
               seedNumber={array.seed}
               bracket={`top${check}`}
               connectorHeight={calculateSpacing2(
@@ -72,6 +75,7 @@ function RoundLeft() {
   const addedHeight = maxHeight + (numberOfSeeds / 2 - 1) * 30;
 
   function calculateSpacing(numberOfBlocks, columnIndex) {
+    console.log("Calculating roundLeft ");
     if (maxHeight === numberOfBlocks * 55) {
       return 30;
     } else {

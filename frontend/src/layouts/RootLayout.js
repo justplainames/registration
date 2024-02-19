@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom";
-import { Grid, GridItem } from "@chakra-ui/react";
+import { Grid, GridItem, extendTheme } from "@chakra-ui/react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import "@fontsource/inter";
 
 export default function RootLayout() {
   return (

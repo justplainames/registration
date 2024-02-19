@@ -72,6 +72,13 @@ db.Scores.belongsTo(db.Judges, { foreignKey: "judge_id_fk" });
 db.Scores.belongsTo(db.Categories, { foreignKey: "category_id_fk" });
 db.Scores.belongsTo(db.Events, { foreignKey: "event_id_fk" });
 
+db.ParticipantsCategories.belongsTo(db.Participants, {
+  foreignKey: "participant_id_fk",
+});
+db.ParticipantsCategories.belongsTo(db.Categories, {
+  foreignKey: "category_id_fk",
+});
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

@@ -8,11 +8,12 @@ import axios from "axios";
 function Scoring() {
   const { eventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState(null);
+  const [currentCategory, setCurrentCategory] = useState(null);
   const [headers, setHeaders] = useState(null);
   const [listOfParticipants, setListOfParticipants] = useState(null);
-  const [currentCategory, setCurrentCategory] = useState(null);
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
   const original = ["Name", "Instagram Handle"];
 
   useEffect(() => {

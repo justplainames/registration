@@ -7,14 +7,24 @@ import RoundMiddle from "./RoundMiddle";
 import RoundRight from "./RoundRight";
 function Match(data) {
   const [matchData, setMatchData] = useState(null);
-  const [toRender, setToRender] = useState(null);
+  const [toRender, setToRender] = useState([]);
 
   useEffect(() => {
+    console.log("Data", data);
     setMatchData(data);
     updateMatchData();
-    console.log("TEST");
-  }, [matchData]); // Only run once on mount
+    console.log("TESTING IN MATCH");
+  }, []); // Only run once on mount
 
+  useEffect(() => {
+    console.log("Data", data);
+    setMatchData(data);
+    console.log("TESTING IN MATCH");
+  }, [data]); // Only run once on mount
+
+  useEffect(() => {
+    updateMatchData();
+  }, [matchData]); // Only run once on mount
   const top16Contestants = [
     { stage_name: "Team Name: Number 1", position: 1 },
     { stage_name: "Team Name: Number 2", position: 2 },
@@ -35,30 +45,35 @@ function Match(data) {
   ];
 
   const updateMatchData = () => {
-    const to_modify = { ...matchData };
+    console.log("Inside the function matchData = ", matchData);
+    // const to_modify = { ...matchData };
     if (matchData) {
-      switch (matchData.data.matchType) {
-        case "Top-16":
-          to_modify.data.matches.top16.forEach((match) => {
-            const first_name = top16Contestants.find(
-              (data) => match.seed * 2 === data.position
-            );
-            const second_name = top16Contestants.find(
-              (data) => match.seed * 2 - 1 === data.position
-            );
-            match.first = { ...match.first, stage_name: first_name.stage_name };
-            match.second = {
-              ...match.second,
-              stage_name: second_name.stage_name,
-            };
-          });
+      // switch (matchData.data.matchType) {
+      //   case "Top-16":
+      //     to_modify.data.matches.top16.forEach((match) => {
+      //       const first_name = top16Contestants.find(
+      //         (data) => match.seed * 2 === data.position
+      //       );
+      //       const second_name = top16Contestants.find(
+      //         (data) => match.seed * 2 - 1 === data.position
+      //       );
+      //       match.first = { ...match.first, stage_name: first_name.stage_name };
+      //       match.second = {
+      //         ...match.second,
+      //         stage_name: second_name.stage_name,
+      //       };
+      //     });
 
-          setToRender([<RoundLeft />, <RoundMiddle />, <RoundRight />]);
-          break;
+      //     setToRender([<RoundLeft />, <RoundMiddle />, <RoundRight />]);
+      //     break;
 
-        default:
-          break;
-      }
+      //   default:
+      //     break;
+      // }
+      const roundLeft = <RoundLeft />;
+      const roundMiddle = <RoundMiddle />;
+      const roundRight = <RoundRight />;
+      setToRender([roundLeft, roundMiddle, roundRight]);
     }
   };
 
@@ -66,13 +81,12 @@ function Match(data) {
     <MatchContext.Provider value={{ matchData, setMatchData }}>
       {matchData ? (
         <HStack spacing="30px">
-          {toRender &&
-            toRender.map((comp, index) => (
-              <React.Fragment key={index}>{comp}</React.Fragment>
-            ))}
+          {toRender.map((comp, index) => (
+            <React.Fragment key={index}>{comp}</React.Fragment>
+          ))}
         </HStack>
       ) : (
-        <div>Loading...</div>
+        <div>Loading...matchData</div>
       )}
     </MatchContext.Provider>
   );

@@ -18,8 +18,8 @@ import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 const ScoringTable = ({ headers, data }) => {
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
   const { eventState } = useContext(EventContext);
   const [dataset, setDataset] = useState(null);
   const [headerDataset, setHeaderDataset] = useState(null);
@@ -106,7 +106,6 @@ const ScoringTable = ({ headers, data }) => {
     participant_id,
     judge_id
   ) => {
-    console.log("EVEOKFHJSKL:FHJSDKLF =", event_id);
     const test = dataset;
     const to_update = dataset.find(
       (data) => data.participant_id === participant_id

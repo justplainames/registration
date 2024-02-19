@@ -19,8 +19,8 @@ export default function CreateEvent() {
   const [judgeOptions, setJudgeOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [judgesByCategory, setJudgesByCategory] = useState({});
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
 
   useEffect(() => {
     axios.get(`${apiPath}createEvent/getJudges`).then((response) => {
@@ -156,8 +156,8 @@ export default function CreateEvent() {
 }
 
 export const createEventAction = async ({ request }) => {
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
   const data = await request.formData();
 
   const event = {

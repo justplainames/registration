@@ -4,9 +4,15 @@ import Seed from "./Seed";
 import { HStack } from "@chakra-ui/react";
 
 function RoundMiddle() {
+  console.log("Calculating roundMiddle ");
   return (
     <HStack>
-      <Seed seedNumber={1} bracket={"finals"} />
+      <Seed
+        nextMatch={null}
+        seedNumber={1}
+        bracket={"finals"}
+        x_direction="middle"
+      />
     </HStack>
   );
 }

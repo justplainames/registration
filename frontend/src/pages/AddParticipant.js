@@ -19,8 +19,8 @@ export default function AddParticipant() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [paid, setPaid] = useState(false);
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = process.env.API_PATH;
 
   useEffect(() => {
     console.log(eventState);
@@ -139,8 +139,8 @@ export default function AddParticipant() {
 
 export const addParticipantAction = async ({ request }) => {
   const data = await request.formData();
-  const apiPath = "https://registartion-backend.fly.dev/";
-  // const apiPath = "http://localhost:3000/";
+  // const apiPath = "https://registartion-backend.fly.dev/";
+  const apiPath = "http://localhost:3000/";
 
   const participant = {
     participant_name: data.get("participant_name"),
