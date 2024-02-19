@@ -14,6 +14,8 @@ const config = {
   dialect: process.env.DEVELOPMENT_DIALECT,
 };
 
+console.log(config);
+
 const db = {};
 
 let sequelize;
