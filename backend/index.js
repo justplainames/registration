@@ -9,7 +9,15 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 // app.use((req, res, next) => {
 //   res.header(
 //     "Access-Control-Allow-Origin",
@@ -26,9 +34,10 @@ app.use(cors());
 //   next();
 // });
 // Routes
-console.log("TESTING");
-const homeRouter = require("./routes/Home");
-app.use("/", homeRouter);
+const landingPageRouter = require("./routes/LandingPage");
+app.use("/", landingPageRouter);
+const dashboardRouter = require("./routes/Dashboard");
+app.use("/dashboard", dashboardRouter);
 const createEventRouter = require("./routes/CreateEvent");
 app.use("/createEvent", createEventRouter);
 const addParticipantRouter = require("./routes/AddParticipant");
@@ -37,6 +46,27 @@ const scoreRouter = require("./routes/Scoring");
 app.use("/score", scoreRouter);
 const bracketRouter = require("./routes/Brackets");
 app.use("/bracket", bracketRouter);
+const authRouter = require("./routes/Oauth");
+app.use("/oauth", authRouter);
+const requestRouter = require("./routes/Requests");
+app.use("/request", requestRouter);
+const signupRouter = require("./routes/Signup");
+app.use("/signup", signupRouter);
+
+app.use((err, req, res, next) => {
+  console.error("The error is ", err); // Log the error for debugging purposes
+
+  // Handle different types of errors
+  if (err.name === "UnauthorizedError") {
+    // Handle unauthorized errors (e.g., invalid token)
+    // res.status(401).json({ error: "Unauthorized" });
+    console.log("REACHED AN ERROR");
+    res.status(401).json({ error: "Unauthorized" });
+  } else {
+    // Handle other types of errors
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 // Database connection and server start
 db.sequelize

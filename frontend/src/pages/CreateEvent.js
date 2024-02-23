@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Form, redirect } from "react-router-dom";
 import {
   Box,
@@ -12,6 +12,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select } from "chakra-react-select";
 import axios from "axios";
+import { EventContext } from "../helpers/EventContext";
 
 export default function CreateEvent() {
   const [startDate, setStartDate] = useState(new Date());
@@ -20,15 +21,25 @@ export default function CreateEvent() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [judgesByCategory, setJudgesByCategory] = useState({});
   const apiPath = process.env.REACT_APP_API_PATH;
+  const { eventState, setEventState } = useContext(EventContext);
 
   useEffect(() => {
     axios.get(`${apiPath}createEvent/getJudges`).then((response) => {
       setJudgeOptions(response.data);
     });
 
-    axios.get(`${apiPath}createEvent/getCategories`).then((response) => {
-      setCategoryOptions(response.data);
-    });
+    axios
+      .get(`${apiPath}createEvent/getCategories`)
+      .then((response) => {
+        setCategoryOptions(response.data);
+      })
+      .catch((error) => {
+        if (error.response.data.error === "Unauthorized") {
+          window.location.href = "/";
+        } else {
+          console.error("Error making axios request:", error);
+        }
+      });
   }, []);
 
   const handleCategoryChange = (selectedOptions) => {

@@ -25,6 +25,7 @@ import Match from "../components/BracketV2/Match";
 import { top8, top16, top32, top64 } from "./dataset.js";
 import axios from "axios";
 import { EventContext } from "../helpers/EventContext.js";
+import { RoleContext } from "../helpers/RoleContext.js";
 
 const Brackets = () => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -35,8 +36,10 @@ const Brackets = () => {
   const [checkedState, setCheckedState] = useState(null);
   const [chosenName, setChosenNames] = useState(null);
   const [toChoose, setToChoose] = useState(null);
-  const { eventState } = useContext(EventContext);
+  const { eventState, setEventState } = useContext(EventContext);
+  const { roleState } = useContext(RoleContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { userErrorMessage, setUserErrorMessage } = "Loading";
 
   const toast = useToast();
 
@@ -47,6 +50,17 @@ const Brackets = () => {
       duration: 5000,
       isClosable: true,
       status: "error",
+      position: "top",
+    });
+  };
+
+  const showTiebreakerToast = () => {
+    toast({
+      title: "Tiebreaker!",
+      description: `Tiebreaker rounds required`,
+      duration: 5000,
+      isClosable: true,
+      status: "warning",
       position: "top",
     });
   };
@@ -63,6 +77,8 @@ const Brackets = () => {
     });
   };
 
+  // Calls API on render.
+  // API retrieves categories of the particular event and sets the options ("top4 as default")
   useEffect(() => {
     axios
       .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
@@ -74,7 +90,10 @@ const Brackets = () => {
       });
   }, []);
 
+  // Calls API on change of selectedCategory and Current Category
+  // Re-renders when user chooses a different category or on first render
   useEffect(() => {
+    setBracketData(null);
     if (selectedData) {
       console.log("Checking the categories", listOfCategories, currentCategory);
       axios
@@ -83,10 +102,14 @@ const Brackets = () => {
         )
         .then((response) => {
           console.log("THIS is a response", response);
+          // Theres an error with the brackets only show to admin. Users get something else
           if (response.data.to_choose) {
-            console.log("SETTING", response.data);
-            setToChoose(response.data);
-            onOpen();
+            if (roleState === "admin") {
+              console.log("SETTING", response.data);
+              setToChoose(response.data);
+              onOpen();
+            }
+            showTiebreakerToast();
           } else {
             console.log("SETTING BRACKET DATA", response.data);
             setBracketData(response.data.bracket_data);
@@ -99,6 +122,8 @@ const Brackets = () => {
     }
   }, [selectedData, currentCategory]);
 
+  // When there's a tiebreaker toChoose gets set, triggering this effect
+  // Should not be called when user
   useEffect(() => {
     if (toChoose) {
       setCheckedState(new Array(toChoose.data.length).fill(false));
@@ -175,7 +200,7 @@ const Brackets = () => {
                         checked={checkedState[index]}
                         onChange={() => handleCheckboxChange(index)}
                       >
-                        {row["Participant.participant_name"]}
+                        {row["User.user_name"]}
                       </Checkbox>
                     ))}
                   </Stack>

@@ -6,7 +6,7 @@ import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 function Scoring() {
-  const { eventState } = useContext(EventContext);
+  const { eventState, setEventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [headers, setHeaders] = useState(null);
@@ -28,6 +28,7 @@ function Scoring() {
             `${apiPath}score/${eventState.eventId}/${first_data.category_id_pk}`
           )
           .then((response) => {
+            console.log(response);
             console.log("Entered UseEffect-1 in Scoring Page (Second)");
             setHeaders([
               ...original,
@@ -38,8 +39,11 @@ function Scoring() {
           });
       })
       .catch((error) => {
-        console.error("Error making axios request:", error);
-        // Handle the error as needed
+        if (error.response.data.error === "Unauthorized") {
+          window.location.href = "/";
+        } else {
+          console.error("Error making axios request:", error);
+        }
       });
   }, []);
 

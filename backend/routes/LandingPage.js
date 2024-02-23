@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { Events } = require("../models");
+const { validateToken } = require("../middlewares/AuthMiddleware");
 
-router.get("/getEvents", async (req, res) => {
+router.get("/getEvents", validateToken, async (req, res) => {
   const events = await Events.findAll();
   events.map((item) => {
     const dateObject = new Date(item.dataValues.event_date);

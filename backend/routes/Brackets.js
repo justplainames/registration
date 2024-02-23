@@ -6,12 +6,14 @@ const {
   Judges,
   JudgesCategories,
   EventCategories,
-  Participants,
-  ParticipantsCategories,
+  Users,
+  UsersCategories,
   Brackets,
   Sequelize,
 } = require("../models");
 const { finals, top4, top8, top16 } = require("./template");
+const { validateToken } = require("../middlewares/AuthMiddleware");
+router.use(validateToken);
 
 // API endpoint to retrieve any bracket information based on the category and event.
 // Finds bracket information and retrieves it
@@ -115,24 +117,24 @@ router.get("/:event_id/:category_id/:type_id", async (req, res) => {
 
     res.json(bracket.dataValues);
   } else {
-    const participants = await ParticipantsCategories.findAll({
+    const users = await UsersCategories.findAll({
       where: { category_id_fk: category_id, events_id_fk: event_id },
       include: [
         {
-          model: Participants,
-          attributes: ["participant_name"],
+          model: Users,
+          attributes: ["user_name"],
           required: true,
         },
       ],
       order: [["total_score", "DESC"]],
       raw: true,
     });
-    console.log("testingEIsen", participants);
-    if (participants.length < limit) {
+    console.log("testingEIsen", users);
+    if (users.length < limit) {
       res.status(400).json({
         error: {
           message: "Not Enough Participants",
-          needed: limit - participants.length,
+          needed: limit - users.length,
         },
       });
       return;
@@ -140,10 +142,10 @@ router.get("/:event_id/:category_id/:type_id", async (req, res) => {
     let current = 999999;
     const top_list = [];
     let count = 1;
-    for (key in participants) {
-      const to_compare = parseFloat(participants[key].total_score);
+    for (key in users) {
+      const to_compare = parseFloat(users[key].total_score);
       if (current == to_compare || limit >= 1) {
-        top_list.push({ ...participants[key], position: count });
+        top_list.push({ ...users[key], position: count });
         count += 1;
         limit -= 1;
         current = to_compare;
@@ -205,11 +207,11 @@ router.get("/:event_id/:category_id/:type_id", async (req, res) => {
         console.log("FIRST_NAME =  ", first_name);
         match.first = {
           ...match.first,
-          stage_name: first_name["Participant.participant_name"],
+          stage_name: first_name["User.user_name"],
         };
         match.second = {
           ...match.second,
-          stage_name: second_name["Participant.participant_name"],
+          stage_name: second_name["User.user_name"],
         };
       });
       console.log("TO MODIFY = ", to_modify.matches.top4[0].first);
@@ -256,29 +258,30 @@ router.post("/:event_id/:category_id/:type_id", async (req, res) => {
   let limit = parseInt(req.params.type_id.split("top")[1]) - content.number;
   console.log(content);
 
-  const participants = await ParticipantsCategories.findAll({
+  const users = await UsersCategories.findAll({
     where: { category_id_fk: category_id, events_id_fk: event_id },
     include: [
       {
-        model: Participants,
-        attributes: ["participant_name"],
+        model: Users,
+        attributes: ["user_name"],
         required: true,
       },
     ],
     order: [["total_score", "DESC"]],
     raw: true,
   });
-
+  let count = 1;
   const top_list = [];
-  for (key in participants) {
+  for (key in users) {
     if (limit >= 1) {
-      top_list.push({ ...participants[key], position: count });
+      top_list.push({ ...users[key], position: count });
+      count += 1;
       limit -= 1;
     } else {
       break;
     }
   }
-  count = limit + 1;
+
   content.data.map((row) => {
     top_list.push({ ...row, position: count });
     count += 1;
@@ -324,11 +327,11 @@ router.post("/:event_id/:category_id/:type_id", async (req, res) => {
     console.log("FIRST_NAME =  ", first_name);
     match.first = {
       ...match.first,
-      stage_name: first_name["Participant.participant_name"],
+      stage_name: first_name["User.user_name"],
     };
     match.second = {
       ...match.second,
-      stage_name: second_name["Participant.participant_name"],
+      stage_name: second_name["User.user_name"],
     };
   });
   await Brackets.create({

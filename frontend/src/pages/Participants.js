@@ -24,8 +24,10 @@ function Participants() {
   const [listOfParticipants, setListOfParticipants] = useState([]);
   const apiPath = process.env.REACT_APP_API_PATH;
   const navigate = useNavigate();
+  console.log("Entering Participants Now");
 
   useEffect(() => {
+    console.log("EVENT STATE = ", eventState);
     axios
       .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
       .then((res) => {
@@ -36,8 +38,16 @@ function Participants() {
             `${apiPath}addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
           )
           .then((res) => {
+            console.log("ENTER RES");
             setListOfParticipants(res.data);
           });
+      })
+      .catch((error) => {
+        if (error.response.data.error === "Unauthorized") {
+          window.location.href = "/";
+        } else {
+          console.error("Error making axios request:", error);
+        }
       });
   }, []);
 
@@ -56,7 +66,7 @@ function Participants() {
       });
   };
 
-  useEffect(() => {}, [eventState]);
+  useEffect(() => {}, [eventState.eventId]);
 
   return (
     <Tabs

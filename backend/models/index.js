@@ -14,8 +14,6 @@ const config = {
   dialect: process.env.DEVELOPMENT_DIALECT,
 };
 
-console.log(config);
-
 const db = {};
 
 let sequelize;
@@ -54,6 +52,7 @@ Object.keys(db).forEach((modelName) => {
 });
 
 // Create the association for the junction table
+// n:n between categories and events
 db.Categories.belongsToMany(db.Events, {
   through: "EventCategories",
   foreignKey: "category_id_fk",
@@ -63,6 +62,7 @@ db.Events.belongsToMany(db.Categories, {
   foreignKey: "event_id_fk",
 });
 
+// n:n between judges and categories
 db.Judges.belongsToMany(db.Categories, {
   through: "JudgesCategories",
   foreignKey: "judge_id_fk",
@@ -72,21 +72,22 @@ db.Categories.belongsToMany(db.Judges, {
   foreignKey: "category_id_fk",
 });
 
-// db.JudgesCategories.belongsTo(db.Events, {
-//   foreignKey: "events_id_fk",
-// });
+// 1:n
+db.UsersCategories.belongsTo(db.Users, {
+  foreignKey: "user_id_fk",
+});
+db.UsersCategories.belongsTo(db.Categories, {
+  foreignKey: "category_id_fk",
+});
+db.UsersCategories.belongsTo(db.Events, {
+  foreignKey: "event_id_fk",
+});
 
-db.Scores.belongsTo(db.Participants, { foreignKey: "participant_id_fk" });
+// 1:n relationship between scores and the 4 models.
+db.Scores.belongsTo(db.Users, { foreignKey: "user_id_fk" });
 db.Scores.belongsTo(db.Judges, { foreignKey: "judge_id_fk" });
 db.Scores.belongsTo(db.Categories, { foreignKey: "category_id_fk" });
 db.Scores.belongsTo(db.Events, { foreignKey: "event_id_fk" });
-
-db.ParticipantsCategories.belongsTo(db.Participants, {
-  foreignKey: "participant_id_fk",
-});
-db.ParticipantsCategories.belongsTo(db.Categories, {
-  foreignKey: "category_id_fk",
-});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

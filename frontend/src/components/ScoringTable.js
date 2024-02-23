@@ -18,8 +18,8 @@ import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 const ScoringTable = ({ headers, data }) => {
-  // const apiPath = "https://registartion-backend.fly.dev/";
-  const apiPath = "http://localhost:3000/";
+  const apiPath = process.env.REACT_APP_API_PATH;
+
   const { eventState } = useContext(EventContext);
   const [dataset, setDataset] = useState(null);
   const [headerDataset, setHeaderDataset] = useState(null);
@@ -30,6 +30,7 @@ const ScoringTable = ({ headers, data }) => {
 
   useEffect(() => {
     console.log("Entered UseEffect-1 in Scoring Table");
+    console.log("DATA in useeffect 1 = ", data);
     setTotalScoreTracker(null);
 
     setDataset(data.listOfParticipants);
@@ -39,7 +40,7 @@ const ScoringTable = ({ headers, data }) => {
 
   useEffect(() => {
     console.log("Entered UseEffect-2 in Scoring Table");
-    // Set up scoreTracker, a map that points that uses 'event_id-cat_id-participant_id-judge_id'
+    // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id-judge_id'
     console.log("Data = ", dataset);
     console.log("Current-Category = ", currentCategory);
     const score = new Map();
@@ -48,7 +49,7 @@ const ScoringTable = ({ headers, data }) => {
       dataset.map((row) => {
         row.judges.map((judge) => {
           score.set(
-            `${eventState.eventId}-${currentCategory}-${row.participant_id}-${judge.judge_id}`,
+            `${eventState.eventId}-${currentCategory}-${row.user_id}-${judge.judge_id}`,
             judge.score
           );
         });
@@ -59,7 +60,7 @@ const ScoringTable = ({ headers, data }) => {
 
   useEffect(() => {
     const totalScore = new Map();
-    // Set up scoreTracker, a map that points that uses 'event_id-cat_id-participant_id'
+    // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id'
     if (dataset) {
       // console.log("dataset in UE2 - ", dataset);
       dataset.map((row) => {
@@ -68,7 +69,7 @@ const ScoringTable = ({ headers, data }) => {
           total += parseFloat(judge.score);
         });
         totalScore.set(
-          `${eventState.eventId}-${currentCategory}-${row.participant_id}`,
+          `${eventState.eventId}-${currentCategory}-${row.user_id}`,
           total
         );
       });
@@ -99,20 +100,10 @@ const ScoringTable = ({ headers, data }) => {
   //   setEditingState(editTracker);
   // }, [data, headers]);
 
-  const handleSubmit = (
-    value,
-    event_id,
-    category_id,
-    participant_id,
-    judge_id
-  ) => {
+  const handleSubmit = (value, event_id, category_id, user_id, judge_id) => {
     const test = dataset;
-    const to_update = dataset.find(
-      (data) => data.participant_id === participant_id
-    );
-    const index = test.findIndex(
-      (participant) => participant.participant_id === participant_id
-    );
+    const to_update = dataset.find((data) => data.user_id === user_id);
+    const index = test.findIndex((user) => user.user_id === user_id);
     const updatedDataset = [...test];
     if (
       isNaN(value) === false &&
@@ -125,7 +116,7 @@ const ScoringTable = ({ headers, data }) => {
       updatedDataset[index] = to_update;
       axios
         .put(
-          `${apiPath}score/updateScore/${event_id}/${category_id}/${judge_id}/${participant_id}`,
+          `${apiPath}score/updateScore/${event_id}/${category_id}/${judge_id}/${user_id}`,
           { new_score: value }
         )
         .then((response) => {
@@ -199,10 +190,10 @@ const ScoringTable = ({ headers, data }) => {
                 <Td>{participant.total_score}</Td>
               </Tr>
             ))} */}
-          {dataset.map((participant) => (
-            <Tr key={participant.participant_id_pk}>
-              <Td>{participant.participant_name}</Td>
-              <Td>{participant.participant_instagram}</Td>
+          {dataset.map((user) => (
+            <Tr key={user.user_id_pk}>
+              <Td>{user.user_name}</Td>
+              <Td>{user.user_instagram}</Td>
               {/* <Td>{participant.participant_phone_number}</Td>
               <Td>{participant.participant_email}</Td> */}
               {headerDataset
@@ -213,26 +204,26 @@ const ScoringTable = ({ headers, data }) => {
                     header !== "Total Score"
                 )
                 .map((judge_name) => {
-                  const judge = participant.judges.find((judge) => {
+                  const judge = user.judges.find((judge) => {
                     return judge.judge_name === judge_name;
                   });
 
                   const score = scoreTracker.get(
-                    `${eventState.eventId}-${currentCategory}-${participant.participant_id}-${judge.judge_id}`
+                    `${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`
                   );
                   const event_id = eventState.eventId;
 
                   return score ? (
                     <Td>
                       <Editable
-                        key={`${eventState.eventId}-${currentCategory}-${participant.participant_id}-${judge.judge_id}`}
+                        key={`${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`}
                         defaultValue={score}
                         onSubmit={(value, key) =>
                           handleSubmit(
                             value,
                             event_id,
                             currentCategory,
-                            participant.participant_id,
+                            user.user_id,
                             judge.judge_id
                           )
                         }
@@ -247,7 +238,7 @@ const ScoringTable = ({ headers, data }) => {
                 })}
               <Td>
                 {totalScoreTracker.get(
-                  `${eventState.eventId}-${currentCategory}-${participant.participant_id}`
+                  `${eventState.eventId}-${currentCategory}-${user.user_id}`
                 )}
               </Td>
             </Tr>

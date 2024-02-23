@@ -23,13 +23,13 @@ const ParticipantTable = ({ headers, data }) => {
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((participant) => (
-            <Tr key={participant.participant_id_pk}>
-              <Td>{participant.participant_name}</Td>
-              <Td>{participant.participant_instagram}</Td>
-              <Td>{participant.participant_phone_number}</Td>
-              <Td>{participant.participant_email}</Td>
-              <Td>{participant.participant_paid ? "Yes" : "No"}</Td>
+          {data.map((user) => (
+            <Tr key={user.user_id_pk}>
+              <Td>{user.user_name}</Td>
+              <Td>{user.user_instagram}</Td>
+              <Td>{user.user_phone_number}</Td>
+              <Td>{user.user_email}</Td>
+              {/* <Td>{user.user_paid ? "Yes" : "No"}</Td> */}
             </Tr>
           ))}
         </Tbody>

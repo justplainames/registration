@@ -1,6 +1,7 @@
 import { Checkbox, Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useState, useContext, useEffect } from "react";
 import { MatchContext } from "../../helpers/MatchContext";
+import { RoleContext } from "../../helpers/RoleContext";
 import axios from "axios";
 
 // Seed ID will be eventNumber-CatNumber-bracket-(1-64)
@@ -13,7 +14,8 @@ function Seed({
   x_direction,
 }) {
   // const apiPath = "https://registartion-backend.fly.dev/";
-  const apiPath = "http://localhost:3000/";
+  const { roleState } = useContext(RoleContext);
+  const apiPath = process.env.REACT_APP_API_PATH;
   const toast = useToast();
   const showToast = () => {
     toast({
@@ -385,7 +387,7 @@ function Seed({
             color: "white",
           },
         }}
-        onClick={handleClick}
+        onClick={roleState === "admin" ? handleClick : null}
         borderBottom="1px solid black"
       >
         <Text>{firstOppenent}</Text>
@@ -416,7 +418,7 @@ function Seed({
             color: "white",
           },
         }}
-        onClick={handleClick}
+        onClick={roleState === "admin" ? handleClick : null}
       >
         <Text>{secondOppenent}</Text>
         {secondResult === null ? (

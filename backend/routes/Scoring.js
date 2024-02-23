@@ -6,8 +6,9 @@ const {
   Judges,
   JudgesCategories,
   EventCategories,
-  Participants,
-  ParticipantsCategories,
+  Users,
+  UsersCategories,
+  Brackets,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -15,6 +16,7 @@ router.get("/:event_id/:category_id", async (req, res) => {
   console.log("HERE");
   const event_id = req.params.event_id;
   const category_id = req.params.category_id;
+  console.log("TESTING", event_id, category_id);
 
   // Get all scores for each participant determined by event_id and Category_id
   // Scores has a n:n rs with the other tables hence fetch the associated data from Judges and Participants
@@ -34,24 +36,21 @@ router.get("/:event_id/:category_id", async (req, res) => {
         attributes: ["judge_id_pk", "judge_name"],
       },
       {
-        model: Participants,
-        attributes: [
-          "participant_id_pk",
-          "participant_name",
-          "participant_instagram",
-        ],
+        model: Users,
+        attributes: ["user_id_pk", "user_name", "user_instagram"],
       },
     ],
     raw: true,
   });
+  console.log("SCOREs = ", scores);
   // res.json(scores);
   const data = new Map();
   scores.forEach((row) => {
-    if (!data.has(row.participant_id_fk)) {
-      data.set(row.participant_id_fk, {
-        participant_id: row.participant_id_fk,
-        participant_name: row["Participant.participant_name"],
-        participant_instagram: row["Participant.participant_instagram"],
+    if (!data.has(row.user_id_fk)) {
+      data.set(row.user_id_fk, {
+        user_id: row.user_id_fk,
+        user_name: row["User.user_name"],
+        user_instagram: row["User.user_instagram"],
         judges: [
           {
             judge_id: row["Judge.judge_id_pk"],
@@ -61,13 +60,13 @@ router.get("/:event_id/:category_id", async (req, res) => {
         ],
       });
     } else {
-      const current = data.get(row.participant_id_fk)["judges"];
+      const current = data.get(row.user_id_fk)["judges"];
       current.push({
         judge_id: row["Judge.judge_id_pk"],
         judge_name: row["Judge.judge_name"],
         score: row.score,
       });
-      data.get(row.participant_id_fk)["judges"] = current;
+      data.get(row.user_id_fk)["judges"] = current;
     }
   });
   // data is a map object
@@ -79,32 +78,33 @@ router.get("/:event_id/:category_id", async (req, res) => {
   // Array.from - Coverts an Array from the iterator object by data.values()
 
   const promises = Array.from(data.values()).map(async (row) => {
-    const participantCategories = await ParticipantsCategories.findOne({
+    console.log("ROW = ", row);
+    const userCategories = await UsersCategories.findOne({
       where: {
-        participant_id_fk: row.participant_id,
+        user_id_fk: row.user_id,
         category_id_fk: category_id,
         events_id_fk: event_id,
       },
     });
 
-    if (participantCategories.dataValues.total_score == null) {
+    if (userCategories.dataValues.total_score == null) {
       let total = 0;
       row.judges.forEach((judge) => {
         total += parseFloat(judge.score);
       });
       row["total_score"] = total;
-      await ParticipantsCategories.update(
+      await UsersCategories.update(
         { total_score: total },
         {
           where: {
-            participant_id_fk: row.participant_id,
+            user_id_fk: row.user_id,
             category_id_fk: category_id,
             events_id_fk: event_id,
           },
         }
       );
     } else {
-      row["total_score"] = participantCategories.dataValues.total_score;
+      row["total_score"] = userCategories.dataValues.total_score;
     }
     return row;
   });
@@ -115,17 +115,18 @@ router.get("/:event_id/:category_id", async (req, res) => {
 });
 
 router.put(
-  "/updateScore/:event_id/:category_id/:judge_id/:participant_id",
+  "/updateScore/:event_id/:category_id/:judge_id/:user_id",
   async (req, res) => {
     const event_id = req.params.event_id;
     const category_id = req.params.category_id;
     const judge_id = req.params.judge_id;
-    const participant_id = req.params.participant_id;
+    const user_id = req.params.user_id;
+    const bracket_id = `${event_id}-${category_id}-`;
     const value = parseFloat(req.body.new_score);
     console.log("event_id:", event_id);
     console.log("category_id:", category_id);
     console.log("judge_id:", judge_id);
-    console.log("participant_id:", participant_id);
+    console.log("user_id:", user_id);
     console.log("value:", value);
 
     await Scores.update(
@@ -134,17 +135,36 @@ router.put(
         where: {
           event_id_fk: event_id,
           category_id_fk: category_id,
-          participant_id_fk: participant_id,
+          user_id_fk: user_id,
           judge_id_fk: judge_id,
         },
       }
     );
 
+    await Brackets.findAll({
+      where: {
+        bracket_id_pk: {
+          [Op.like]: `${bracket_id}%`,
+        },
+      },
+      attributes: ["bracket_id_pk"],
+      raw: true,
+    }).then(async (results) => {
+      const deletePromises = results.map(async (bracket) => {
+        await Brackets.destroy({
+          where: {
+            bracket_id_pk: bracket.bracket_id_pk,
+          },
+        });
+      });
+      await Promise.all(deletePromises);
+    });
+
     const all_scores = await Scores.findAll({
       where: {
         event_id_fk: event_id,
         category_id_fk: category_id,
-        participant_id_fk: participant_id,
+        user_id_fk: user_id,
       },
       raw: true,
     });
@@ -154,13 +174,13 @@ router.put(
       total += parseFloat(score.score);
     });
 
-    await ParticipantsCategories.update(
+    await UsersCategories.update(
       { total_score: total },
       {
         where: {
           events_id_fk: event_id,
           category_id_fk: category_id,
-          participant_id_fk: participant_id,
+          user_id_fk: user_id,
         },
       }
     );

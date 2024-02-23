@@ -10,43 +10,65 @@ import {
   Flex,
   Button,
   CheckboxGroup,
+  Select,
 } from "@chakra-ui/react";
 import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 export default function AddParticipant() {
-  const { eventState } = useContext(EventContext);
+  const { eventState, setEventState } = useContext(EventContext);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [paid, setPaid] = useState(false);
+  const [listOfUsers, setListOfUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
   const apiPath = process.env.REACT_APP_API_PATH;
 
   useEffect(() => {
-    console.log(eventState);
     axios
       .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
       .then((response) => {
         setCategoryOptions(response.data);
+        axios.get(`${apiPath}addParticipant/getUsers`).then((response) => {
+          // console.log(response.data);
+          setListOfUsers(response.data);
+        });
       })
       .catch((error) => {
-        console.error("Error making axios request:", error);
-        // Handle the error as needed
+        console.log("ERROR = ", error);
+        if (error.response.data.error === "Unauthorized") {
+          window.location.href = "/";
+        } else {
+          console.error("Error making axios request:", error);
+        }
       });
   }, []);
+
+  useEffect(() => {
+    console.log(listOfUsers);
+  }, [listOfUsers]);
 
   useEffect(() => {}, [eventState]);
 
   const handleCheckboxChange = (event) => {
-    const categoryId = parseInt(event.target.name);
+    const category_id = parseInt(event.target.name);
     setSelectedCategories((prev) => {
       const current = [...prev];
-      if (current.includes(categoryId)) {
-        current.splice(categoryId, 1);
+      if (current.includes(category_id)) {
+        const index = current.indexOf(category_id);
+        current.splice(index, 1);
       } else {
-        current.push(categoryId);
+        current.push(category_id);
       }
       return current;
     });
+  };
+
+  const handleUserChange = (event) => {
+    const user = listOfUsers.find(
+      (row) => row.user_id_pk === event.target.value
+    );
+    setSelectedUser(user || null);
   };
 
   const handlePaid = () => {
@@ -59,42 +81,76 @@ export default function AddParticipant() {
 
   return (
     <Box maxW="480px">
+      <Select
+        name="user"
+        margin="40px"
+        value={selectedUser ? selectedUser.user_id_pk : ""}
+        onChange={handleUserChange}
+      >
+        {listOfUsers.map((user) => (
+          <option value={user.user_id_pk} key={user.id}>
+            {user.user_name}
+          </option>
+        ))}
+      </Select>
       <Form method="post" action="/addParticipant">
         <Input type="hidden" name="event_id_pk" value={eventState.eventId} />
+        <Input
+          type="hidden"
+          name="user_id_pk"
+          value={selectedUser ? selectedUser.user_id_pk : ""}
+        />
 
         <input
           type="hidden"
           name="selected_categories"
           value={JSON.stringify(selectedCategories)}
+          margin="40px"
         />
 
-        <input type="hidden" name="participant_paid" value={paid} />
+        <input type="hidden" name="user_paid" value={paid} />
 
-        <FormControl mb="40px">
+        <FormControl m="40px">
           <FormLabel>Participant Name</FormLabel>
-          <Input type="text" name="participant_name" />
-          <FormHelperText>Enter participant name</FormHelperText>
+          <Input
+            type="text"
+            name="user_name"
+            value={selectedUser ? selectedUser.user_name : ""}
+            readOnly
+          />
         </FormControl>
 
-        <FormControl mb="40px">
-          <FormLabel>Participant Instagram</FormLabel>
-          <Input type="text" name="participant_instagram" />
-          <FormHelperText>Enter the participant's Instagram</FormHelperText>
+        <FormControl m="40px">
+          <FormLabel>user Instagram</FormLabel>
+          <Input
+            type="text"
+            name="user_instagram"
+            value={selectedUser ? selectedUser.user_instagram : ""}
+            readOnly
+          />
         </FormControl>
 
-        <FormControl mb="40px">
+        <FormControl m="40px">
           <FormLabel>Phone Number</FormLabel>
-          <Input type="text" name="participant_phone_number" />
-          <FormHelperText>Enter the participant's Phone Number</FormHelperText>
+          <Input
+            type="text"
+            name="user_phone_number"
+            value={selectedUser ? selectedUser.user_phone_number : ""}
+            readOnly
+          />
         </FormControl>
 
-        <FormControl mb="40px">
+        <FormControl m="40px">
           <FormLabel>Participant Email</FormLabel>
-          <Input type="text" name="participant_email" />
-          <FormHelperText>Enter participant email</FormHelperText>
+          <Input
+            type="text"
+            name="user_email"
+            value={selectedUser ? selectedUser.user_email : ""}
+            readOnly
+          />
         </FormControl>
 
-        <FormControl mb="40px" style={{ maxWidth: "none" }}>
+        <FormControl m="40px" style={{ maxWidth: "none" }}>
           <FormLabel>Categories:</FormLabel>
           <CheckboxGroup name="test">
             <Flex alignItems="center">
@@ -116,10 +172,10 @@ export default function AddParticipant() {
           </CheckboxGroup>
         </FormControl>
 
-        <FormControl mb="40px" style={{ maxWidth: "none" }}>
+        <FormControl m="40px" style={{ maxWidth: "none" }}>
           <Flex alignItems="center" mr={4}>
             <Checkbox
-              name="participant_paid"
+              name="user_paid"
               size="lg"
               onChange={() => {
                 handlePaid();
@@ -130,7 +186,9 @@ export default function AddParticipant() {
             </FormLabel>
           </Flex>
         </FormControl>
-        <Button type="submit"> Submit </Button>
+        <Button type="submit" margin="40px">
+          Submit
+        </Button>
       </Form>
     </Box>
   );
@@ -138,22 +196,22 @@ export default function AddParticipant() {
 
 export const addParticipantAction = async ({ request }) => {
   const data = await request.formData();
-  // const apiPath = "https://registartion-backend.fly.dev/";
-  const apiPath = "http://localhost:3000/";
+  const apiPath = process.env.REACT_APP_API_PATH;
 
-  const participant = {
-    participant_name: data.get("participant_name"),
-    participant_email: data.get("participant_email"),
-    participant_instagram: data.get("participant_instagram"),
-    participant_phone_number: data.get("participant_phone_number"),
-    participant_categories: JSON.parse(data.get("selected_categories")),
-    participant_paid: JSON.parse(data.get("participant_paid")),
+  const user = {
+    user_id_pk: data.get("user_id_pk"),
+    user_name: data.get("user_name"),
+    user_email: data.get("user_email"),
+    user_instagram: data.get("user_instagram"),
+    user_phone_number: data.get("user_phone_number"),
+    user_categories: JSON.parse(data.get("selected_categories")),
+    // user_paid: JSON.parse(data.get("user_paid")),
   };
 
-  console.log(participant);
+  console.log(user);
 
   axios
-    .post(`${apiPath}addParticipant/${data.get("event_id_pk")}`, participant)
+    .post(`${apiPath}addParticipant/${data.get("event_id_pk")}`, user)
     .catch((error) => {
       console.error("Error making axios request:", error);
       // Handle the error as needed

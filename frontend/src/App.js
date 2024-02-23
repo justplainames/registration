@@ -18,29 +18,83 @@ import AddParticipant from "./pages/AddParticipant";
 import CreateEvent from "./pages/CreateEvent";
 import FullstackTest from "./pages/FullstackTest";
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Verification from "./pages/Verification";
+import ProtectedAuth from "./pages/ProtectedAuth";
+import ProtectedRole from "./pages/ProtectedRole";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
 import { EventContext } from "./helpers/EventContext";
+import { AuthContext } from "./helpers/AuthContext";
+import { RoleContext } from "./helpers/RoleContext";
 import { useState } from "react";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import Signup, { signUpAction } from "./pages/Signup";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
-      <Route index element={<Dashboard />} />
+      <Route index element={<LandingPage />} />
       <Route path="fullstackTest" element={<FullstackTest />} />
-      <Route path="scoring" element={<Scoring />} />
-      <Route path="brackets" element={<Brackets />} />
-      <Route path="participants" element={<Participants />} />
-      <Route path="landingPage" element={<LandingPage />} />
+      <Route
+        path="scoring"
+        element={
+          <ProtectedAuth>
+            <ProtectedRole>
+              <Scoring />{" "}
+            </ProtectedRole>
+          </ProtectedAuth>
+        }
+      />
+      <Route
+        path="brackets"
+        element={
+          <ProtectedAuth>
+            <Brackets />
+          </ProtectedAuth>
+        }
+      />
+      <Route
+        path="participants"
+        element={
+          <ProtectedAuth>
+            <ProtectedRole>
+              <Participants />
+            </ProtectedRole>
+          </ProtectedAuth>
+        }
+      />
+      <Route path="login" element={<Login />} />
+      <Route
+        path="dashboard"
+        element={
+          <ProtectedAuth>
+            <Dashboard />
+          </ProtectedAuth>
+        }
+      />
+      <Route path="verification" element={<Verification />} />
+      <Route path="signup" element={<Signup />} action={signUpAction} />
       <Route
         path="addParticipant"
-        element={<AddParticipant />}
+        element={
+          <ProtectedAuth>
+            <ProtectedRole>
+              <AddParticipant />
+            </ProtectedRole>
+          </ProtectedAuth>
+        }
         action={addParticipantAction}
       />
       <Route
         path="createEvent"
-        element={<CreateEvent />}
+        element={
+          <ProtectedAuth>
+            <ProtectedRole>
+              <CreateEvent />
+            </ProtectedRole>
+          </ProtectedAuth>
+        }
         action={createEventAction}
       />
     </Route>
@@ -60,12 +114,19 @@ function App() {
     eventId: null,
   });
 
+  const [authState, setAuthState] = useState(null);
+  const [roleState, setRoleState] = useState(null);
+
   return (
-    <EventContext.Provider value={{ eventState, setEventState }}>
-      <ChakraProvider theme={theme}>
-        <RouterProvider router={router} />
-      </ChakraProvider>
-    </EventContext.Provider>
+    <AuthContext.Provider value={{ authState, setAuthState }}>
+      <RoleContext.Provider value={{ roleState, setRoleState }}>
+        <EventContext.Provider value={{ eventState, setEventState }}>
+          <ChakraProvider theme={theme}>
+            <RouterProvider router={router} />
+          </ChakraProvider>
+        </EventContext.Provider>
+      </RoleContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

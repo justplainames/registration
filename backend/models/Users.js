@@ -1,37 +1,36 @@
 module.exports = (sequelize, DataTypes) => {
-  const Participants = sequelize.define("Participants", {
-    participant_id_pk: {
-      type: DataTypes.INTEGER,
+  const Users = sequelize.define("Users", {
+    user_id_pk: {
+      type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true,
     },
 
-    participant_name: {
+    user_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    participant_instagram: {
+    user_instagram: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    participant_phone_number: {
+    user_phone_number: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    participant_email: {
+    user_email: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-
-    participant_paid: {
-      type: DataTypes.BOOLEAN,
+    user_role: {
+      type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "user",
     },
   });
 
-  return Participants;
+  return Users;
 };

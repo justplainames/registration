@@ -73,8 +73,6 @@ router.post("/updateEvent", async (req, res) => {
     }
   }
 
-  console.log();
-
   res.json("ok");
 });
 
