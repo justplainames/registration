@@ -93,6 +93,7 @@ router.get("/", async function (req, res, next) {
   });
   if (found) {
     // frontend
+    console.log("THE FRONTEND URL IS =", FRONTEND_URL);
     res.redirect(`${FRONTEND_URL}/dashboard`);
   } else {
     const token = jwt.sign(

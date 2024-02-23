@@ -47,6 +47,7 @@ function Dashboard() {
   const apiPath = process.env.REACT_APP_API_PATH;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [check, setCheck] = useState(false);
+  console.log("ENTERED DASHBOARD");
 
   const handleClick = async (event_name, event_id) => {
     console.log("EVENT = ", event_id);
