@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./models");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const port = 3000;
 const hostname = "0.0.0.0";
@@ -12,7 +15,11 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      `${process.env.FRONTEND_URL}`,
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
