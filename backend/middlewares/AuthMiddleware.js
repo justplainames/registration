@@ -6,6 +6,7 @@ const client = new OAuth2Client(process.env.CLIENT_ID);
 const validateToken = async (req, res, next) => {
   console.log("VALIDATING TOKEN");
   try {
+    console.log("COOKIE!!", req.headers.cookie);
     console.log(req.headers);
     const combinedCookies = req.headers.cookie.split(";");
     let access_token, id_token;

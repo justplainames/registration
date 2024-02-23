@@ -14,9 +14,11 @@ const ProtectedAuth = ({ children }) => {
     const fetchData = async () => {
       console.log("HERE");
       try {
-        const response = await axios.get(`${apiPath}request/authenticate`);
+        const response = await axios.get(`${apiPath}request/authenticate`, {
+          withCredentials: true,
+        });
         if (response.data === "ok") {
-          console.log("HERE");
+          console.log("HEREFINALLY");
           setAuthState(true);
         } else {
           navigate("/");
