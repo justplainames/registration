@@ -87,9 +87,13 @@ router.get("/", async function (req, res, next) {
   console.log("FOUND = ", found);
   res.cookie("access_token", access_token, {
     httpOnly: true,
+    secure: true, // Set the Secure attribute
+    sameSite: "none", // Set the SameSite attribute to None
   });
   res.cookie("id_token", id_token, {
     httpOnly: true,
+    secure: true, // Set the Secure attribute
+    sameSite: "none", // Set the SameSite attribute to None
   });
   if (found) {
     // frontend
