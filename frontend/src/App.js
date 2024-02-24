@@ -22,6 +22,7 @@ import Login from "./pages/Login";
 import Verification from "./pages/Verification";
 import ProtectedAuth from "./pages/ProtectedAuth";
 import ProtectedRole from "./pages/ProtectedRole";
+import Profile from "./pages/Profile";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
 import { EventContext } from "./helpers/EventContext";
@@ -51,6 +52,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedAuth>
             <Brackets />
+          </ProtectedAuth>
+        }
+      />
+      <Route
+        path="profile"
+        element={
+          <ProtectedAuth>
+            <Profile />
           </ProtectedAuth>
         }
       />

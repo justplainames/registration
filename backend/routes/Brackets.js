@@ -118,7 +118,7 @@ router.get("/:event_id/:category_id/:type_id", async (req, res) => {
     res.json(bracket.dataValues);
   } else {
     const users = await UsersCategories.findAll({
-      where: { category_id_fk: category_id, events_id_fk: event_id },
+      where: { category_id_fk: category_id, event_id_fk: event_id },
       include: [
         {
           model: Users,
@@ -259,7 +259,7 @@ router.post("/:event_id/:category_id/:type_id", async (req, res) => {
   console.log(content);
 
   const users = await UsersCategories.findAll({
-    where: { category_id_fk: category_id, events_id_fk: event_id },
+    where: { category_id_fk: category_id, event_id_fk: event_id },
     include: [
       {
         model: Users,

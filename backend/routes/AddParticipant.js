@@ -37,7 +37,7 @@ router.get("/getCategories/:id", async (req, res) => {
       const check = await UsersCategories.findOne({
         where: {
           user_id_fk: req.sub.new_uuid,
-          events_id_fk: req.params.id,
+          event_id_fk: req.params.id,
           category_id_fk: cat_pk,
         },
       });
@@ -60,7 +60,7 @@ router.get("/getParticipants/:event_id/:category_id", async (req, res) => {
 
   const listOfUsers = await UsersCategories.findAll({
     where: {
-      events_id_fk: event_id,
+      event_id_fk: event_id,
       category_id_fk: category_id,
     },
     attributes: ["user_id_fk"],
@@ -141,7 +141,7 @@ router.post("/:id", async (req, res) => {
     await UsersCategories.create({
       user_id_fk: user_id,
       category_id_fk: category,
-      events_id_fk: event_id,
+      event_id_fk: event_id,
     });
 
     const score = {

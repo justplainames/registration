@@ -24,7 +24,7 @@ router.get("/:event_id/:category_id", async (req, res) => {
   // Create new map to be sent back as a response
   // iterate through each row and a new element if a participant data not found in new map
   // If already in new map add the new judges info and score
-  // Iterate through each map and add the total score according to participant_id_fk, catergory_id_fk and events_id_fk
+  // Iterate through each map and add the total score according to participant_id_fk, catergory_id_fk and event_id_fk
   const scores = await Scores.findAll({
     where: {
       event_id_fk: event_id,
@@ -72,7 +72,7 @@ router.get("/:event_id/:category_id", async (req, res) => {
   // data is a map object
   // data.values() - creates an iterable object of the values, removes the key and makes the values iterable
   // Array.from() - creates an array out of the data.values()
-  // It now goes through each elemetn in the array and finds the total score based on the participant_id_fk, category_id_fk and events_id_fk
+  // It now goes through each elemetn in the array and finds the total score based on the participant_id_fk, category_id_fk and event_id_fk
   // It adds the data to the total
   // const promises - Create a variable to store an array of promises
   // Array.from - Coverts an Array from the iterator object by data.values()
@@ -83,7 +83,7 @@ router.get("/:event_id/:category_id", async (req, res) => {
       where: {
         user_id_fk: row.user_id,
         category_id_fk: category_id,
-        events_id_fk: event_id,
+        event_id_fk: event_id,
       },
     });
 
@@ -99,7 +99,7 @@ router.get("/:event_id/:category_id", async (req, res) => {
           where: {
             user_id_fk: row.user_id,
             category_id_fk: category_id,
-            events_id_fk: event_id,
+            event_id_fk: event_id,
           },
         }
       );
@@ -178,7 +178,7 @@ router.put(
       { total_score: total },
       {
         where: {
-          events_id_fk: event_id,
+          event_id_fk: event_id,
           category_id_fk: category_id,
           user_id_fk: user_id,
         },

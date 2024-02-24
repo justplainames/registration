@@ -51,6 +51,15 @@ export default function Sidebar() {
           )}
 
           <ListItem>
+            <NavLink to="/profile">
+              <Flex align="center">
+                <Icon as={IconScoreboard} boxSize={5} mr={2} />
+                Profile
+              </Flex>
+            </NavLink>
+          </ListItem>
+
+          <ListItem>
             <NavLink to="/brackets">
               <Flex align="center">
                 <Icon as={IconScoreboard} boxSize={5} mr={2} />

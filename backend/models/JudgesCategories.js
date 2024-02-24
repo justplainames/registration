@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       uniqueKeys: {
         judges_categories_pk: {
-          fields: ["judge_id_fk", "category_id_fk", "events_id_fk"],
+          fields: ["judge_id_fk", "category_id_fk", "event_id_fk"],
         },
       },
     }

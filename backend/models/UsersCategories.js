@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "category_id_pk",
         },
       },
-      events_id_fk: {
+      event_id_fk: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       uniqueKeys: {
         users_categories_pk: {
-          fields: ["user_id_fk", "category_id_fk", "events_id_fk"],
+          fields: ["user_id_fk", "category_id_fk", "event_id_fk"],
         },
       },
     }

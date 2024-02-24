@@ -64,6 +64,8 @@ const requestRouter = require("./routes/Requests");
 app.use("/request", requestRouter);
 const signupRouter = require("./routes/Signup");
 app.use("/signup", signupRouter);
+const profileRouter = require("./routes/Profile");
+app.use("/profile", profileRouter);
 
 app.use((err, req, res, next) => {
   console.error("The error is ", err); // Log the error for debugging purposes
