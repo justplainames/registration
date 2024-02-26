@@ -1,7 +1,16 @@
 // ReusableTable.jsx
 
 import React from "react";
-import { Box, Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import {
+  Box,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Checkbox,
+} from "@chakra-ui/react";
 
 const ParticipantTable = ({ headers, data }) => {
   // const headers = ["Name", "Instagram Handle", "Email", "Number", "Paid"];
@@ -20,6 +29,7 @@ const ParticipantTable = ({ headers, data }) => {
             {headers.map((header, index) => (
               <Th key={index}>{header}</Th>
             ))}
+            <Th key="Number">Arrived</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -29,7 +39,11 @@ const ParticipantTable = ({ headers, data }) => {
               <Td>{user.user_instagram}</Td>
               <Td>{user.user_phone_number}</Td>
               <Td>{user.user_email}</Td>
-              {/* <Td>{user.user_paid ? "Yes" : "No"}</Td> */}
+
+              <Td>{user.user_paid ? "Yes" : "No"}</Td>
+              <Td>
+                <Checkbox></Checkbox>
+              </Td>
             </Tr>
           ))}
         </Tbody>
