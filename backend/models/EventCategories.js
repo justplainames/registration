@@ -6,7 +6,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      used_numbers: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        defaultValue: [], // Initialize as an empty array
+      },
     },
+
     {
       primaryKey: true,
       uniqueKeys: {

@@ -11,8 +11,17 @@ import ParticipantTable from "../components/PartcipantTable";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { EventContext } from "../helpers/EventContext";
+import { participantContext } from "../helpers/ParticipantContext";
 
-const headers = ["Name", "Instagram Handle", "Phone Number", "Email", "Paid"];
+const headers = [
+  "Order",
+  "Name",
+  "Instagram Handle",
+  "Phone Number",
+  "Email",
+  "Paid",
+  "Arrived?",
+];
 const data = [
   ["John Doe", "@JohnDoe", "Popping 1v1"],
   ["Jane Smith", "@JaneSmith", "Locking 1v1"],
@@ -22,6 +31,7 @@ function Participants() {
   const { eventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const apiPath = process.env.REACT_APP_API_PATH;
   const navigate = useNavigate();
   console.log("Entering Participants Now");
@@ -39,6 +49,7 @@ function Participants() {
           )
           .then((res) => {
             console.log("ENTER RES");
+            setSelectedCategory(first_data.category_id_pk);
             setListOfParticipants(res.data);
           });
       })
@@ -62,6 +73,7 @@ function Participants() {
       )
 
       .then((res) => {
+        setSelectedCategory(category.category_id_pk);
         setListOfParticipants(res.data);
       });
   };
@@ -102,7 +114,15 @@ function Participants() {
       </TabList>
       <TabPanels>
         <TabPanels>
-          <ParticipantTable headers={headers} data={listOfParticipants} />
+          <participantContext.Provider
+            value={{ listOfParticipants, setListOfParticipants }}
+          >
+            <ParticipantTable
+              headers={headers}
+              category_id_pk={selectedCategory}
+              event_id_pk={eventState.eventId}
+            />
+          </participantContext.Provider>
         </TabPanels>
       </TabPanels>
     </Tabs>

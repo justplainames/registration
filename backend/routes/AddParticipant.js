@@ -7,9 +7,11 @@ const {
   EventCategories,
   Users,
   UsersCategories,
+  sequelize,
 } = require("../models");
-const { Op } = require("sequelize");
+// const { Sequelize } = require("sequelize");
 const { validateToken } = require("../middlewares/AuthMiddleware");
+const crypto = require("crypto");
 
 router.use(validateToken);
 
@@ -63,23 +65,45 @@ router.get("/getParticipants/:event_id/:category_id", async (req, res) => {
       event_id_fk: event_id,
       category_id_fk: category_id,
     },
-    attributes: ["user_id_fk"],
-    raw: true,
-  });
-
-  const userIds = listOfUsers.map((user) => user.user_id_fk);
-
-  const data = await Users.findAll({
-    where: {
-      user_id_pk: {
-        [Op.in]: userIds,
+    include: [
+      {
+        model: Users,
+        as: "User",
       },
-    },
+    ],
+    // attributes: ["user_id_fk"],
     raw: true,
   });
-  console.log(data);
 
-  res.json(data);
+  console.log("List of Users", listOfUsers);
+
+  const formatted = listOfUsers.map((row) => {
+    const user = {
+      user_id_fk: row.user_id_fk,
+      category_id_fk: row.category_id_fk,
+      event_id_fk: row.event_id_fk,
+      order: row.order,
+      total_score: row.total_score,
+      user_name: row["User.user_name"],
+      user_instagram: row["User.user_instagram"],
+      user_phone_number: row["User.user_phone_number"],
+      user_email: row["User.user_email"],
+    };
+    return user;
+  });
+
+  console.log("NEW SET", formatted);
+  // const data = await Users.findAll({
+  //   where: {
+  //     user_id_pk: {
+  //       [Op.in]: userIds,
+  //     },
+  //   },
+
+  //   raw: true,
+  // });
+
+  res.json(formatted);
   // const listOfCategories = await Promise.all(
   //   (
   //     await EventCategories.findAll({
@@ -168,6 +192,103 @@ router.get("/joinEvent/getRole", async (req, res) => {
   const role = await Users.findByPk(sub);
   console.log(role);
   res.json({ role: role.dataValues.user_role });
+});
+
+router.put("/updateOrder", async (req, res) => {
+  console.log(req.body);
+  if (!req.body.to_remove) {
+    console.log("Entered To Add");
+    await EventCategories.update(
+      {
+        used_numbers: sequelize.fn(
+          "array_append",
+          sequelize.col("used_numbers"),
+          req.body.to_update.order
+        ),
+      },
+      {
+        where: {
+          event_id_fk: req.body.to_update.event_id_fk,
+          category_id_fk: req.body.to_update.category_id_fk,
+        },
+      }
+    );
+
+    await UsersCategories.update(
+      { order: req.body.to_update.order },
+      {
+        where: {
+          category_id_fk: req.body.to_update.category_id_fk,
+          event_id_fk: req.body.to_update.event_id_fk,
+          user_id_fk: req.body.to_update.user_id_fk,
+        },
+      }
+    );
+  } else {
+    console.log("Entered To Remove");
+    await EventCategories.update(
+      {
+        used_numbers: sequelize.fn(
+          "array_remove",
+          sequelize.col("used_numbers"),
+          req.body.to_update.order
+        ),
+      },
+      {
+        where: {
+          event_id_fk: req.body.to_update.event_id_fk,
+          category_id_fk: req.body.to_update.category_id_fk,
+        },
+      }
+    );
+    await UsersCategories.update(
+      { order: null },
+      {
+        where: {
+          category_id_fk: req.body.to_update.category_id_fk,
+          event_id_fk: req.body.to_update.event_id_fk,
+          user_id_fk: req.body.to_update.user_id_fk,
+        },
+      }
+    );
+  }
+
+  res.json("ok");
+});
+
+router.get("/usedNumbers/:event_id/:category_id", async (req, res) => {
+  console.log("test");
+  const event_id_fk = req.params.event_id;
+  const category_id_fk = req.params.category_id;
+  const max = await UsersCategories.count({
+    where: {
+      event_id_fk: event_id_fk,
+      category_id_fk: category_id_fk,
+    },
+  });
+  const used_numbers = await EventCategories.findOne({
+    where: {
+      event_id_fk: event_id_fk,
+      category_id_fk: category_id_fk,
+    },
+    attributes: ["used_numbers"],
+    raw: true,
+  });
+  console.log("used Numbers", used_numbers.used_numbers);
+  console.log("max Range = ", max);
+
+  while (true) {
+    const random_int = crypto.randomInt(1, max + 1);
+    console.log("got number", random_int);
+    if (used_numbers.used_numbers.includes(random_int)) {
+      console.log("Missed");
+    } else {
+      console.log("giving number", random_int);
+
+      res.json(random_int);
+      return;
+    }
+  }
 });
 
 module.exports = router;

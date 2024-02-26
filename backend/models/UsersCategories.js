@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
           key: "event_id_pk",
         },
       },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       total_score: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,
