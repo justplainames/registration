@@ -18,6 +18,7 @@ import axios from "axios";
 export default function AddParticipant() {
   const { eventState, setEventState } = useContext(EventContext);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [availableOptions, setAvailableOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [paid, setPaid] = useState(false);
   const [listOfUsers, setListOfUsers] = useState([]);
@@ -29,10 +30,14 @@ export default function AddParticipant() {
       .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
       .then((response) => {
         setCategoryOptions(response.data);
-        axios.get(`${apiPath}addParticipant/getUsers`).then((response) => {
-          // console.log(response.data);
-          setListOfUsers(response.data);
-        });
+        setAvailableOptions(response.data);
+        axios
+          .get(`${apiPath}addParticipant/getUsers`)
+          // .get(`${apiPath}addParticipant/getUsers/${eventState.eventId}`)
+          .then((response) => {
+            console.log("Response from adding participant page", response.data);
+            setListOfUsers(response.data);
+          });
       })
       .catch((error) => {
         console.log("ERROR = ", error);
@@ -45,13 +50,14 @@ export default function AddParticipant() {
   }, []);
 
   useEffect(() => {
-    console.log(listOfUsers);
+    setSelectedUser(listOfUsers[0]);
   }, [listOfUsers]);
 
   useEffect(() => {}, [eventState]);
 
   const handleCheckboxChange = (event) => {
     const category_id = parseInt(event.target.name);
+
     setSelectedCategories((prev) => {
       const current = [...prev];
       if (current.includes(category_id)) {
@@ -64,11 +70,45 @@ export default function AddParticipant() {
     });
   };
 
-  const handleUserChange = (event) => {
+  // const handleUserChange = async (event) => {
+  //   console.log("1", event.target.value);
+  //   try {
+  //     const response = await axios.get(
+  //       `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.target.value}`
+  //     );
+  //     console.log("Response ", response);
+  //     console.log("2", event.target.value);
+
+  //     const user = listOfUsers.find(
+  //       (row) => row.user_id_pk === event.target.value
+  //     );
+  //     console.log("3", event.target.value);
+
+  //     setSelectedUser(user || null);
+  //     console.log("4", event.target.value);
+  //   } catch (error) {
+  //     console.error("Error fetching user category data:", error);
+  //   }
+  // };
+
+  const handleUserChange = async (event) => {
+    console.log("laskdjs", categoryOptions);
     const user = listOfUsers.find(
       (row) => row.user_id_pk === event.target.value
     );
     setSelectedUser(user || null);
+    console.log(event.target.value);
+    try {
+      const response = await axios.get(
+        `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.target.value}`
+      );
+      console.log("Response ", response.data);
+      setAvailableOptions((prev) => {
+        return response.data;
+      });
+    } catch (error) {
+      console.error("Error fetching user category data:", error);
+    }
   };
 
   const handlePaid = () => {
@@ -154,7 +194,7 @@ export default function AddParticipant() {
           <FormLabel>Categories:</FormLabel>
           <CheckboxGroup name="test">
             <Flex alignItems="center">
-              {categoryOptions.map((category) => (
+              {availableOptions.map((category) => (
                 <Flex alignItems="center" mr={4}>
                   <Checkbox
                     name={category.category_id_pk}

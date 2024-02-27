@@ -32,6 +32,8 @@ function Participants() {
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
+  const [isUpdatingDatabase, setIsUpdatingDatabase] = useState(false);
   const apiPath = process.env.REACT_APP_API_PATH;
   const navigate = useNavigate();
   console.log("Entering Participants Now");

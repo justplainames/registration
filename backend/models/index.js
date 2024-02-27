@@ -83,6 +83,8 @@ db.UsersCategories.belongsTo(db.Events, {
   foreignKey: "event_id_fk",
 });
 
+db.Users.hasMany(db.UsersCategories, { foreignKey: "user_id_fk" });
+
 // 1:n relationship between scores and the 4 models.
 db.Scores.belongsTo(db.Users, { foreignKey: "user_id_fk" });
 db.Scores.belongsTo(db.Judges, { foreignKey: "judge_id_fk" });
@@ -90,6 +92,5 @@ db.Scores.belongsTo(db.Categories, { foreignKey: "category_id_fk" });
 db.Scores.belongsTo(db.Events, { foreignKey: "event_id_fk" });
 
 db.sequelize = sequelize;
-db.Sequelize = Sequelize;
 
 module.exports = db;

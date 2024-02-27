@@ -25,6 +25,126 @@ router.get("/getUsers", async (req, res) => {
   }
 });
 
+router.get("/getUserCategory/:event_id/:user_id", async (req, res) => {
+  const event_id = req.params.event_id;
+  const user_id = req.params.user_id;
+  console.log(user_id, event_id);
+  try {
+    const joined = await UsersCategories.findAll({
+      where: {
+        user_id_fk: user_id,
+        event_id_fk: event_id,
+      },
+      attributes: ["category_id_fk"],
+      raw: true,
+    });
+
+    const available = await EventCategories.findAll({
+      where: {
+        event_id_fk: event_id,
+      },
+
+      raw: true,
+    });
+    console.log(available);
+
+    const joinedCategoryIds = joined.map((row) => row.category_id_fk);
+    const filteredAvailable = available.filter(
+      (category) => !joinedCategoryIds.includes(category.category_id_fk)
+    );
+    const categoryIds = filteredAvailable.map(
+      (category) => category.category_id_fk
+    );
+
+    const final_data = await Categories.findAll({
+      where: {
+        category_id_pk: categoryIds,
+      },
+      attributes: ["category_id_pk", "category_name"],
+      raw: true,
+    });
+    console.log("alksd", joinedCategoryIds);
+    console.log(filteredAvailable);
+
+    console.log("filtered", categoryIds);
+    console.log("FinalData", final_data);
+
+    res.json(final_data);
+  } catch (error) {
+    console.error("Error Retrieving data:", error);
+  }
+});
+
+// router.get("/getUsers/:eventId", async (req, res) => {
+//   const event_id_pk = req.params.eventId;
+//   try {
+//     const users = await Users.findAll({
+//       raw: true,
+//       attributes: [
+//         "user_id_pk",
+//         "user_name",
+//         "user_instagram",
+//         "user_phone_number",
+//         "user_email",
+//       ],
+//       include: {
+//         model: UsersCategories,
+//         as: "UsersCategories",
+//         attributes: ["category_id_fk", "event_id_fk"],
+//       },
+//     });
+//     console.log(users);
+//     const final_data = {};
+//     users.forEach((row) => {
+//       const { user_id_pk, ...user_data } = row;
+
+//       if (!final_data[user_id_pk]) {
+//         final_data[user_id_pk] = {
+//           ...user_data,
+//           usersCategories: [],
+//         };
+//       }
+//       final_data[user_id_pk].usersCategories.push(
+//         row["UsersCategories.category_id_fk"]
+//       );
+//     });
+//     console.log(final_data);
+//     res.json(Object.values(final_data));
+//   } catch (error) {
+//     console.error("Error Retrieving data:", error);
+//   }
+// });
+
+router.get("/getCategories/:id", async (req, res) => {
+  console.log("\n\n", req.sub);
+  const categories = await EventCategories.findAll({
+    where: {
+      event_id_fk: req.params.id,
+    },
+  });
+  const data = await Promise.all(
+    categories.map(async (category) => {
+      const cat_pk = category.category_id_fk;
+      const category_name = await Categories.findByPk(cat_pk);
+      const check = await UsersCategories.findOne({
+        where: {
+          user_id_fk: req.sub.new_uuid,
+          event_id_fk: req.params.id,
+          category_id_fk: cat_pk,
+        },
+      });
+      const joined = check ? true : false;
+      return {
+        category_name: category_name.dataValues.category_name,
+        category_id_pk: cat_pk,
+        joined: joined,
+      };
+    })
+  );
+  console.log(data);
+  res.json(data);
+});
+
 router.get("/getCategories/:id", async (req, res) => {
   console.log("\n\n", req.sub);
   const categories = await EventCategories.findAll({
@@ -256,25 +376,38 @@ router.put("/updateOrder", async (req, res) => {
   res.json("ok");
 });
 
-router.get("/usedNumbers/:event_id/:category_id", async (req, res) => {
+router.get("/usedNumbers/:event_id/:category_id/:user_id", async (req, res) => {
   console.log("test");
   const event_id_fk = req.params.event_id;
   const category_id_fk = req.params.category_id;
-  const max = await UsersCategories.count({
+  const user_id_fk = req.params.user_id;
+  const users = await UsersCategories.findAll({
     where: {
       event_id_fk: event_id_fk,
       category_id_fk: category_id_fk,
     },
+    raw: true,
   });
+  const user = users.find((row) => {
+    return row.user_id_fk === user_id_fk;
+  });
+  console.log("user in get", user);
+  console.log("event_Id", event_id_fk);
+  console.log("categort_id_pk", category_id_fk);
+  if (user.order) {
+    res.json({ status: "assigned", data: user.order });
+    return;
+  }
+  const max = users.length;
   const used_numbers = await EventCategories.findOne({
     where: {
       event_id_fk: event_id_fk,
       category_id_fk: category_id_fk,
     },
-    attributes: ["used_numbers"],
+    // attributes: ["used_numbers"],
     raw: true,
   });
-  console.log("used Numbers", used_numbers.used_numbers);
+  console.log("used Numbers", used_numbers);
   console.log("max Range = ", max);
 
   while (true) {
@@ -285,10 +418,211 @@ router.get("/usedNumbers/:event_id/:category_id", async (req, res) => {
     } else {
       console.log("giving number", random_int);
 
-      res.json(random_int);
+      res.json({ status: "success", data: random_int });
       return;
     }
   }
 });
 
+router.put("/manual/updateOrder", async (req, res) => {
+  console.log(req.body);
+
+  const user = await UsersCategories.findOne({
+    where: {
+      category_id_fk: req.body.user_info.category_id_fk,
+      event_id_fk: req.body.user_info.event_id_fk,
+      user_id_fk: req.body.user_info.user_id_fk,
+    },
+    raw: true,
+  });
+  console.log(user);
+
+  const used_numbers = await EventCategories.findOne({
+    where: {
+      category_id_fk: req.body.user_info.category_id_fk,
+      event_id_fk: req.body.user_info.event_id_fk,
+    },
+    raw: true,
+    attributes: ["used_numbers"],
+  });
+  console.log(used_numbers);
+
+  console.log(
+    "TESTING = ",
+    req.body.value,
+    parseInt(req.body.value) === 0,
+    user.order,
+    used_numbers.used_numbers.includes(user.order)
+  );
+  // If user changed to 0 from a different number
+  if (parseInt(req.body.value) === 0 && user.order) {
+    console.log("entered if");
+    if (used_numbers.used_numbers.includes(user.order)) {
+      console.log("testing", req.body.user_info.order);
+      await EventCategories.update(
+        {
+          used_numbers: sequelize.fn(
+            "array_remove",
+            sequelize.col("used_numbers"),
+            parseInt(user.order)
+          ),
+        },
+        {
+          where: {
+            event_id_fk: req.body.user_info.event_id_fk,
+            category_id_fk: req.body.user_info.category_id_fk,
+          },
+        }
+      );
+      await UsersCategories.update(
+        { order: null },
+        {
+          where: {
+            category_id_fk: req.body.user_info.category_id_fk,
+            event_id_fk: req.body.user_info.event_id_fk,
+            user_id_fk: req.body.user_info.user_id_fk,
+          },
+        }
+      );
+    } else {
+      await UsersCategories.update(
+        { order: null },
+        {
+          where: {
+            category_id_fk: req.body.user_info.category_id_fk,
+            event_id_fk: req.body.user_info.event_id_fk,
+            user_id_fk: req.body.user_info.user_id_fk,
+          },
+        }
+      );
+    }
+    res.json("ok");
+    return;
+  }
+
+  // if user changed Numbers
+  else {
+    console.log("entered else");
+    if (used_numbers.used_numbers.includes(parseInt(req.body.value))) {
+      res.json(user.order);
+      return;
+    } else {
+      if (user.order) {
+        await EventCategories.update(
+          {
+            used_numbers: sequelize.fn(
+              "array_remove",
+              sequelize.col("used_numbers"),
+              user.order
+            ),
+          },
+          {
+            where: {
+              event_id_fk: req.body.user_info.event_id_fk,
+              category_id_fk: req.body.user_info.category_id_fk,
+            },
+          }
+        );
+      }
+
+      await EventCategories.update(
+        {
+          used_numbers: sequelize.fn(
+            "array_append",
+            sequelize.col("used_numbers"),
+            parseInt(req.body.value)
+          ),
+        },
+        {
+          where: {
+            event_id_fk: req.body.user_info.event_id_fk,
+            category_id_fk: req.body.user_info.category_id_fk,
+          },
+        }
+      );
+      await UsersCategories.update(
+        { order: parseInt(req.body.value) },
+        {
+          where: {
+            category_id_fk: req.body.user_info.category_id_fk,
+            event_id_fk: req.body.user_info.event_id_fk,
+            user_id_fk: req.body.user_info.user_id_fk,
+          },
+        }
+      );
+    }
+    res.json("ok");
+    return;
+  }
+  // } else {
+  //   await EventCategories.update(
+  //     {
+  //       used_numbers: sequelize.fn(
+  //         "array_remove",
+  //         sequelize.col("used_numbers"),
+  //         req.body.user_info.order
+  //       ),
+  //     },
+  //     {
+  //       where: {
+  //         event_id_fk: req.body.user_info.event_id_fk,
+  //         category_id_fk: req.body.user_info.category_id_fk,
+  //       },
+  //     }
+  //   );
+  //   await EventCategories.update(
+  //     {
+  //       used_numbers: sequelize.fn(
+  //         "array_append",
+  //         sequelize.col("used_numbers"),
+  //         req.body.value
+  //       ),
+  //     },
+  //     {
+  //       where: {
+  //         event_id_fk: req.body.user_info.event_id_fk,
+  //         category_id_fk: req.body.user_info.category_id_fk,
+  //       },
+  //     }
+  //   );
+  //   await UsersCategories.update(
+  //     { order: req.body.value },
+  //     {
+  //       where: {
+  //         category_id_fk: req.body.user_info.category_id_fk,
+  //         event_id_fk: req.body.user_info.event_id_fk,
+  //         user_id_fk: req.body.user_info.user_id_fk,
+  //       },
+  //     }
+  //   );
+  // }
+});
+
+router.delete("/deleteParticipant", async (req, res) => {
+  try {
+    const user_info = req.body;
+    const user_id_fk = user_info.user_id_fk;
+    const event_id_fk = user_info.event_id_fk;
+    const category_id_fk = user_info.category_id_fk;
+
+    await UsersCategories.destroy({
+      where: {
+        user_id_fk: user_id_fk,
+        event_id_fk: event_id_fk,
+        category_id_fk: category_id_fk,
+      },
+    });
+
+    await Scores.destroy({
+      where: {
+        user_id_fk: user_id_fk,
+        event_id_fk: event_id_fk,
+        category_id_fk: category_id_fk,
+      },
+    });
+    res.json("ok");
+  } catch (error) {
+    res.json({ error: error });
+  }
+});
 module.exports = router;
