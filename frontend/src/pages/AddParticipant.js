@@ -11,6 +11,7 @@ import {
   Button,
   CheckboxGroup,
   Select,
+  Tooltip,
 } from "@chakra-ui/react";
 import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
@@ -23,14 +24,17 @@ export default function AddParticipant() {
   const [paid, setPaid] = useState(false);
   const [listOfUsers, setListOfUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isTooltipOpen, setIsTooltipOpen] = useState({});
   const apiPath = process.env.REACT_APP_API_PATH;
 
   useEffect(() => {
     axios
       .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
       .then((response) => {
+        console.log("First Category Options = ", response.data);
         setCategoryOptions(response.data);
         setAvailableOptions(response.data);
+
         axios
           .get(`${apiPath}addParticipant/getUsers`)
           // .get(`${apiPath}addParticipant/getUsers/${eventState.eventId}`)
@@ -50,8 +54,44 @@ export default function AddParticipant() {
   }, []);
 
   useEffect(() => {
+    console.log("setting first user through UseEffect", listOfUsers[0]);
     setSelectedUser(listOfUsers[0]);
+    try {
+      axios
+        .get(
+          `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${listOfUsers[0].user_id_pk}`
+        )
+        .then((response) => {
+          console.log("Response ", response.data);
+          setAvailableOptions((prev) => {
+            return response.data;
+          });
+        });
+    } catch (error) {
+      console.error("Error fetching user category data:", error);
+    }
   }, [listOfUsers]);
+
+  useEffect(() => {
+    console.log(
+      "Category Options through second useEffect = ",
+      categoryOptions
+    );
+    console.log(
+      "Available Options through second useEffect = ",
+      availableOptions
+    );
+    setIsTooltipOpen((prev) => {
+      const newObj = {};
+
+      categoryOptions.forEach((row) => {
+        console.log(row);
+        newObj[row.category_id_pk] = false;
+      });
+
+      return newObj;
+    });
+  }, [categoryOptions]);
 
   useEffect(() => {}, [eventState]);
 
@@ -92,12 +132,13 @@ export default function AddParticipant() {
   // };
 
   const handleUserChange = async (event) => {
-    console.log("laskdjs", categoryOptions);
+    // console.log("laskdjs", categoryOptions);
+    // console.log("Selected User iNfo = ", selectedUser);
     const user = listOfUsers.find(
       (row) => row.user_id_pk === event.target.value
     );
     setSelectedUser(user || null);
-    console.log(event.target.value);
+    // console.log(event.target.value);
     try {
       const response = await axios.get(
         `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.target.value}`
@@ -111,12 +152,35 @@ export default function AddParticipant() {
     }
   };
 
+  useEffect(() => {
+    // console.log("dklsjhflaskdjhfasdk", isTooltipOpen);
+  }, isTooltipOpen);
+
   const handlePaid = () => {
     if (!paid) {
       setPaid(true);
     } else {
       setPaid(false);
     }
+  };
+
+  const handleTooltipEnter = (e) => {
+    const category_id_fk = e;
+    // console.log("E", e);
+    // console.log("Is ToolTIP OPEN ", isTooltipOpen);
+    setIsTooltipOpen((prev) => ({
+      ...prev,
+      [e]: true,
+    }));
+  };
+
+  const handleTooltipExit = (e) => {
+    // console.log("Is ToolTIP OPEN ", isTooltipOpen);
+    const category_id_fk = e;
+    setIsTooltipOpen((prev) => ({
+      ...prev,
+      [e]: false,
+    }));
   };
 
   return (
@@ -194,20 +258,56 @@ export default function AddParticipant() {
           <FormLabel>Categories:</FormLabel>
           <CheckboxGroup name="test">
             <Flex alignItems="center">
-              {availableOptions.map((category) => (
-                <Flex alignItems="center" mr={4}>
-                  <Checkbox
-                    name={category.category_id_pk}
-                    size="lg"
-                    onChange={(event) => {
-                      handleCheckboxChange(event);
-                    }}
-                  />
-                  <FormLabel ml={2} mb={0}>
-                    {category.category_name}
-                  </FormLabel>
-                </Flex>
-              ))}
+              {availableOptions.length !== 0 ? (
+                categoryOptions.map((category) =>
+                  availableOptions.find(
+                    (row) => row.category_id_pk === category.category_id_pk
+                  ) ? (
+                    <Flex alignItems="center" mr={4}>
+                      <Checkbox
+                        name={category.category_id_pk}
+                        size="lg"
+                        onChange={(event) => {
+                          handleCheckboxChange(event);
+                        }}
+                      />
+                      <FormLabel ml={2} mb={0}>
+                        {category.category_name}
+                      </FormLabel>
+                    </Flex>
+                  ) : (
+                    <Flex alignItems="center" mr={4}>
+                      <Tooltip
+                        name={category.category_id_pk}
+                        label="User has already joined this category"
+                        placement="top"
+                        isOpen={isTooltipOpen[category.category_id_pk]}
+                      >
+                        <Checkbox
+                          name={category.category_id_pk}
+                          size="lg"
+                          isDisabled={true}
+                          onMouseEnter={() => {
+                            handleTooltipEnter(category.category_id_pk);
+                          }}
+                          onMouseLeave={() => {
+                            handleTooltipExit(category.category_id_pk);
+                          }}
+                        />
+                      </Tooltip>
+                      <FormLabel
+                        ml={2}
+                        mb={0}
+                        style={{ textDecoration: "line-through" }}
+                      >
+                        {category.category_name}
+                      </FormLabel>
+                    </Flex>
+                  )
+                )
+              ) : (
+                <div>User has already joined all events</div>
+              )}
             </Flex>
           </CheckboxGroup>
         </FormControl>

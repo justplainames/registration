@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
+    event_status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "SCHEDULED",
+    },
   });
 
   return Events;

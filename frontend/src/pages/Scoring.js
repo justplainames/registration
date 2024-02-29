@@ -35,6 +35,9 @@ function Scoring() {
               ...response.data[0].judges.map((item) => item.judge_name),
               "Total Score",
             ]);
+            console.log(
+              "Entered UseEffect-1 in Scoring Page (Second) Headers Set"
+            );
             setListOfParticipants(response.data);
           });
       })
@@ -52,6 +55,7 @@ function Scoring() {
     axios
       .get(`${apiPath}score/${eventState.eventId}/${category.category_id_pk}`)
       .then((response) => {
+        console.log("Response after change", response.data);
         setCurrentCategory(category.category_id_pk);
         setHeaders([
           ...original,

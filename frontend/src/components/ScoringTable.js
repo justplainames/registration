@@ -47,12 +47,14 @@ const ScoringTable = ({ headers, data }) => {
     if (dataset) {
       // console.log("dataset in UE2 - ", dataset);
       dataset.map((row) => {
-        row.judges.map((judge) => {
-          score.set(
-            `${eventState.eventId}-${currentCategory}-${row.user_id}-${judge.judge_id}`,
-            judge.score
-          );
-        });
+        if (row) {
+          row.judges.map((judge) => {
+            score.set(
+              `${eventState.eventId}-${currentCategory}-${row.user_id}-${judge.judge_id}`,
+              judge.score
+            );
+          });
+        }
       });
     }
     setScoreTracker(score);
@@ -64,14 +66,16 @@ const ScoringTable = ({ headers, data }) => {
     if (dataset) {
       // console.log("dataset in UE2 - ", dataset);
       dataset.map((row) => {
-        let total = 0;
-        row.judges.map((judge) => {
-          total += parseFloat(judge.score);
-        });
-        totalScore.set(
-          `${eventState.eventId}-${currentCategory}-${row.user_id}`,
-          total
-        );
+        if (row) {
+          let total = 0;
+          row.judges.map((judge) => {
+            total += parseFloat(judge.score);
+          });
+          totalScore.set(
+            `${eventState.eventId}-${currentCategory}-${row.user_id}`,
+            total
+          );
+        }
       });
     }
     setTotalScoreTracker(totalScore);
@@ -190,59 +194,62 @@ const ScoringTable = ({ headers, data }) => {
                 <Td>{participant.total_score}</Td>
               </Tr>
             ))} */}
-          {dataset.map((user) => (
-            <Tr key={user.user_id_pk}>
-              <Td>{user.user_name}</Td>
-              <Td>{user.user_instagram}</Td>
-              {/* <Td>{participant.participant_phone_number}</Td>
+          {dataset.map(
+            (user) =>
+              user && (
+                <Tr key={user.user_id_pk}>
+                  <Td>{user.user_name}</Td>
+                  <Td>{user.user_instagram}</Td>
+                  {/* <Td>{participant.participant_phone_number}</Td>
               <Td>{participant.participant_email}</Td> */}
-              {headerDataset
-                .filter(
-                  (header) =>
-                    header !== "Name" &&
-                    header !== "Instagram Handle" &&
-                    header !== "Total Score"
-                )
-                .map((judge_name) => {
-                  const judge = user.judges.find((judge) => {
-                    return judge.judge_name === judge_name;
-                  });
+                  {headerDataset
+                    .filter(
+                      (header) =>
+                        header !== "Name" &&
+                        header !== "Instagram Handle" &&
+                        header !== "Total Score"
+                    )
+                    .map((judge_name) => {
+                      const judge = user.judges.find((judge) => {
+                        return judge.judge_name === judge_name;
+                      });
 
-                  const score = scoreTracker.get(
-                    `${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`
-                  );
-                  const event_id = eventState.eventId;
+                      const score = scoreTracker.get(
+                        `${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`
+                      );
+                      const event_id = eventState.eventId;
 
-                  return score ? (
-                    <Td>
-                      <Editable
-                        key={`${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`}
-                        defaultValue={score}
-                        onSubmit={(value, key) =>
-                          handleSubmit(
-                            value,
-                            event_id,
-                            currentCategory,
-                            user.user_id,
-                            judge.judge_id
-                          )
-                        }
-                      >
-                        <EditableInput />
-                        <EditablePreview />
-                      </Editable>
-                    </Td>
-                  ) : (
-                    <Td>Loading</Td>
-                  );
-                })}
-              <Td>
-                {totalScoreTracker.get(
-                  `${eventState.eventId}-${currentCategory}-${user.user_id}`
-                )}
-              </Td>
-            </Tr>
-          ))}
+                      return score ? (
+                        <Td>
+                          <Editable
+                            key={`${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`}
+                            defaultValue={score}
+                            onSubmit={(value, key) =>
+                              handleSubmit(
+                                value,
+                                event_id,
+                                currentCategory,
+                                user.user_id,
+                                judge.judge_id
+                              )
+                            }
+                          >
+                            <EditableInput />
+                            <EditablePreview />
+                          </Editable>
+                        </Td>
+                      ) : (
+                        <Td>Loading</Td>
+                      );
+                    })}
+                  <Td>
+                    {totalScoreTracker.get(
+                      `${eventState.eventId}-${currentCategory}-${user.user_id}`
+                    )}
+                  </Td>
+                </Tr>
+              )
+          )}
         </Tbody>
       </Table>
     </Box>

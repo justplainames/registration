@@ -69,6 +69,7 @@ router.get("/:event_id/:category_id", async (req, res) => {
       data.get(row.user_id_fk)["judges"] = current;
     }
   });
+
   // data is a map object
   // data.values() - creates an iterable object of the values, removes the key and makes the values iterable
   // Array.from() - creates an array out of the data.values()
@@ -76,7 +77,6 @@ router.get("/:event_id/:category_id", async (req, res) => {
   // It adds the data to the total
   // const promises - Create a variable to store an array of promises
   // Array.from - Coverts an Array from the iterator object by data.values()
-
   const promises = Array.from(data.values()).map(async (row) => {
     console.log("ROW = ", row);
     const userCategories = await UsersCategories.findOne({
@@ -106,12 +106,18 @@ router.get("/:event_id/:category_id", async (req, res) => {
     } else {
       row["total_score"] = userCategories.dataValues.total_score;
     }
-    return row;
+
+    if (userCategories.dataValues.order) {
+      return row;
+    }
+    return null;
   });
 
   // Once all promises are fulfilled continue code
   const results = await Promise.all(promises);
-  res.json(results);
+  const cleanedResults = results.filter((row) => row);
+  console.log("Cleaned Results = ", cleanedResults);
+  res.json(cleanedResults);
 });
 
 router.put(

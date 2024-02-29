@@ -145,35 +145,35 @@ router.get("/getCategories/:id", async (req, res) => {
   res.json(data);
 });
 
-router.get("/getCategories/:id", async (req, res) => {
-  console.log("\n\n", req.sub);
-  const categories = await EventCategories.findAll({
-    where: {
-      event_id_fk: req.params.id,
-    },
-  });
-  const data = await Promise.all(
-    categories.map(async (category) => {
-      const cat_pk = category.category_id_fk;
-      const category_name = await Categories.findByPk(cat_pk);
-      const check = await UsersCategories.findOne({
-        where: {
-          user_id_fk: req.sub.new_uuid,
-          event_id_fk: req.params.id,
-          category_id_fk: cat_pk,
-        },
-      });
-      const joined = check ? true : false;
-      return {
-        category_name: category_name.dataValues.category_name,
-        category_id_pk: cat_pk,
-        joined: joined,
-      };
-    })
-  );
-  console.log(data);
-  res.json(data);
-});
+// router.get("/getCategories/:id", async (req, res) => {
+//   console.log("\n\n", req.sub);
+//   const categories = await EventCategories.findAll({
+//     where: {
+//       event_id_fk: req.params.id,
+//     },
+//   });
+//   const data = await Promise.all(
+//     categories.map(async (category) => {
+//       const cat_pk = category.category_id_fk;
+//       const category_name = await Categories.findByPk(cat_pk);
+//       const check = await UsersCategories.findOne({
+//         where: {
+//           user_id_fk: req.sub.new_uuid,
+//           event_id_fk: req.params.id,
+//           category_id_fk: cat_pk,
+//         },
+//       });
+//       const joined = check ? true : false;
+//       return {
+//         category_name: category_name.dataValues.category_name,
+//         category_id_pk: cat_pk,
+//         joined: joined,
+//       };
+//     })
+//   );
+//   console.log(data);
+//   res.json(data);
+// });
 
 router.get("/getParticipants/:event_id/:category_id", async (req, res) => {
   const event_id = req.params.event_id;
@@ -604,6 +604,25 @@ router.delete("/deleteParticipant", async (req, res) => {
     const user_id_fk = user_info.user_id_fk;
     const event_id_fk = user_info.event_id_fk;
     const category_id_fk = user_info.category_id_fk;
+    const order = user_info.order;
+
+    if (order) {
+      await EventCategories.update(
+        {
+          used_numbers: sequelize.fn(
+            "array_remove",
+            sequelize.col("used_numbers"),
+            order
+          ),
+        },
+        {
+          where: {
+            event_id_fk: event_id_fk,
+            category_id_fk: category_id_fk,
+          },
+        }
+      );
+    }
 
     await UsersCategories.destroy({
       where: {

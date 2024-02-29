@@ -31,7 +31,7 @@ import {
 import { EventContext } from "../helpers/EventContext";
 import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 import { RoleContext } from "../helpers/RoleContext";
 axios.defaults.withCredentials = true;
@@ -47,11 +47,13 @@ function Dashboard() {
   const apiPath = process.env.REACT_APP_API_PATH;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [check, setCheck] = useState(false);
+  const navigate = useNavigate();
   console.log("ENTERED DASHBOARD");
 
   const handleClick = async (event_name, event_id) => {
     console.log("EVENT = ", event_id);
     axios.get(`${apiPath}addParticipant/joinEvent/getRole`).then((response) => {
+      setEventState({ eventName: event_name, eventId: event_id });
       if (response.data.role === "user") {
         axios
           .get(`${apiPath}addParticipant/getCategories/${event_id}`)
@@ -60,10 +62,10 @@ function Dashboard() {
             console.log("Response from getting categories = ", response.data);
           });
         onOpen();
+      } else {
+        navigate(`/eventInfo`);
       }
     });
-
-    setEventState({ eventName: event_name, eventId: event_id });
   };
 
   // Not neccesary to use when using checkbox group!

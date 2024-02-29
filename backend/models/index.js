@@ -91,6 +91,30 @@ db.Scores.belongsTo(db.Judges, { foreignKey: "judge_id_fk" });
 db.Scores.belongsTo(db.Categories, { foreignKey: "category_id_fk" });
 db.Scores.belongsTo(db.Events, { foreignKey: "event_id_fk" });
 
+// Define association between EventCategories and Categories
+db.EventCategories.belongsTo(db.Categories, {
+  foreignKey: "category_id_fk",
+});
+db.Categories.hasMany(db.EventCategories, {
+  foreignKey: "category_id_fk",
+});
+
+// Define association between EventCategories and Events
+db.EventCategories.belongsTo(db.Events, {
+  foreignKey: "event_id_fk",
+});
+db.Events.hasMany(db.EventCategories, {
+  foreignKey: "event_id_fk",
+});
+
+// Define association between JudgeCategories and Judges
+db.JudgesCategories.belongsTo(db.Judges, {
+  foreignKey: "judge_id_fk",
+});
+db.Judges.hasMany(db.JudgesCategories, {
+  foreignKey: "judge_id_fk",
+});
+
 db.sequelize = sequelize;
 
 module.exports = db;

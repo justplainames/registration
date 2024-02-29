@@ -22,6 +22,7 @@ import Login from "./pages/Login";
 import Verification from "./pages/Verification";
 import ProtectedAuth from "./pages/ProtectedAuth";
 import ProtectedRole from "./pages/ProtectedRole";
+import EventInfo from "./pages/EventInfo";
 import Profile from "./pages/Profile";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
@@ -42,7 +43,17 @@ const router = createBrowserRouter(
         element={
           <ProtectedAuth>
             <ProtectedRole>
-              <Scoring />{" "}
+              <Scoring />
+            </ProtectedRole>
+          </ProtectedAuth>
+        }
+      />
+      <Route
+        path="eventInfo"
+        element={
+          <ProtectedAuth>
+            <ProtectedRole>
+              <EventInfo />
             </ProtectedRole>
           </ProtectedAuth>
         }

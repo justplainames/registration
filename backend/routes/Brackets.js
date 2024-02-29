@@ -117,7 +117,7 @@ router.get("/:event_id/:category_id/:type_id", async (req, res) => {
 
     res.json(bracket.dataValues);
   } else {
-    const users = await UsersCategories.findAll({
+    const usersRaw = await UsersCategories.findAll({
       where: { category_id_fk: category_id, event_id_fk: event_id },
       include: [
         {
@@ -129,6 +129,10 @@ router.get("/:event_id/:category_id/:type_id", async (req, res) => {
       order: [["total_score", "DESC"]],
       raw: true,
     });
+
+    const users = usersRaw.filter(
+      (user) => user.order !== 0 && user.order !== null
+    );
     console.log("testingEIsen", users);
     if (users.length < limit) {
       res.status(400).json({
