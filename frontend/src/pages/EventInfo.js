@@ -18,9 +18,14 @@ import {
   useDisclosure,
   ModalOverlay,
   ModalCloseButton,
+  Heading,
+  Textarea,
+  Stack,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { useNavigate } from "react-router-dom";
+import "react-datepicker/dist/react-datepicker.css";
+import "../customThemes/custom-datepicker.css";
 
 function EventInfo() {
   const { eventState, setEventState } = useContext(EventContext);
@@ -48,6 +53,7 @@ function EventInfo() {
   // const [toRemove, setToRemove] = useState(null);
 
   useEffect(() => {
+    console.log("Use efect [] - eventInfo");
     axios
       .get(`${apiPath}editEvent/getEventInfo/${eventState.eventId}`)
       .then((response) => {
@@ -57,6 +63,7 @@ function EventInfo() {
   }, []);
 
   useEffect(() => {
+    console.log("Use efect [rawdata] - EventInfo");
     if (rawData) {
       console.log("rawData", rawData);
       setEventInfo(rawData.event_info);
@@ -267,63 +274,163 @@ function EventInfo() {
     warningOnOpen();
   };
 
+  const CustomMultiValueLabel = ({ children, ...props }) => {
+    return <span>{children}</span>;
+  };
+
+  const chakraStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      // borderWidth: "10px",
+      // borderColor: "rgb(237,137,51)",
+      borderWidth: "1px",
+      "& > div > span > span": {
+        paddingY: "1px",
+      },
+      "& > div > span > div > svg > path": {
+        fill: "gray.900",
+      },
+      // _hover: { borderColor: "rgb(237,137,51)" },
+      _focusVisible: {
+        borderColor: "rgb(237,137,51)",
+        borderWidth: "2px",
+        outline: "none", // Remove default focus outline
+      },
+    }),
+    dropdownIndicator: (provided, state) => ({
+      ...provided,
+      background: "transparent",
+    }),
+    crossIcon: (provided, state) => ({
+      ...provided,
+      textColor: "white",
+    }),
+    menuList: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+    }),
+    multiValue: (provided, state) => ({
+      ...provided,
+      background: "rgb(237,137,51)",
+      textColor: "gray.900",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
+    }),
+    // input: (provided, state) => ({
+    //   ...provided,
+    //   background: "red",
+    //   padding: "2px",
+    // }),
+  };
+
   return (
-    <Box>
+    <Box shadow="1px 1px 3px rgba(0,0,0,0.3)" p={6} m="10px auto">
       <Modal isOpen={isOpen} onClose={handleOnClose} m="40px">
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader m="40px">Are you sure?</ModalHeader>
+        <ModalContent
+          maxW={"320px"}
+          w={"full"}
+          bg="gray.900"
+          boxShadow={"2xl"}
+          rounded={"lg"}
+          p={6}
+          textAlign={"center"}
+        >
+          <ModalHeader textColor="white" fontSize={"2xl"} fontFamily={"body"}>
+            Are you sure?
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody m="40px">
+          <ModalBody textAlign={"center"} color="gray.400" px={3}>
             Deleting the event will remove all information tied to this event,
             inclulding participant history. This action is irreversible. Click
             on cancel to go back.
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="purple" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="outline"
-              colorScheme="red"
-              onClick={handleDeleteSubmit}
-            >
-              Delete
-            </Button>
+            <Stack mt={8} direction={"row"} spacing={4}>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                _focus={{
+                  bg: "gray.200",
+                }}
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                outlineColor="rgb(237,49,86)"
+                textColor="white"
+                bg="transparent"
+                _hover={{
+                  bg: "rgb(237,49,86)",
+                  textColor: "black",
+                }}
+                onClick={handleDeleteSubmit}
+              >
+                Delete
+              </Button>
+            </Stack>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       {/* Confirmation for Editing Event, handleWarning*/}
-      <Modal isOpen={warningIsOpen} onClose={handleWarningOnClose} m="40px">
+      <Modal isOpen={warningIsOpen} onClose={handleWarningOnClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader m="40px">Warning:</ModalHeader>
+        <ModalContent
+          maxW={"320px"}
+          w={"full"}
+          bg="gray.900"
+          boxShadow={"2xl"}
+          rounded={"lg"}
+          p={6}
+          textAlign={"center"}
+        >
+          <ModalHeader textColor="white" fontSize={"2xl"} fontFamily={"body"}>
+            Warning:
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody m="40px">
+          <ModalBody textAlign={"center"} color="gray.400" px={3}>
             Removing certain data will remove and restart information tied to
             the removed judges and removed categories.
           </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme="purple"
-              mr={3}
-              onClick={() => {
-                setIsEditing(!isEditing);
-                warningOnClose();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outline"
-              colorScheme="green"
-              onClick={() => {
-                warningOnClose();
-              }}
-            >
-              Continue
-            </Button>
+          <ModalFooter justifyContent="center">
+            <Stack mt={8} direction={"row"} spacing={4}>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                _focus={{
+                  bg: "gray.200",
+                }}
+                onClick={() => {
+                  setIsEditing(!isEditing);
+                  warningOnClose();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                outlineColor="rgb(237,137,51)"
+                textColor="white"
+                bg="transparent"
+                _hover={{
+                  bg: "rgb(237,137,51)",
+                  textColor: "gray.900",
+                }}
+                onClick={() => {
+                  warningOnClose();
+                }}
+              >
+                Continue
+              </Button>
+            </Stack>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -334,46 +441,89 @@ function EventInfo() {
         m="40px"
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader m="40px">Are you sure?</ModalHeader>
+        <ModalContent
+          maxW={"320px"}
+          w={"full"}
+          bg="gray.900"
+          boxShadow={"2xl"}
+          rounded={"lg"}
+          p={6}
+          textAlign={"center"}
+        >
+          <ModalHeader textColor="white" fontSize={"2xl"} fontFamily={"body"}>
+            Are you sure?
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody m="40px">
+          <ModalBody textAlign={"center"} color="gray.400" px={3}>
             Changes are all permanent and Irreversible.
           </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="purple" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button variant="outline" colorScheme="red" onClick={handleSubmit}>
-              Confirm
-            </Button>
+          <ModalFooter justifyContent="center">
+            <Stack mt={8} direction={"row"} spacing={4}>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                _hover={{
+                  bg: "gray.300",
+                }}
+                onClick={handleConfirmationOnClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                outlineColor="rgb(237,137,51)"
+                textColor="white"
+                bg="transparent"
+                _hover={{
+                  bg: "rgb(237,137,51)",
+                  textColor: "gray.900",
+                }}
+                onClick={handleSubmit}
+              >
+                Confirm
+              </Button>
+            </Stack>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      <FormControl>
-        <FormLabel>Event Name</FormLabel>
-        <Input
-          value={eventInfo.event_name}
-          onChange={(e) =>
-            setEventInfo({ ...eventInfo, event_name: e.target.value })
-          }
-          readOnly={!isEditing}
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Event Location</FormLabel>
-        <Input
-          readOnly={!isEditing}
-          value={eventInfo.event_location}
-          onChange={(e) =>
-            setEventInfo({ ...eventInfo, event_location: e.target.value })
-          }
-        />
-      </FormControl>
-      <FormControl>
+      <Heading
+        w="100%"
+        textAlign={"center"}
+        textColor="white"
+        fontWeight="normal"
+        mb="2%"
+      >
+        User Registration
+      </Heading>
+      <Flex>
+        <FormControl mr="5%">
+          <FormLabel textColor="white">Event Name</FormLabel>
+          <Input
+            textColor="white"
+            value={eventInfo.event_name}
+            onChange={(e) =>
+              setEventInfo({ ...eventInfo, event_name: e.target.value })
+            }
+            readOnly={!isEditing}
+          />
+        </FormControl>
+        <FormControl textColor="white">
+          <FormLabel>Event Location</FormLabel>
+          <Input
+            textColor="white"
+            readOnly={!isEditing}
+            value={eventInfo.event_location}
+            onChange={(e) =>
+              setEventInfo({ ...eventInfo, event_location: e.target.value })
+            }
+          />
+        </FormControl>
+      </Flex>
+      <FormControl textColor="white" mt="2%">
         <FormLabel>Event Description</FormLabel>
-        <Input
+        <Textarea
           readOnly={!isEditing}
           value={eventInfo.event_description}
           onChange={(e) =>
@@ -381,8 +531,8 @@ function EventInfo() {
           }
         />
       </FormControl>
-      <FormControl>
-        <FormLabel>Event Date</FormLabel>
+      <FormControl mt="2%">
+        <FormLabel textColor="white">Event Date</FormLabel>
         <DatePicker
           readOnly={!isEditing}
           selected={
@@ -393,7 +543,7 @@ function EventInfo() {
           dateFormat="dd/MM/yyyy"
         />
       </FormControl>
-      <FormControl>
+      <FormControl textColor="white" mt="2%">
         <FormLabel>Categories:</FormLabel>
         {selectedData && availableCategories && (
           <>
@@ -403,9 +553,13 @@ function EventInfo() {
                 value: category.category_id_pk,
                 label: category.category_name,
               }))}
-              colorScheme="purple"
-              focusBorderColor="purple.400"
-              selectedOptionColorScheme="purple"
+              chakraStyles={chakraStyles}
+              // components={{
+              //   MultiValueLabel: CustomMultiValueLabel, // Use custom MultiValueLabel
+              // }}
+              // colorScheme="purple"
+              // focusBorderColor="purple.400"
+              // selectedOptionColorScheme="purple"
               isMulti
               name="categories"
               value={selectedData.map((category) => ({
@@ -424,18 +578,19 @@ function EventInfo() {
         availableJudges &&
         selectedData.map((category) => (
           <div key={category.category_id_fk}>
-            <FormControl mb="40px" style={{ maxWidth: "none" }}>
+            <FormControl textColor="white" style={{ maxWidth: "none" }} mt="2%">
               <FormLabel>{`Judges for ${category["Category.category_name"]}:`}</FormLabel>
               <Select
+                chakraStyles={chakraStyles}
                 isReadOnly={!isEditing}
                 name="judges"
                 options={availableJudges.map((judge) => ({
                   value: judge.judge_id_pk,
                   label: judge.judge_name,
                 }))}
-                colorScheme="purple"
-                focusBorderColor="purple.400"
-                selectedOptionColorScheme="purple"
+                // colorScheme="purple"
+                // focusBorderColor="purple.400"
+                // selectedOptionColorScheme="purple"
                 isMulti
                 onChange={(selectedOptions) =>
                   handleJudgeChange(selectedOptions, category.category_id_fk)
@@ -449,24 +604,56 @@ function EventInfo() {
           </div>
         ))}
       {!isEditing ? (
-        <Button colorScheme="purple" onClick={() => handleEditButton()}>
+        <Button
+          mt="2%"
+          bg="rgb(237,137,51)"
+          textColor="gray.900"
+          _hover={{
+            textDecoration: "none",
+            bg: "rgb(213,123,45)",
+          }}
+          onClick={() => handleEditButton()}
+        >
           Edit Event
         </Button>
       ) : (
         <Flex>
           <Button
-            colorScheme="purple"
+            mt="2%"
+            mr="2%"
+            w="7rem"
+            bg="rgb(237,137,51)"
+            textColor="gray.900"
+            _hover={{
+              textDecoration: "none",
+              bg: "rgb(213,123,45)",
+            }}
             onClick={() => {
               confirmationOnOpen();
             }}
           >
             Submit
           </Button>
-          <Button colorScheme="purple" onClick={() => handleCancel()}>
+          <Button
+            mt="2%"
+            w="7rem"
+            borderColor="rgb(49, 212, 237)"
+            backgroundColor="gray.200"
+            onClick={() => handleCancel()}
+          >
             Cancel
           </Button>
           <Spacer />
-          <Button colorScheme="red" onClick={() => handleDelete()}>
+          <Button
+            mt="2%"
+            bg="rgb(237,49,86)"
+            textColor={"white"}
+            _hover={{
+              textDecoration: "none",
+              bg: "rgb(213,44,77)",
+            }}
+            onClick={() => handleDelete()}
+          >
             Delete Event
           </Button>
         </Flex>

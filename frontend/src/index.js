@@ -12,11 +12,9 @@ const theme = extendTheme({ fonts });
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <ChakraProvider theme={theme}>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </ChakraProvider>
+  <React.StrictMode>
+    <App bg="gray.800" />
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

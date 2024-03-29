@@ -10,9 +10,10 @@ import {
   Flex,
   Button,
   CheckboxGroup,
-  Select,
   Tooltip,
+  Heading,
 } from "@chakra-ui/react";
+import { Select } from "chakra-react-select";
 import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
@@ -93,8 +94,6 @@ export default function AddParticipant() {
     });
   }, [categoryOptions]);
 
-  useEffect(() => {}, [eventState]);
-
   const handleCheckboxChange = (event) => {
     const category_id = parseInt(event.target.name);
 
@@ -132,16 +131,15 @@ export default function AddParticipant() {
   // };
 
   const handleUserChange = async (event) => {
+    console.log("event = ", event);
     // console.log("laskdjs", categoryOptions);
     // console.log("Selected User iNfo = ", selectedUser);
-    const user = listOfUsers.find(
-      (row) => row.user_id_pk === event.target.value
-    );
+    const user = listOfUsers.find((row) => row.user_id_pk === event.value);
     setSelectedUser(user || null);
     // console.log(event.target.value);
     try {
       const response = await axios.get(
-        `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.target.value}`
+        `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.value}`
       );
       console.log("Response ", response.data);
       setAvailableOptions((prev) => {
@@ -183,20 +181,82 @@ export default function AddParticipant() {
     }));
   };
 
+  const chakraStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      // borderWidth: "10px",
+      // borderColor: "rgb(237,137,51)",
+      borderWidth: "1px",
+      "& > div > span > span": {
+        paddingY: "1px",
+      },
+      "& > div > span > div > svg > path": {
+        fill: "gray.900",
+      },
+      textColor: "white",
+      // _hover: { borderColor: "rgb(237,137,51)" },
+      _focusVisible: {
+        borderColor: "rgb(237,137,51)",
+        borderWidth: "2px",
+        outline: "none", // Remove default focus outline
+        textColor: "white",
+      },
+    }),
+    dropdownIndicator: (provided, state) => ({
+      ...provided,
+      background: "transparent",
+      textColor: "white",
+    }),
+    crossIcon: (provided, state) => ({
+      ...provided,
+      textColor: "white",
+    }),
+    menuList: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      textColor: "white",
+    }),
+
+    option: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
+    }),
+  };
+
   return (
-    <Box maxW="480px">
+    <Box shadow="1px 1px 3px rgba(0,0,0,0.3)" p={6} m="10px auto">
+      <Heading
+        w="100%"
+        textAlign={"center"}
+        textColor="white"
+        fontWeight="normal"
+        mb="2%"
+      >
+        Add Participant
+      </Heading>
       <Select
         name="user"
-        margin="40px"
-        value={selectedUser ? selectedUser.user_id_pk : ""}
-        onChange={handleUserChange}
-      >
-        {listOfUsers.map((user) => (
-          <option value={user.user_id_pk} key={user.id}>
-            {user.user_name}
-          </option>
-        ))}
-      </Select>
+        w="100%"
+        textAlign={"center"}
+        mb="2%"
+        value={
+          selectedUser
+            ? { value: selectedUser.user_id_pk, label: selectedUser.user_name }
+            : { value: "", label: "" }
+        }
+        onChange={(selectedUser) => handleUserChange(selectedUser)}
+        chakraStyles={chakraStyles}
+        options={listOfUsers.map((user) => ({
+          value: user.user_id_pk,
+          label: user.user_name,
+        }))}
+      />
+      {/* {listOfUsers.map((user) => (
+        <option value={user.user_id_pk} key={user.id}>
+          {user.user_name}
+        </option>
+      ))} */}
       <Form method="post" action="/addParticipant">
         <Input type="hidden" name="event_id_pk" value={eventState.eventId} />
         <Input
@@ -214,9 +274,11 @@ export default function AddParticipant() {
 
         <input type="hidden" name="user_paid" value={paid} />
 
-        <FormControl m="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Participant Name</FormLabel>
           <Input
+            focusBorderColor="orange.400"
+            textColor="white"
             type="text"
             name="user_name"
             value={selectedUser ? selectedUser.user_name : ""}
@@ -224,9 +286,11 @@ export default function AddParticipant() {
           />
         </FormControl>
 
-        <FormControl m="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>user Instagram</FormLabel>
           <Input
+            focusBorderColor="orange.400"
+            textColor="white"
             type="text"
             name="user_instagram"
             value={selectedUser ? selectedUser.user_instagram : ""}
@@ -234,9 +298,11 @@ export default function AddParticipant() {
           />
         </FormControl>
 
-        <FormControl m="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Phone Number</FormLabel>
           <Input
+            focusBorderColor="orange.400"
+            textColor="white"
             type="text"
             name="user_phone_number"
             value={selectedUser ? selectedUser.user_phone_number : ""}
@@ -244,9 +310,11 @@ export default function AddParticipant() {
           />
         </FormControl>
 
-        <FormControl m="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Participant Email</FormLabel>
           <Input
+            focusBorderColor="orange.400"
+            textColor="white"
             type="text"
             name="user_email"
             value={selectedUser ? selectedUser.user_email : ""}
@@ -254,7 +322,7 @@ export default function AddParticipant() {
           />
         </FormControl>
 
-        <FormControl m="40px" style={{ maxWidth: "none" }}>
+        <FormControl textColor="white" mt="2%" style={{ maxWidth: "none" }}>
           <FormLabel>Categories:</FormLabel>
           <CheckboxGroup name="test">
             <Flex alignItems="center">
@@ -298,6 +366,7 @@ export default function AddParticipant() {
                       <FormLabel
                         ml={2}
                         mb={0}
+                        textColor="gray.700"
                         style={{ textDecoration: "line-through" }}
                       >
                         {category.category_name}
@@ -312,7 +381,7 @@ export default function AddParticipant() {
           </CheckboxGroup>
         </FormControl>
 
-        <FormControl m="40px" style={{ maxWidth: "none" }}>
+        <FormControl textColor="white" mt="2%" style={{ maxWidth: "none" }}>
           <Flex alignItems="center" mr={4}>
             <Checkbox
               name="user_paid"
@@ -326,7 +395,18 @@ export default function AddParticipant() {
             </FormLabel>
           </Flex>
         </FormControl>
-        <Button type="submit" margin="40px">
+        <Button
+          type="submit"
+          mt="2%"
+          mr="2%"
+          w="7rem"
+          bg="rgb(237,137,51)"
+          textColor="gray.900"
+          _hover={{
+            textDecoration: "none",
+            bg: "rgb(213,123,45)",
+          }}
+        >
           Submit
         </Button>
       </Form>

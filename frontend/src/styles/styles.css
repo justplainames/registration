@@ -1,0 +1,21 @@
+/* styles.css (or any other stylesheet) */
+/* .nav-link {
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: inherit;
+    
+} */
+
+.nav-link:hover {
+    /* font-weight: bold; */
+    color: gray.200;
+    /* Apply the hover color here */
+}
+
+
+.nav-mobile-link {
+    color: gray.600 ;
+    font-weight: 600;
+        
+}

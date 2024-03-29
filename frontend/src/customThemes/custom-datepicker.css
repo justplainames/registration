@@ -1,0 +1,55 @@
+/* custom-datepicker.css */
+/* Override default styles here */
+.react-datepicker__input-container input {
+    /* Example override: Change background color */
+    background-color: #1a202c;
+    color: #fff;
+    padding-left: 20px;
+    border-color: #e3e8f0;
+    border-width: 1.5px;
+    border-radius: 3px;
+}
+.react-datepicker div {
+    background-color: #181923;
+    color: #fff;
+}
+
+.react-datepicker__month-container div {
+    background-color: #181923;
+    
+}
+
+
+
+.react-datepicker__header div {
+    background-color: #181923;
+}
+
+.react-datepicker__current-month div {
+    background-color: #181923;
+}
+
+
+
+.react-datepicker__day-names div {
+    background-color: #181923;
+}
+
+
+.react-datepicker__day:hover,
+.react-datepicker__month-text:hover,
+.react-datepicker__quarter-text:hover,
+.react-datepicker__year-text:hover {
+    border-radius: 3px;
+    /* You can replace $datepicker__border-radius with the desired value */
+    background-color: #e08a3b
+    /* Replace $datepicker__background-color with the desired color */
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+    border-radius: 3px; /* You can replace $datepicker__border-radius with the desired value */
+    background-color: #e08a3b !important;  /* Replace $datepicker__selected-color with the desired color */
+    color: #fff !important;
+}

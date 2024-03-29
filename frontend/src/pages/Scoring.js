@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Tab, TabList, TabPanels, Tabs, Box } from "@chakra-ui/react";
+import {
+  Tab,
+  TabList,
+  TabPanels,
+  Tabs,
+  Box,
+  TabIndicator,
+} from "@chakra-ui/react";
 import ScoringTable from "../components/ScoringTable";
 import { useContext } from "react";
 import { EventContext } from "../helpers/EventContext";
@@ -72,12 +79,19 @@ function Scoring() {
     listOfParticipants &&
     headers &&
     currentCategory ? (
-    <Tabs mt="40px" p="20px" colorScheme="purple" variant="enclosed">
+    <Tabs
+      p={3}
+      // colorScheme="orange"
+      variant="unstyled"
+      defaultIndex={0}
+      overflow="auto"
+    >
       <TabList>
         {listOfCategories.map((category, index) => (
           <Tab
             key={index}
-            _selected={{ bg: "purple.400", color: "white" }}
+            textColor="gray.200"
+            _selected={{ textColor: "white" }}
             value={category}
             onClick={() => {
               handleChange(category);
@@ -87,6 +101,12 @@ function Scoring() {
           </Tab>
         ))}
       </TabList>
+      <TabIndicator
+        mt="-1.5px"
+        height="2px"
+        bg="orange.400"
+        borderRadius="1px"
+      />
       <TabPanels>
         <TabPanels>
           {listOfParticipants && headers ? (

@@ -6,7 +6,6 @@ import {
   TabPanels,
   Box,
   Spacer,
-  Select,
   Button,
   Modal,
   ModalOverlay,
@@ -20,12 +19,17 @@ import {
   CheckboxGroup,
   Stack,
   useToast,
+  TabIndicator,
+  Text,
+  FormControl,
+  VStack,
 } from "@chakra-ui/react";
 import Match from "../components/BracketV2/Match";
 import { top8, top16, top32, top64 } from "./dataset.js";
 import axios from "axios";
 import { EventContext } from "../helpers/EventContext.js";
 import { RoleContext } from "../helpers/RoleContext.js";
+import { Select } from "chakra-react-select";
 
 const Brackets = () => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -50,6 +54,7 @@ const Brackets = () => {
       duration: 5000,
       isClosable: true,
       status: "error",
+      variant: "toastFail",
       position: "top",
     });
   };
@@ -61,6 +66,7 @@ const Brackets = () => {
       duration: 5000,
       isClosable: true,
       status: "warning",
+      variant: "toastInfo",
       position: "top",
     });
   };
@@ -72,6 +78,7 @@ const Brackets = () => {
       description: `Requires ${value.error.needed} more participants`,
       duration: 5000,
       isClosable: true,
+      variant: "toastFail",
       status: "error",
       position: "top",
     });
@@ -104,7 +111,7 @@ const Brackets = () => {
           console.log("THIS is a response", response);
           // Theres an error with the brackets only show to admin. Users get something else
           if (response.data.to_choose) {
-            if (roleState === "admin") {
+            if (roleState.role === "admin") {
               console.log("SETTING", response.data);
               setToChoose(response.data);
               onOpen();
@@ -130,9 +137,9 @@ const Brackets = () => {
     }
   }, [toChoose]);
 
-  const handleSelect = (value) => {
-    console.log(value);
-    setSelectedData(value);
+  const handleSelect = (selected) => {
+    console.log("Handle Select = ", selected);
+    setSelectedData(selected.value);
   };
 
   const handleChange = (value) => {
@@ -182,44 +189,124 @@ const Brackets = () => {
     onClose();
   };
 
+  const chakraStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      // borderWidth: "10px",
+      // borderColor: "rgb(237,137,51)",
+      borderWidth: "1px",
+      "& > div > span > span": {
+        paddingY: "1px",
+      },
+      "& > div > span > div > svg > path": {
+        fill: "gray.900",
+      },
+      textColor: "white",
+      // _hover: { borderColor: "rgb(237,137,51)" },
+      _focusVisible: {
+        borderColor: "rgb(237,137,51)",
+        borderWidth: "2px",
+        outline: "none", // Remove default focus outline
+      },
+    }),
+    dropdownIndicator: (provided, state) => ({
+      ...provided,
+      background: "transparent",
+    }),
+    crossIcon: (provided, state) => ({
+      ...provided,
+      textColor: "white",
+    }),
+    menuList: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      textColor: "white",
+    }),
+    value: (provided, state) => ({
+      ...provided,
+      background: "rgb(237,137,51)",
+      textColor: "gray.900",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
+    }),
+    // input: (provided, state) => ({
+    //   ...provided,
+    //   background: "red",
+    //   padding: "2px",
+    // }),
+  };
+
   return listOfCategories ? (
-    <Box>
-      <Modal isOpen={isOpen} onClose={handleOnClose}>
+    <Box p={3}>
+      <Modal isOpen={isOpen} onClose={handleOnClose} m="40px">
         <ModalOverlay />
 
         {toChoose ? (
-          <ModalContent>
-            <ModalHeader>Select {toChoose.to_choose}</ModalHeader>
+          <ModalContent
+            maxW={"300px"}
+            w={"full"}
+            bg="gray.900"
+            boxShadow={"2xl"}
+            rounded={"lg"}
+            p={5}
+            textAlign={"center"}
+          >
+            <ModalHeader textColor="white" fontSize={"2xl"} fontFamily={"body"}>
+              Select {toChoose.to_choose}{" "}
+              {toChoose.to_choose == 1 ? "User" : "Users"}
+            </ModalHeader>
             <ModalCloseButton />
-            <ModalBody>
-              {checkedState ? (
-                <CheckboxGroup colorScheme="purple">
-                  <Stack spacing={[4, 1]} direction={["column", "row"]}>
-                    {toChoose.data.map((row, index) => (
-                      <Checkbox
-                        checked={checkedState[index]}
-                        onChange={() => handleCheckboxChange(index)}
-                      >
-                        {row["User.user_name"]}
-                      </Checkbox>
-                    ))}
-                  </Stack>
+            <ModalBody textAlign="left" color="gray.400" px={3}>
+              <FormControl display="flex">
+                <CheckboxGroup>
+                  {checkedState ? (
+                    <VStack align="start">
+                      {toChoose.data.map((row, index) => (
+                        <Checkbox
+                          checked={checkedState[index]}
+                          onChange={() => handleCheckboxChange(index)}
+                        >
+                          {row["User.user_name"]}
+                        </Checkbox>
+                      ))}
+                    </VStack>
+                  ) : (
+                    <Box>Loading</Box>
+                  )}
                 </CheckboxGroup>
-              ) : (
-                <Box>Loading</Box>
-              )}
+              </FormControl>
             </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="purple" mr={3} onClick={onClose}>
-                Close
-              </Button>
-              <Button
-                variant="outline"
-                colorScheme="purple"
-                onClick={handleSubmit}
-              >
-                Submit
-              </Button>
+
+            <ModalFooter alignContent="center" justifyContent="center">
+              <Stack mt={8} direction={"row"} spacing={4}>
+                <Button
+                  flex={1}
+                  fontSize={"sm"}
+                  _focus={{
+                    bg: "gray.200",
+                  }}
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
+                <Button
+                  flex={1}
+                  fontSize={"sm"}
+                  outlineColor="rgb(237,137,51)"
+                  textColor="white"
+                  bg="transparent"
+                  _hover={{
+                    bg: "rgb(237,137,51)",
+                    textColor: "gray.900",
+                  }}
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </Button>
+              </Stack>
             </ModalFooter>
           </ModalContent>
         ) : (
@@ -229,12 +316,14 @@ const Brackets = () => {
           </ModalContent>
         )}
       </Modal>
-      <Tabs mt="40px" p="20px" colorScheme="purple" variant="enclosed">
+      <Tabs textColor="white" p={3} variant="unstyled" defaultIndex={0}>
         <TabList>
           {listOfCategories.map((category, index) => (
             <Tab
               key={index}
-              _selected={{ bg: "purple.400", color: "white" }}
+              textColor="gray.200"
+              _selected={{ textColor: "white" }}
+              out
               value={category}
               onClick={() => {
                 handleChange(category);
@@ -244,27 +333,41 @@ const Brackets = () => {
             </Tab>
           ))}
           <Spacer />
+
           <Select
-            focusBorderColor="purple.400"
+            chakraStyles={chakraStyles}
             maxW="150px"
             onChange={(e) => {
-              handleSelect(e.target.value);
+              handleSelect(e);
             }}
-            value={selectedData}
+            options={[
+              { value: "top4", label: "Top 4" },
+              { value: "top8", label: "Top 8" },
+              { value: "top16", label: "Top 16" },
+            ]}
           >
             {/* <option value="top2">Finals</option> */}
+
             <option value="top4">Top 4</option>
             <option value="top8">Top 8</option>
             <option value="top16">Top 16</option>
           </Select>
         </TabList>
-        <TabPanels bg="purple.100" height="100%" w="100%" overflow="auto">
-          {bracketData ? (
+        <TabIndicator
+          mt="-1.5px"
+          height="2px"
+          bg="orange.400"
+          borderRadius="1px"
+        />
+        {bracketData ? (
+          <TabPanels mt="2%" height="100%" w="100%" overflow="auto">
             <Match data={bracketData} />
-          ) : (
-            <div>Loading (Brackets)</div>
-          )}
-        </TabPanels>
+          </TabPanels>
+        ) : (
+          <TabPanels mt="2%" bg="transparent">
+            <Text textColor="white">No Data / Data not Right</Text>
+          </TabPanels>
+        )}
       </Tabs>
     </Box>
   ) : (

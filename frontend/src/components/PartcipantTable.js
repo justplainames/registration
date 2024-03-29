@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { IconTrash } from "@tabler/icons-react";
+import { checkboxTheme } from "../customThemes/Checkbox";
 
 const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -52,6 +53,7 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
       duration: 5000,
       isClosable: true,
       status: "info",
+      variant: "custom",
       position: "top",
     });
   };
@@ -258,18 +260,21 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
         </ModalContent>
       </Modal>
       {listOfParticipants ? (
-        <Table variant="striped" colorScheme="purple">
+        <Table variant="simple" color={"white"}>
           <Thead>
-            <Tr>
+            <Tr my=".8rem" pl="0px" color="gray.400">
               {headers.map((header, index) => (
-                <Th key={index}>{header}</Th>
+                <Th color="gray.400" key={index}>
+                  {header}
+                </Th>
               ))}
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>
             {listOfParticipants.map((user) => (
               <Tr key={user.user_id_fk}>
-                <Td>
+                <Td fontSize="md" color="white" minWidth="100%">
                   <Editable
                     value={user.order ? user.order : 0}
                     onChange={(e) => {
@@ -283,21 +288,29 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
                     <EditablePreview />
                   </Editable>
                 </Td>
-                <Td>{user.user_name}</Td>
-                <Td>{user.user_instagram}</Td>
-                <Td>{user.user_phone_number}</Td>
-                <Td>{user.user_email}</Td>
-                <Td>{user.user_paid ? "Yes" : "No"}</Td>
-                <Td>
+                <Td fontSize="md" color="white" minWidth="100%">
+                  {user.user_name}
+                </Td>
+                <Td fontSize="md" color="white" minWidth="100%">
+                  {user.user_instagram}
+                </Td>
+                <Td fontSize="md" color="white" minWidth="100%">
+                  {user.user_phone_number}
+                </Td>
+                <Td fontSize="md" color="white" minWidth="100%">
+                  {user.user_email}
+                </Td>
+                <Td fontSize="md" color="white" minWidth="100%">
+                  {user.user_paid ? "Yes" : "No"}
+                </Td>
+                <Td fontSize="md" color="white" minWidth="100%">
                   <Checkbox
                     name={user.user_id_fk}
                     isChecked={user.order ? true : false}
                     onChange={(e) => {
                       handleCheckboxChange(e);
                     }}
-                  >
-                    {String(user.order)}
-                  </Checkbox>
+                  ></Checkbox>
                 </Td>
                 <Td>
                   <Icon

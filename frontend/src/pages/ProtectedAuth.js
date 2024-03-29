@@ -8,30 +8,28 @@ const ProtectedAuth = ({ children }) => {
   const { authState, setAuthState } = useContext(AuthContext);
   const navigate = useNavigate();
   const apiPath = process.env.REACT_APP_API_PATH;
-  console.log("Entered Protect Auth Page");
-  useEffect(() => {
-    console.log("PRotected Auth Page called");
-    const fetchData = async () => {
-      console.log("Fetching Data");
-      try {
-        const response = await axios.get(`${apiPath}request/authenticate`, {
-          withCredentials: true,
-        });
-        if (response.data === "ok") {
-          console.log("Auth Completed");
-          setAuthState(true);
-        } else {
-          navigate("/");
-        }
-      } catch (error) {
-        console.error("Error fetching authentication status:", error);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${apiPath}request/authenticate`, {
+        withCredentials: true,
+      });
+      if (response.data === "ok") {
+        console.log("Auth Completed");
+        // setAuthState(true);
+      } else {
         navigate("/");
       }
-    };
-    fetchData();
-  }, [authState, navigate]);
+    } catch (error) {
+      console.error("Error fetching authentication status:", error);
+      navigate("/");
+    }
+  };
 
-  return authState ? children : null;
+  fetchData();
+
+  // return authState ? children : null;
+  return children;
 };
 
 export default ProtectedAuth;

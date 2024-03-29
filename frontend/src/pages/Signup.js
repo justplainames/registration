@@ -129,9 +129,14 @@ export const signUpAction = async ({ request }) => {
     user_phone_number: data.get("user_phone_number"),
   };
   console.log(user);
-  axios.post(`${apiPath}signup/`, user).catch((error) => {
+
+  try {
+    const response = await axios.post(`${apiPath}signup/`, user);
+    // Redirect to dashboard upon successful signup
+    return redirect("/dashboard");
+  } catch (error) {
     console.error("Error making axios request:", error);
     // Handle the error as needed
-  });
-  return redirect("/dashboard");
+    throw error; // Re-throw the error to propagate it
+  }
 };

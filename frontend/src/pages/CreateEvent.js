@@ -7,6 +7,8 @@ import {
   FormLabel,
   Input,
   Button,
+  Heading,
+  Flex,
 } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -84,51 +86,130 @@ export default function CreateEvent() {
     });
   };
 
+  const chakraStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      // borderWidth: "10px",
+      // borderColor: "rgb(237,137,51)",
+      borderWidth: "1px",
+      "& > div > span > span": {
+        paddingY: "1px",
+      },
+      "& > div > span > div > svg > path": {
+        fill: "gray.900",
+      },
+      textColor: "white",
+      // _hover: { borderColor: "rgb(237,137,51)" },
+      _focusVisible: {
+        borderColor: "rgb(237,137,51)",
+        borderWidth: "2px",
+        outline: "none", // Remove default focus outline
+      },
+    }),
+    dropdownIndicator: (provided, state) => ({
+      ...provided,
+      background: "transparent",
+    }),
+    crossIcon: (provided, state) => ({
+      ...provided,
+      textColor: "white",
+    }),
+    menuList: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      textColor: "white",
+    }),
+    multiValue: (provided, state) => ({
+      ...provided,
+      background: "rgb(237,137,51)",
+      textColor: "gray.900",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      background: "gray.900",
+      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
+    }),
+    // input: (provided, state) => ({
+    //   ...provided,
+    //   background: "red",
+    //   padding: "2px",
+    // }),
+  };
+
   return (
-    <Box maxW="480px">
+    <Box p={4}>
+      <Heading
+        textColor="white"
+        textAlign={"center"}
+        fontWeight="normal"
+        mb="2%"
+        w="100%"
+      >
+        Create Event
+      </Heading>
+
       <Form method="post" action="/createEvent">
         <input
           type="hidden"
           name="judges_by_categories"
           value={JSON.stringify(judgesByCategory)}
         />
+        <Flex>
+          <FormControl textColor="white" mr="5%">
+            <FormLabel fontWeight={"normal"}>Event Name</FormLabel>
+            <Input
+              focusBorderColor="orange.400"
+              textColor="white"
+              type="text"
+              name="event_name"
+            />
+            <FormHelperText>Enter event name</FormHelperText>
+          </FormControl>
 
-        <FormControl mb="40px">
-          <FormLabel>Event Name</FormLabel>
-          <Input type="text" name="event_name" />
-          <FormHelperText>Enter event name</FormHelperText>
-        </FormControl>
-
-        <FormControl mb="40px">
-          <FormLabel>Event Location</FormLabel>
-          <Input type="text" name="event_location" />
-          <FormHelperText>Enter event location</FormHelperText>
-        </FormControl>
-
-        <FormControl mb="40px">
+          <FormControl textColor="white">
+            <FormLabel>Event Location</FormLabel>
+            <Input
+              textColor="white"
+              focusBorderColor="orange.400"
+              type="text"
+              name="event_location"
+            />
+            <FormHelperText>Enter event location</FormHelperText>
+          </FormControl>
+        </Flex>
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Event Descripton</FormLabel>
-          <Input type="textarea" name="event_description" />
+          <Input
+            textColor="white"
+            focusBorderColor="orange.400"
+            type="textarea"
+            name="event_description"
+          />
           <FormHelperText>Enter event description</FormHelperText>
         </FormControl>
 
-        <FormControl mb="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Event Date</FormLabel>
           <DatePicker
+            colorScheme="orange"
             selected={startDate}
             onChange={(date) => setStartDate(date)}
             name="event_date"
             dateFormat="dd/MM/yyyy"
+            dayStyle={{ color: "green" }}
+            calendarStyles={{ color: "red" }}
           />
           <FormHelperText>Enter the event date</FormHelperText>
         </FormControl>
 
-        <FormControl mb="40px" style={{ maxWidth: "none" }}>
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Categories:</FormLabel>
           <Select
+            chakraStyles={chakraStyles}
             options={categoryOptions}
-            colorScheme="purple"
-            focusBorderColor="purple.400"
-            selectedOptionColorScheme="purple"
+            selectedOptionColorScheme="orange"
+            focusBorderColor="orange.400"
+            selectedOptionStyle="color"
             isMulti
             name="categories"
             onChange={handleCategoryChange}
@@ -138,17 +219,19 @@ export default function CreateEvent() {
         {selectedCategories.map((category) => (
           <FormControl
             key={category.value.category_id_pk}
-            mb="40px"
+            textColor="white"
+            mt="2%"
             style={{ maxWidth: "none" }}
           >
             <FormLabel>{`Judges for ${category.value.category_name}:`}</FormLabel>
             <Select
               name="judges"
               options={judgeOptions}
-              colorScheme="purple"
-              focusBorderColor="purple.400"
-              selectedOptionColorScheme="purple"
+              colorScheme="orange"
+              focusBorderColor="orange.400"
+              selectedOptionColorScheme="orange"
               isMulti
+              chakraStyles={chakraStyles}
               onChange={(selectedOptions) =>
                 handleJudgeChange(
                   selectedOptions,
@@ -159,7 +242,18 @@ export default function CreateEvent() {
           </FormControl>
         ))}
 
-        <Button type="submit">Submit</Button>
+        <Button
+          mt="2%"
+          bg="rgb(237,137,51)"
+          textColor="gray.900"
+          _hover={{
+            textDecoration: "none",
+            bg: "rgb(213,123,45)",
+          }}
+          type="submit"
+        >
+          Submit
+        </Button>
       </Form>
     </Box>
   );

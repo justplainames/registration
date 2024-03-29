@@ -142,11 +142,9 @@ const ScoringTable = ({ headers, data }) => {
   };
   return dataset && headerDataset && scoreTracker && totalScoreTracker ? (
     <Box p={4}>
-      {" "}
-      TESTING
-      <Table variant="striped" colorScheme="purple">
+      <Table variant="simple" color="white">
         <Thead>
-          <Tr>
+          <Tr my=".8rem" pl="0px" color="gray.400">
             {headerDataset &&
               headerDataset.map((header, index) => (
                 <Th key={index}>{header}</Th>
@@ -198,8 +196,12 @@ const ScoringTable = ({ headers, data }) => {
             (user) =>
               user && (
                 <Tr key={user.user_id_pk}>
-                  <Td>{user.user_name}</Td>
-                  <Td>{user.user_instagram}</Td>
+                  <Td fontSize="md" color="white" minWidth="100%">
+                    {user.user_name}
+                  </Td>
+                  <Td fontSize="md" color="white" minWidth="100%">
+                    {user.user_instagram}
+                  </Td>
                   {/* <Td>{participant.participant_phone_number}</Td>
               <Td>{participant.participant_email}</Td> */}
                   {headerDataset

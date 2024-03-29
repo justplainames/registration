@@ -27,6 +27,8 @@ import {
   Tooltip,
   FormControl,
   FormLabel,
+  Image,
+  Stack,
 } from "@chakra-ui/react";
 import { EventContext } from "../helpers/EventContext";
 import { AuthContext } from "../helpers/AuthContext";
@@ -48,12 +50,13 @@ function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [check, setCheck] = useState(false);
   const navigate = useNavigate();
-  console.log("ENTERED DASHBOARD");
+  console.log("Dashboard rendered");
 
   const handleClick = async (event_name, event_id) => {
     console.log("EVENT = ", event_id);
     axios.get(`${apiPath}addParticipant/joinEvent/getRole`).then((response) => {
       setEventState({ eventName: event_name, eventId: event_id });
+      console.log("response.data", response.data);
       if (response.data.role === "user") {
         axios
           .get(`${apiPath}addParticipant/getCategories/${event_id}`)
@@ -85,6 +88,7 @@ function Dashboard() {
   // };
 
   useEffect(() => {
+    console.log("Use efect [categories] - dashboard");
     if (categories) {
       const data = {};
       categories.forEach((category) => {
@@ -95,7 +99,9 @@ function Dashboard() {
       setIsTooltipOpen(data);
     }
   }, [categories]);
+
   useEffect(() => {
+    console.log("Use efect [] - dashboard");
     setAuthState(true);
     const fetchData = async () => {
       try {
@@ -105,7 +111,8 @@ function Dashboard() {
         axios
           .get(`${apiPath}addParticipant/joinEvent/getRole`)
           .then((response) => {
-            setRoleState(response.data.role);
+            setRoleState(response.data);
+            console.log("role has been set");
           });
       } catch (error) {
         console.error("Error making axios request:", error);
@@ -114,8 +121,6 @@ function Dashboard() {
 
     fetchData();
   }, []);
-
-  // useEffect(() => {}, [eventState]);
 
   const handleSubmit = () => {
     axios.post(`${apiPath}addParticipant/${eventState.eventId}`, {
@@ -134,14 +139,24 @@ function Dashboard() {
   }
 
   return (
-    <SimpleGrid spacing={10} minChildWidth="300px">
+    <SimpleGrid spacing={10} minChildWidth="300px" p={3}>
       <Modal isOpen={isOpen} onClose={handleOnClose} m="40px">
         <ModalOverlay />
 
-        <ModalContent>
-          <ModalHeader m="40px">{authState}</ModalHeader>
+        <ModalContent
+          maxW={"700px"}
+          w={"full"}
+          bg="gray.900"
+          boxShadow={"2xl"}
+          rounded={"lg"}
+          p={6}
+          textAlign={"center"}
+        >
+          <ModalHeader textColor="white" fontSize={"2xl"} fontFamily={"body"}>
+            Event Registration
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody m="40px">
+          <ModalBody textAlign={"center"} color="gray.400" px={3}>
             {/* <CheckboxGroup colorScheme="purple">
                   <Stack spacing={[4, 1]} direction={["column", "row"]}>
                     {toChoose.data.map((row, index) => (
@@ -168,10 +183,9 @@ function Dashboard() {
             elementum nec aliquam placerat, posuere nec justo. Nam fringilla
             tincidunt ante vel mollis. Nunc pharetra ex ut auctor molestie. Cras
           </ModalBody>
-          <FormControl m="40px">
-            <FormLabel>Categories: </FormLabel>
+          <FormControl mt="2%" textAlign="left">
+            <FormLabel textColor="rgb(237,137,51)">Categories: </FormLabel>
             <CheckboxGroup
-              colorScheme="purple"
               onChange={(values) => {
                 setSelectedCategories(values); // Update selectedCategories state
               }}
@@ -179,7 +193,7 @@ function Dashboard() {
             >
               {categories ? (
                 categories.map((category) => (
-                  <Box m="20px">
+                  <Box mt="2%">
                     {category.joined ? (
                       <Tooltip
                         key={`${category.category_id}_${category.category_id_pk}`}
@@ -188,6 +202,8 @@ function Dashboard() {
                         isOpen={isTooltipOpen[category.category_id_pk]}
                       >
                         <Checkbox
+                          textColor="white"
+                          control={{ bg: "red" }}
                           disabled={true}
                           title="hello"
                           key={`${category.category_id}_${category.category_id_pk}`}
@@ -213,6 +229,7 @@ function Dashboard() {
                       </Tooltip>
                     ) : (
                       <Checkbox
+                        textColor="white"
                         title="hello"
                         key={`${category.category_id}_${category.category_id_pk}`}
                         value={String(category.category_id_pk)} // Set value to category ID
@@ -229,16 +246,32 @@ function Dashboard() {
           </FormControl>
 
           <ModalFooter>
-            <Button colorScheme="purple" mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button
-              variant="outline"
-              colorScheme="purple"
-              onClick={handleSubmit}
-            >
-              Yes!
-            </Button>
+            <Stack mt={8} direction={"row"} spacing={4}>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                _focus={{
+                  bg: "gray.200",
+                }}
+                onClick={onClose}
+              >
+                Close
+              </Button>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                outlineColor="rgb(237,137,51)"
+                textColor="white"
+                bg="transparent"
+                _hover={{
+                  bg: "rgb(237,137,51)",
+                  textColor: "gray.900",
+                }}
+                onClick={handleSubmit}
+              >
+                Yes!
+              </Button>
+            </Stack>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -246,29 +279,60 @@ function Dashboard() {
         events.map((event) => (
           <Card
             key={event.id}
-            borderTop="8px"
-            borderColor="purple.400"
-            bg="white"
+            // borderColor="purple.400"
+            // bg={useColorModeValue("white", "gray.900")}
+            bg="gray.900"
+            boxShadow={"2xl"}
+            rounded={"md"}
           >
-            <CardHeader>
-              <Flex gap={5}>
-                <Avatar src={event.img} />
-                <Box>
-                  <Heading as="h3" size="sm">
-                    {event.event_name}
-                  </Heading>
-                  <Text>{event.event_date}</Text>
-                </Box>
-              </Flex>
+            <CardHeader h={"300px"}>
+              <Image
+                src={
+                  "https://images.unsplash.com/photo-1611435263641-4656c4b188c3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZGFuY2UlMjBiYXR0bGV8ZW58MHx8MHx8fDA%3D"
+                }
+                alt="Example"
+                w="100%"
+                h="100%"
+                objectFit="fit"
+              />
             </CardHeader>
-            <CardBody color="gray.500">
-              <Text>{event.event_description}</Text>
+            <CardBody color="gray.500" overflow={"hidden"} maxH={"200px"}>
+              <Text
+                color={"orange.400"}
+                textTransform={"uppercase"}
+                fontWeight={800}
+                fontSize={"sm"}
+                letterSpacing={1.1}
+              >
+                Jam
+              </Text>
+              <Heading
+                // color={useColorModeValue("gray.700", "white")}
+                color="white"
+                fontSize={"2xl"}
+                fontFamily={"body"}
+              >
+                {event.event_name}
+              </Heading>
+              <Text color={"gray.500"}>{event.event_description}</Text>
+
+              {/* <Text>{event.event_description}</Text> */}
             </CardBody>
-            <Divider borderColor="gray.350" />
-            <CardFooter textAlign="center">
+            <Divider borderColor="gray.500" />
+            <CardFooter textAlign="center" align={"center"}>
               <Button
-                w="300px"
-                mx="auto"
+                mt={2}
+                w={"full"}
+                bg={"orange.400"}
+                color={"white"}
+                rounded={"xl"}
+                boxShadow={"0 5px 20px 0px rgb(255 167 38 / 43%)"}
+                _hover={{
+                  bg: "orange.500",
+                }}
+                _focus={{
+                  bg: "orange.500",
+                }}
                 onClick={() => handleClick(event.event_name, event.event_id_pk)}
               >
                 <Icon as={IconClick} />

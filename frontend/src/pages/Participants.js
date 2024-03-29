@@ -6,6 +6,7 @@ import {
   TabList,
   TabPanels,
   Tabs,
+  TabIndicator,
 } from "@chakra-ui/react";
 import ParticipantTable from "../components/PartcipantTable";
 import { useNavigate } from "react-router-dom";
@@ -84,17 +85,19 @@ function Participants() {
 
   return (
     <Tabs
-      mt="40px"
-      p="20px"
-      colorScheme="purple"
-      variant="enclosed"
+      p={3}
+      // colorScheme="orange"
+      variant="unstyled"
       defaultIndex={0}
+      overflow="auto"
     >
       <TabList>
         {listOfCategories.map((category, index) => (
           <Tab
             key={index}
-            _selected={{ bg: "purple.400", color: "white" }}
+            textColor="gray.200"
+            _selected={{ textColor: "white" }}
+            out
             value={category}
             onClick={() => {
               handleChange(category);
@@ -105,15 +108,21 @@ function Participants() {
         ))}
         <Spacer />
         <Button
-          roundedBottom="none"
-          colorScheme="purple"
-          px="40px"
-          mr="1px"
+          textColor="white"
+          outlineColor={"orange.400"}
+          bg="none"
           onClick={AddParticipant}
+          _hover={{ bg: "orange.400", textColor: "gray.900" }}
         >
           Add Participant
         </Button>
       </TabList>
+      <TabIndicator
+        mt="-1.5px"
+        height="2px"
+        bg="orange.400"
+        borderRadius="1px"
+      />
       <TabPanels>
         <TabPanels>
           <participantContext.Provider

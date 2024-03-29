@@ -119,7 +119,7 @@ function Seed({
       // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
-      backgroundColor: "black",
+      backgroundColor: "white",
     };
     if (next_match_info.round === 2) {
     } else {
@@ -131,7 +131,7 @@ function Seed({
           top: `${connectorLength / 2}px`,
           width: `${connectorLength}px`,
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
         styler2 = {
           position: "absolute",
@@ -139,7 +139,7 @@ function Seed({
           top: `${connectorLength}px`,
           width: "14px",
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
       } else {
         styler1 = {
@@ -149,7 +149,7 @@ function Seed({
           bottom: `${connectorLength / 2}px`,
           width: `${connectorLength}px`,
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
         styler2 = {
           position: "absolute",
@@ -157,7 +157,7 @@ function Seed({
           bottom: `${connectorLength - 5}px`,
           width: "14px",
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
       }
     }
@@ -169,7 +169,7 @@ function Seed({
       // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
-      backgroundColor: "black",
+      backgroundColor: "white",
     };
     if (next_match_info.round == 2) {
     } else {
@@ -181,7 +181,7 @@ function Seed({
           top: `${connectorLength / 2}px`,
           width: `${connectorLength}px`,
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
         styler2 = {
           position: "absolute",
@@ -189,7 +189,7 @@ function Seed({
           top: `${connectorLength}px`,
           width: "15px",
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
       } else {
         styler1 = {
@@ -199,7 +199,7 @@ function Seed({
           bottom: `${connectorLength / 2}px`,
           width: `${connectorLength}px`,
           height: "1px",
-          backgroundColor: "black",
+          backgroundColor: "white",
         };
         styler2 = {
           // position: "absolute",
@@ -219,7 +219,7 @@ function Seed({
       // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
-      backgroundColor: "black",
+      backgroundColor: "white",
     };
 
     styler1 = {
@@ -229,7 +229,7 @@ function Seed({
       // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
-      backgroundColor: "black",
+      backgroundColor: "white",
     };
   }
   console.log("DATA IS ", data.data.matches);
@@ -362,12 +362,14 @@ function Seed({
 
   return (
     <Box
+      bg="gray.700"
       my="1px"
       border="1px"
       height="55px"
       width="220px"
       key={seedId}
       position="relative"
+      borderRadius="15px"
     >
       <Box {...styler3}>
         <Box {...styler1}></Box>
@@ -379,28 +381,63 @@ function Seed({
         py="1px"
         px="2px"
         justifyContent="space-between"
+        onClick={roleState.role === "admin" ? handleClick : null}
+        borderBottom="1px solid white"
         _hover={{
-          background: "teal",
+          background: "gray.800",
           color: "white",
-          "& > *": {
-            background: "teal",
+          "& > .seedStatusNull": {
+            background: "gray.700",
             color: "white",
           },
+          "& > .seedStatusLost": {
+            background: "rgb(130,31,34)",
+            color: "black",
+          },
+          "& > .seedStatusWon": {
+            background: "rgb(213, 125, 47)",
+            color: "black",
+          },
+          borderTopLeftRadius: "15px",
+          borderTopRightRadius: "15px",
         }}
-        onClick={roleState === "admin" ? handleClick : null}
-        borderBottom="1px solid black"
       >
-        <Text>{firstOppenent}</Text>
+        <Text marginLeft="5px">{firstOppenent}</Text>
         {firstResult === null ? (
-          <Text width="50px" bg="pink.100" px="3px" isTruncated>
+          <Text
+            borderTopRightRadius="15px"
+            borderLeftRadius="3px"
+            width="50px"
+            bg="gray.600"
+            px="3px"
+            className="seedStatusNull"
+          >
             NULL
           </Text>
         ) : firstResult === false ? (
-          <Text width="50px" bg="pink.100" px="3px" isTruncated>
+          <Text
+            borderTopRightRadius="15px"
+            borderLeftRadius="3px"
+            textColor="white"
+            width="50px"
+            px="3px"
+            bg="#9b2226"
+            isTruncated
+            className="seedStatusLost"
+          >
             LOST
           </Text>
         ) : (
-          <Text width="50px" bg="pink.100" px="3px" isTruncated>
+          <Text
+            borderTopRightRadius="15px"
+            borderLeftRadius="3px"
+            textColor="gray.900"
+            bg="rgb(237,137,51)"
+            width="50px"
+            px="3px"
+            isTruncated
+            className="seedStatusWon"
+          >
             WON
           </Text>
         )}
@@ -411,26 +448,62 @@ function Seed({
         px="2px"
         justifyContent="space-between"
         _hover={{
-          background: "teal",
+          background: "gray.800",
           color: "white",
-          "& > *": {
-            background: "teal",
+          "& > .seedStatusNull": {
+            background: "gray.700",
             color: "white",
           },
+          "& > .seedStatusLost": {
+            background: "rgb(130,31,34)",
+            color: "black",
+          },
+          "& > .seedStatusWon": {
+            background: "rgb(213, 125, 47)",
+            color: "black",
+          },
+          borderBottomLeftRadius: "15px",
+          borderBottomRightRadius: "15px",
         }}
-        onClick={roleState === "admin" ? handleClick : null}
+        onClick={roleState.role === "admin" ? handleClick : null}
       >
-        <Text>{secondOppenent}</Text>
+        <Text marginLeft="5px">{secondOppenent}</Text>
         {secondResult === null ? (
-          <Text width="50px" bg="pink.100" px="3px" isTruncated>
+          <Text
+            borderTopRightRadius="15px"
+            borderLeftRadius="3px"
+            width="50px"
+            bg="gray.600"
+            px="3px"
+            isTruncated
+            className="seedStatusNull"
+          >
             NULL
           </Text>
         ) : secondResult === false ? (
-          <Text width="50px" bg="pink.100" px="3px" isTruncated>
+          <Text
+            borderBottomRightRadius="15px"
+            borderLeftRadius="3px"
+            textColor="white"
+            bg="#9b2226"
+            width="50px"
+            px="3px"
+            isTruncated
+            className="seedStatusLost"
+          >
             LOST
           </Text>
         ) : (
-          <Text width="50px" bg="pink.100" px="3px" isTruncated>
+          <Text
+            borderBottomRightRadius="15px"
+            borderLeftRadius="3px"
+            textColor="gray.900"
+            bg="rgb(237,137,51)"
+            width="50px"
+            px="3px"
+            isTruncated
+            className="seedStatusWon"
+          >
             WON
           </Text>
         )}
