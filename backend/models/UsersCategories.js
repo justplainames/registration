@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,
       },
+      stage_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       primaryKey: true,

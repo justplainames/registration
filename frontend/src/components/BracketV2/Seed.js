@@ -470,7 +470,7 @@ function Seed({
         <Text marginLeft="5px">{secondOppenent}</Text>
         {secondResult === null ? (
           <Text
-            borderTopRightRadius="15px"
+            borderBottomRightRadius="15px"
             borderLeftRadius="3px"
             width="50px"
             bg="gray.600"

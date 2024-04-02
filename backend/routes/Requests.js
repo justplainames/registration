@@ -49,8 +49,14 @@ router.get("/authenticate", validateToken, async (req, res, next) => {
 });
 
 router.get("/getRole", validateToken, async (req, res, next) => {
+  console.log("\n\n");
+  console.log(req.sub);
   await Users.findByPk(req.sub.new_uuid).then((data) => {
-    res.json(data.dataValues.user_role);
+    console.log(data);
+    res.json({
+      role: data.dataValues.user_role,
+      user_name: data.dataValues.user_name,
+    });
   });
 });
 

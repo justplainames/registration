@@ -311,7 +311,10 @@ router.get("/joinEvent/getRole", async (req, res) => {
   const sub = req.sub.new_uuid;
   const role = await Users.findByPk(sub);
   console.log(role);
-  res.json({ role: role.dataValues.user_role });
+  res.json({
+    role: role.dataValues.user_role,
+    user_name: role.dataValues.user_name,
+  });
 });
 
 router.put("/updateOrder", async (req, res) => {

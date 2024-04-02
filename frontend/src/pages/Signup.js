@@ -11,6 +11,7 @@ import {
   Flex,
   Button,
   CheckboxGroup,
+  Heading,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
 const apiPath = process.env.REACT_APP_API_PATH;
@@ -40,11 +41,22 @@ export default function Signup() {
   }, []);
 
   return (
-    <Box maxW="480px">
+    <Box p={4} height="100%">
+      <Heading
+        textColor="white"
+        textAlign={"center"}
+        fontWeight="normal"
+        mb="2%"
+        w="100%"
+      >
+        Sign Up
+      </Heading>
       <Form method="post" action="/signup">
-        <FormControl margin="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Name: </FormLabel>
           <Input
+            textColor="white"
+            focusBorderColor="orange.400"
             type="text"
             name="user_name"
             value={name}
@@ -55,17 +67,24 @@ export default function Signup() {
           <FormHelperText>Enter your name here</FormHelperText>
         </FormControl>
 
-        <FormControl margin="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Instagram: </FormLabel>
-          <Input type="text" name="user_instagram" />
+          <Input
+            textColor="white"
+            focusBorderColor="orange.400"
+            type="text"
+            name="user_instagram"
+          />
           <FormHelperText>
             Enter your instagram account if you have
           </FormHelperText>
         </FormControl>
 
-        <FormControl margin="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Email: </FormLabel>
           <Input
+            textColor="white"
+            focusBorderColor="orange.400"
             type="text"
             name="user_email"
             value={email}
@@ -76,13 +95,27 @@ export default function Signup() {
           <FormHelperText>Enter your email</FormHelperText>
         </FormControl>
 
-        <FormControl margin="40px">
+        <FormControl textColor="white" mt="2%">
           <FormLabel>Mobile Number: </FormLabel>
-          <Input type="text" name="user_phone_number" />
+          <Input
+            textColor="white"
+            focusBorderColor="orange.400"
+            type="text"
+            name="user_phone_number"
+          />
           <FormHelperText></FormHelperText>
         </FormControl>
 
-        <Button type="submit" colorScheme="purple">
+        <Button
+          mt="2%"
+          bg="rgb(237,137,51)"
+          textColor="gray.900"
+          _hover={{
+            textDecoration: "none",
+            bg: "rgb(213,123,45)",
+          }}
+          type="submit"
+        >
           Submit
         </Button>
       </Form>
