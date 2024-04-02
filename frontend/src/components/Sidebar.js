@@ -76,18 +76,19 @@ export default function Sidebar({ isOpen, toggleNavbar }) {
         </Flex>
         {LinkItems.map((link) => {
           if (link.name == "Home" || eventState.eventId != null) {
-            if (
-              link.name == "Participants" ||
-              (link.name == "Scoreboard" && roleState.role != "admin")
-            ) {
-              return <></>;
-            } else {
-              return (
-                <NavItem key={link.name} icon={link.icon} link={link.link}>
-                  {link.name}
-                </NavItem>
-              );
-            }
+            // if (
+            //   link.name == "Participants" ||
+            //   (link.name == "Scoreboard" && roleState.role != "admin")
+            // ) {
+            //   return <></>;
+            // } else {
+
+            return (
+              <NavItem key={link.name} icon={link.icon} link={link.link}>
+                {link.name}
+              </NavItem>
+            );
+            // }
           }
         })}
       </Box>
