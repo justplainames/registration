@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { IconClick } from "@tabler/icons-react";
 import {
-  Avatar,
   Divider,
   Icon,
   Button,
-  Flex,
   Heading,
   SimpleGrid,
   Card,
@@ -30,65 +28,26 @@ import {
   Image,
   Stack,
 } from "@chakra-ui/react";
-import { EventContext } from "../helpers/EventContext";
 import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
 import { RoleContext } from "../helpers/RoleContext";
+import { EventContext } from "../helpers/EventContext";
 axios.defaults.withCredentials = true;
 
 function Dashboard() {
   const [events, setEvents] = useState([]);
+  const { setEventState } = useContext(EventContext);
   const { authState, setAuthState } = useContext(AuthContext);
-  const { eventState, setEventState } = useContext(EventContext);
   const { roleState, setRoleState } = useContext(RoleContext);
   const [isTooltipOpen, setIsTooltipOpen] = useState({});
   const [categories, setCategories] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const apiPath = process.env.REACT_APP_API_PATH;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [check, setCheck] = useState(false);
   const navigate = useNavigate();
-  console.log("Dashboard rendered");
-
-  const handleClick = async (event_name, event_id) => {
-    console.log("EVENT = ", event_id);
-    axios.get(`${apiPath}addParticipant/joinEvent/getRole`).then((response) => {
-      setEventState({ eventName: event_name, eventId: event_id });
-      console.log("response.data", response.data);
-      if (response.data.role === "user") {
-        axios
-          .get(`${apiPath}addParticipant/getCategories/${event_id}`)
-          .then((response) => {
-            setCategories(response.data);
-            console.log("Response from getting categories = ", response.data);
-          });
-        onOpen();
-      } else {
-        navigate(`/eventInfo`);
-      }
-    });
-  };
-
-  // Not neccesary to use when using checkbox group!
-  // const handleCheckboxChange = (event) => {
-  //   console.log(selectedCategories);
-  //   setSelectedCategories((prev) => {
-  //     const category_id = event.target.value;
-  //     const current = [...prev];
-  //     if (current.includes(category_id)) {
-  //       const index = current.indexOf(category_id);
-  //       current.splice(index, 1);
-  //     } else {
-  //       current.push(category_id);
-  //     }
-  //     return current;
-  //   });
-  // };
 
   useEffect(() => {
-    console.log("Use efect [categories] - dashboard");
     if (categories) {
       const data = {};
       categories.forEach((category) => {
@@ -100,9 +59,9 @@ function Dashboard() {
     }
   }, [categories]);
 
+  // Fetch role of the user when the component mounts
   useEffect(() => {
-    console.log("Use efect [] - dashboard");
-    setAuthState(true);
+    setAuthState({ isAuthenticated: true });
     const fetchData = async () => {
       try {
         const response = await axios.get(`${apiPath}dashboard/getEvents`);
@@ -112,7 +71,6 @@ function Dashboard() {
           .get(`${apiPath}addParticipant/joinEvent/getRole`)
           .then((response) => {
             setRoleState(response.data);
-            console.log("role has been set");
           });
       } catch (error) {
         console.error("Error making axios request:", error);
@@ -122,10 +80,48 @@ function Dashboard() {
     fetchData();
   }, []);
 
-  const handleSubmit = () => {
-    axios.post(`${apiPath}addParticipant/${eventState.eventId}`, {
-      user_categories: selectedCategories,
-    });
+  // Handle Select Event
+  // Calls API to retrieve event information
+  const handleSelectEvent = async (event_name, event_id) => {
+    try {
+      axios
+        .get(`${apiPath}addParticipant/joinEvent/getRole`)
+        .then((response) => {
+          setEventState(event_id);
+          sessionStorage.setItem("eventName", event_name);
+          sessionStorage.setItem("eventId", event_id);
+          if (response.data.role === "user") {
+            axios
+              .get(
+                `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
+                  "eventId"
+                )}`
+              )
+              .then((response) => {
+                setCategories(response.data);
+              });
+            onOpen();
+          } else {
+            navigate(`/eventInfo`);
+          }
+        });
+    } catch (error) {
+      console.error("Error in handleSelectEvent in page (Dashboard):", error);
+    }
+  };
+
+  const handleJoinSubmit = () => {
+    try {
+      axios.post(
+        `${apiPath}addParticipant/${sessionStorage.getItem("eventId")}`,
+        {
+          user_categories: selectedCategories,
+        }
+      );
+    } catch (error) {
+      console.log("Error in handleJoinSubmit in page (Dashboard)", error);
+    }
+
     handleOnClose();
   };
 
@@ -134,12 +130,12 @@ function Dashboard() {
     onClose();
   };
 
-  if (!authState) {
+  if (!authState.isAuthenticated) {
     return <div>Loading...</div>;
   }
 
   return (
-    <SimpleGrid spacing={10} minChildWidth="300px" p={3}>
+    <SimpleGrid spacing={10} minChildWidth="300px" p={3} justifyItems="center">
       <Modal isOpen={isOpen} onClose={handleOnClose} m="40px">
         <ModalOverlay />
 
@@ -157,18 +153,6 @@ function Dashboard() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody textAlign={"center"} color="gray.400" px={3}>
-            {/* <CheckboxGroup colorScheme="purple">
-                  <Stack spacing={[4, 1]} direction={["column", "row"]}>
-                    {toChoose.data.map((row, index) => (
-                      <Checkbox
-                        checked={checkedState[index]}
-                        onChange={() => handleCheckboxChange(index)}
-                      >
-                        {row["User.user_name"]}
-                      </Checkbox>
-                    ))}
-                  </Stack>
-                </CheckboxGroup> */}
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. In at
             mattis dui. Aenean vestibulum rutrum dictum. Donec efficitur enim
             aliquam ligula blandit scelerisque. Mauris maximus elit vitae augue
@@ -223,8 +207,7 @@ function Dashboard() {
                             })
                           }
                         >
-                          {category.category_name}{" "}
-                          {/* Display category name as label */}
+                          {category.category_name}
                         </Checkbox>
                       </Tooltip>
                     ) : (
@@ -267,7 +250,7 @@ function Dashboard() {
                   bg: "rgb(237,137,51)",
                   textColor: "gray.900",
                 }}
-                onClick={handleSubmit}
+                onClick={handleJoinSubmit}
               >
                 Yes!
               </Button>
@@ -278,12 +261,11 @@ function Dashboard() {
       {events ? (
         events.map((event) => (
           <Card
-            key={event.id}
-            // borderColor="purple.400"
-            // bg={useColorModeValue("white", "gray.900")}
+            key={event.event_id_pk}
             bg="gray.900"
-            boxShadow={"2xl"}
-            rounded={"md"}
+            boxShadow="2xl"
+            rounded="md"
+            maxW="380px"
           >
             <CardHeader h={"300px"}>
               <Image
@@ -306,17 +288,10 @@ function Dashboard() {
               >
                 Jam
               </Text>
-              <Heading
-                // color={useColorModeValue("gray.700", "white")}
-                color="white"
-                fontSize={"2xl"}
-                fontFamily={"body"}
-              >
+              <Heading color="white" fontSize={"2xl"} fontFamily={"body"}>
                 {event.event_name}
               </Heading>
               <Text color={"gray.500"}>{event.event_description}</Text>
-
-              {/* <Text>{event.event_description}</Text> */}
             </CardBody>
             <Divider borderColor="gray.500" />
             <CardFooter textAlign="center" align={"center"}>
@@ -333,7 +308,9 @@ function Dashboard() {
                 _focus={{
                   bg: "orange.500",
                 }}
-                onClick={() => handleClick(event.event_name, event.event_id_pk)}
+                onClick={() =>
+                  handleSelectEvent(event.event_name, event.event_id_pk)
+                }
               >
                 <Icon as={IconClick} />
                 Select

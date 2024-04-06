@@ -3,7 +3,6 @@ import { Form, redirect } from "react-router-dom";
 import {
   Box,
   FormControl,
-  FormHelperText,
   FormLabel,
   Input,
   Checkbox,
@@ -18,7 +17,6 @@ import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 export default function AddParticipant() {
-  const { eventState, setEventState } = useContext(EventContext);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [availableOptions, setAvailableOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -29,38 +27,42 @@ export default function AddParticipant() {
   const apiPath = process.env.REACT_APP_API_PATH;
 
   useEffect(() => {
-    axios
-      .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
-      .then((response) => {
-        console.log("First Category Options = ", response.data);
-        setCategoryOptions(response.data);
-        setAvailableOptions(response.data);
+    try {
+      axios
+        .get(
+          `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
+            "eventId"
+          )}`
+        )
+        .then((response) => {
+          setCategoryOptions(response.data);
+          setAvailableOptions(response.data);
 
-        axios
-          .get(`${apiPath}addParticipant/getUsers`)
-          // .get(`${apiPath}addParticipant/getUsers/${eventState.eventId}`)
-          .then((response) => {
+          axios.get(`${apiPath}addParticipant/getUsers`).then((response) => {
             console.log("Response from adding participant page", response.data);
             setListOfUsers(response.data);
           });
-      })
-      .catch((error) => {
-        console.log("ERROR = ", error);
-        if (error.response.data.error === "Unauthorized") {
-          window.location.href = "/";
-        } else {
-          console.error("Error making axios request:", error);
-        }
-      });
+        })
+        .catch((error) => {
+          if (error.response.data.error === "Unauthorized") {
+            window.location.href = "/";
+          } else {
+            console.error("Error making axios request:", error);
+          }
+        });
+    } catch {
+      console.log("Error in UseEffect in Add Participant");
+    }
   }, []);
 
   useEffect(() => {
-    console.log("setting first user through UseEffect", listOfUsers[0]);
     setSelectedUser(listOfUsers[0]);
     try {
       axios
         .get(
-          `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${listOfUsers[0].user_id_pk}`
+          `${apiPath}addParticipant/getUserCategory/${sessionStorage.getItem(
+            "eventId"
+          )}/${listOfUsers[0].user_id_pk}`
         )
         .then((response) => {
           console.log("Response ", response.data);
@@ -109,37 +111,14 @@ export default function AddParticipant() {
     });
   };
 
-  // const handleUserChange = async (event) => {
-  //   console.log("1", event.target.value);
-  //   try {
-  //     const response = await axios.get(
-  //       `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.target.value}`
-  //     );
-  //     console.log("Response ", response);
-  //     console.log("2", event.target.value);
-
-  //     const user = listOfUsers.find(
-  //       (row) => row.user_id_pk === event.target.value
-  //     );
-  //     console.log("3", event.target.value);
-
-  //     setSelectedUser(user || null);
-  //     console.log("4", event.target.value);
-  //   } catch (error) {
-  //     console.error("Error fetching user category data:", error);
-  //   }
-  // };
-
   const handleUserChange = async (event) => {
-    console.log("event = ", event);
-    // console.log("laskdjs", categoryOptions);
-    // console.log("Selected User iNfo = ", selectedUser);
     const user = listOfUsers.find((row) => row.user_id_pk === event.value);
     setSelectedUser(user || null);
-    // console.log(event.target.value);
     try {
       const response = await axios.get(
-        `${apiPath}addParticipant/getUserCategory/${eventState.eventId}/${event.value}`
+        `${apiPath}addParticipant/getUserCategory/${sessionStorage.getItem(
+          "eventId"
+        )}/${event.value}`
       );
       console.log("Response ", response.data);
       setAvailableOptions((prev) => {
@@ -252,13 +231,13 @@ export default function AddParticipant() {
           label: user.user_name,
         }))}
       />
-      {/* {listOfUsers.map((user) => (
-        <option value={user.user_id_pk} key={user.id}>
-          {user.user_name}
-        </option>
-      ))} */}
+
       <Form method="post" action="/addParticipant">
-        <Input type="hidden" name="event_id_pk" value={eventState.eventId} />
+        <Input
+          type="hidden"
+          name="event_id_pk"
+          value={sessionStorage.getItem("eventId")}
+        />
         <Input
           type="hidden"
           name="user_id_pk"

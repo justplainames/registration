@@ -36,7 +36,6 @@ function Seed({
   const match = data.data.matches[bracket].find(
     (match) => match.seed === seedNumber
   ); //
-  console.log("NEXT MATCH ", nextMatch);
   if (nextMatch) {
     let bracket = `top${nextMatch.split("-")[0]}`;
 
@@ -65,47 +64,17 @@ function Seed({
         }
       }
     })();
-    // let next_match;
-    // if (next_match_info) {
-    //   const split = next_match_info.split("-");
-    //   const bracket = `top${split[0]};`;
-    //   console.log("fl;sdkhfsdkl;h", bracket);
-    //   const seed = split[1];
-    //   next_match = data.data.matches[bracket].find((match) => {
-    //     return match.seed === seed;
-    //   });
-    // }
-
-    // console.log("Current Match = ", match);
-    // console.log("Next Match = ", next_match);
   }
-  console.log("NEXT MATCH ", next_match_info);
-  console.log("NEXT MATCH ", next_slot);
 
   useEffect(() => {}, [matchData]);
 
   const [firstResult, setFirstResult] = useState(match.first.status);
   const [secondResult, setSecondResult] = useState(match.second.status);
-  const seedType =
-    match.prevMatch === null && match.nextMatch === null
-      ? "middle"
-      : match.prevMatch === null
-      ? "outer"
-      : "last";
-
-  // if (matchData) {
-  //   setFirstResult(match.first.status);
-  //   setFirstResult(match.second.status);
-  // }
 
   const seedId = `${data.data.eventId}-${data.data.catId}-${data.data.matchType}-${seedNumber}`;
   const firstOppenent = match.first.stage_name;
   const secondOppenent = match.second.stage_name;
   const type = data.data.matchType.split("-").join("").toLocaleLowerCase();
-  console.log("MAtchTYpE is ? = ", type);
-  console.log("ASKLDJHASLKDHLASKJDHLASKJHDKLAJSDHKLAJSDH\n\n\n");
-  console.log("MATCH INFO = ", match);
-  console.log("NEXT MATCH INFO", next_match_info);
 
   const connectorLength = connectorHeight;
   let styler1 = {};
@@ -116,7 +85,6 @@ function Seed({
       position: "absolute",
       left: "219px",
       top: "26px",
-      // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
       backgroundColor: "white",
@@ -166,7 +134,6 @@ function Seed({
       position: "absolute",
       left: "-16px",
       top: "26px",
-      // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
       backgroundColor: "white",
@@ -216,7 +183,6 @@ function Seed({
       position: "absolute",
       left: "219px",
       top: "26px",
-      // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
       backgroundColor: "white",
@@ -226,17 +192,14 @@ function Seed({
       position: "absolute",
       left: "-16px",
       top: "26px",
-      // transform="translate(-50%, -50%)",
       width: "16px",
       height: "1px",
       backgroundColor: "white",
     };
   }
-  console.log("DATA IS ", data.data.matches);
+
   const handleClick = () => {
-    console.log("Handle Click match", match);
     if (match.prevMatch === null) {
-      console.log("So it came in here");
       if (secondResult === null || secondResult === false) {
         setFirstResult(false);
         setSecondResult(true);
@@ -263,58 +226,33 @@ function Seed({
         setMatchData({ ...matchData });
       }
       match.seed_status = true;
-      // const temp = matchData;
-      // console.log(temp.data.matches[bracket][seedNumber - 1]);
       axios
         .post(
           `${apiPath}bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
           matchData
         )
         .catch((error) => {
-          console.error("Error making axios request:", error);
-          // Handle the error as needed
+          console.error("Error updating the bracket status", error);
         });
     } else {
-      console.log("IT CAME HERE");
       if (
         data.data.matches[`top${match.prevMatch[0].split("-")[0]}`].find(
           (round) => {
-            console.log("1", round.seed, match.prevMatch[0].split("-")[1]);
             return round.seed === parseInt(match.prevMatch[0].split("-")[1]);
           }
         ).seed_status != null &&
         data.data.matches[`top${match.prevMatch[1].split("-")[0]}`].find(
           (round) => {
-            console.log("2", round.seed, match.prevMatch[0].split("-")[1]);
             return round.seed === parseInt(match.prevMatch[1].split("-")[1]);
           }
         ).seed_status != null
       ) {
-        console.log(
-          "IT PASSED DATA 1 =",
-          data.data.matches[`top${match.prevMatch[0].split("-")[0]}`].find(
-            (data) => {
-              return data.seed === parseInt(match.prevMatch[0].split("-")[1]);
-            }
-          )
-        );
-
-        console.log(
-          "IT PASSED DATA 2 =",
-          data.data.matches[`top${match.prevMatch[1].split("-")[0]}`].find(
-            (data) => {
-              return data.seed === parseInt(match.prevMatch[1].split("-")[1]);
-            }
-          )
-        );
         if (secondResult === null || secondResult === false) {
-          console.log("ENTERED SECOND RESULT CHECK");
           setFirstResult(false);
           setSecondResult(true);
 
           if (next_match_info) {
             if (next_slot === "first") {
-              console.log("ENTERED SECOND RESULT CHECK - First");
               next_match_info.first.stage_name = secondOppenent;
             } else {
               next_match_info.second.stage_name = secondOppenent;
@@ -325,13 +263,11 @@ function Seed({
           match.second.status = true;
           setMatchData({ ...matchData });
         } else {
-          console.log("ENTERED First RESULT CHECK Failed");
           setFirstResult(true);
           setSecondResult(false);
 
           if (next_match_info) {
             if (next_slot === "first") {
-              console.log("ENTERED First  RESULT CHECK - First");
               next_match_info.first.stage_name = firstOppenent;
             } else {
               next_match_info.second.stage_name = firstOppenent;
@@ -343,16 +279,13 @@ function Seed({
           setMatchData({ ...matchData });
         }
         match.seed_status = true;
-        // const temp = matchData;
-        // console.log(temp.data.matches[bracket][seedNumber - 1]);
         axios
           .post(
             `${apiPath}bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
             matchData
           )
           .catch((error) => {
-            console.error("Error making axios request:", error);
-            // Handle the error as needed
+            console.error("Error updating bracket status: ", error);
           });
       } else {
         showToast();

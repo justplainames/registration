@@ -15,8 +15,7 @@ const ProtectedAuth = ({ children }) => {
         withCredentials: true,
       });
       if (response.data === "ok") {
-        console.log("Auth Completed");
-        // setAuthState(true);
+        // setAuthState({isAuthenticated: true});
       } else {
         navigate("/");
       }
@@ -28,7 +27,6 @@ const ProtectedAuth = ({ children }) => {
 
   fetchData();
 
-  // return authState ? children : null;
   return children;
 };
 

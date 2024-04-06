@@ -23,35 +23,32 @@ const headers = [
   "Paid",
   "Arrived?",
 ];
-const data = [
-  ["John Doe", "@JohnDoe", "Popping 1v1"],
-  ["Jane Smith", "@JaneSmith", "Locking 1v1"],
-];
 
 function Participants() {
   const { eventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
-  const [isUpdatingDatabase, setIsUpdatingDatabase] = useState(false);
   const apiPath = process.env.REACT_APP_API_PATH;
   const navigate = useNavigate();
-  console.log("Entering Participants Now");
 
   useEffect(() => {
-    console.log("EVENT STATE = ", eventState);
     axios
-      .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
+      .get(
+        `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
+          "eventId"
+        )}`
+      )
       .then((res) => {
         setListOfCategories(res.data);
         const first_data = res.data[0];
         axios
           .get(
-            `${apiPath}addParticipant/getParticipants/${eventState.eventId}/${first_data.category_id_pk}`
+            `${apiPath}addParticipant/getParticipants/${sessionStorage.getItem(
+              "eventId"
+            )}/${first_data.category_id_pk}`
           )
           .then((res) => {
-            console.log("ENTER RES");
             setSelectedCategory(first_data.category_id_pk);
             setListOfParticipants(res.data);
           });
@@ -72,7 +69,9 @@ function Participants() {
   const handleChange = (category) => {
     axios
       .get(
-        `${apiPath}addParticipant/getParticipants/${eventState.eventId}/${category.category_id_pk}`
+        `${apiPath}addParticipant/getParticipants/${sessionStorage.getItem(
+          "eventId"
+        )}/${category.category_id_pk}`
       )
 
       .then((res) => {
@@ -81,16 +80,8 @@ function Participants() {
       });
   };
 
-  useEffect(() => {}, [eventState.eventId]);
-
   return (
-    <Tabs
-      p={3}
-      // colorScheme="orange"
-      variant="unstyled"
-      defaultIndex={0}
-      overflow="auto"
-    >
+    <Tabs p={3} variant="unstyled" defaultIndex={0} overflow="auto">
       <TabList>
         {listOfCategories.map((category, index) => (
           <Tab
@@ -131,7 +122,7 @@ function Participants() {
             <ParticipantTable
               headers={headers}
               category_id_pk={selectedCategory}
-              event_id_pk={eventState.eventId}
+              event_id_pk={sessionStorage.getItem("eventId")}
             />
           </participantContext.Provider>
         </TabPanels>

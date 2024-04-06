@@ -119,35 +119,6 @@ export default function Signup() {
           Submit
         </Button>
       </Form>
-      {/* <Form method="post" action="/addParticipant">
-        <input type="hidden" name="participant_paid" value={paid} />
-
-        <FormControl mb="40px">
-          <FormLabel>Participant Name</FormLabel>
-          <Input type="text" name="participant_name" />
-          <FormHelperText>Enter participant name</FormHelperText>
-        </FormControl>
-
-        <FormControl mb="40px">
-          <FormLabel>Participant Instagram</FormLabel>
-          <Input type="text" name="participant_instagram" />
-          <FormHelperText>Enter the participant's Instagram</FormHelperText>
-        </FormControl>
-
-        <FormControl mb="40px">
-          <FormLabel>Phone Number</FormLabel>
-          <Input type="text" name="participant_phone_number" />
-          <FormHelperText>Enter the participant's Phone Number</FormHelperText>
-        </FormControl>
-
-        <FormControl mb="40px">
-          <FormLabel>Participant Email</FormLabel>
-          <Input type="text" name="participant_email" />
-          <FormHelperText>Enter participant email</FormHelperText>
-        </FormControl>
-
-        <Button type="submit"> Submit </Button>
-      </Form> */}
     </Box>
   );
 }

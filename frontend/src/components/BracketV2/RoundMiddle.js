@@ -4,7 +4,6 @@ import Seed from "./Seed";
 import { HStack } from "@chakra-ui/react";
 
 function RoundMiddle() {
-  console.log("Calculating roundMiddle ");
   return (
     <HStack>
       <Seed

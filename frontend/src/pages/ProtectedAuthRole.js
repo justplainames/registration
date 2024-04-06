@@ -16,12 +16,10 @@ const ProtectedAuthRole = ({ children }) => {
       const authResponse = await axios.get(`${apiPath}request/authenticate`, {
         withCredentials: true,
       });
-      console.log("Auth Completed");
       if (authResponse.data === "ok") {
-        // setAuthState(true);
+        // setAuthState({isAuthenticated: true});
 
         const roleResponse = await axios.get(`${apiPath}request/getRole`);
-        console.log("Role Check completed");
         if (roleResponse.data.role === "admin") {
           // setRoleState(roleResponse.data);
         } else {

@@ -4,8 +4,6 @@ import {
   createRoutesFromElements,
   Route,
   RouterProvider,
-  Link,
-  Routes,
 } from "react-router-dom";
 
 // Local imports
@@ -30,9 +28,9 @@ import EventInfo from "./pages/EventInfo";
 import Profile from "./pages/Profile";
 import { addParticipantAction } from "./pages/AddParticipant";
 import { createEventAction } from "./pages/CreateEvent";
-import { EventContext } from "./helpers/EventContext";
 import { AuthContext } from "./helpers/AuthContext";
 import { RoleContext } from "./helpers/RoleContext";
+import { EventContext } from "./helpers/EventContext";
 import { useState } from "react";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import Signup, { signUpAction } from "./pages/Signup";
@@ -129,13 +127,9 @@ const theme = extendTheme({
 });
 
 function App() {
-  const [eventState, setEventState] = useState({
-    eventName: "Select Event",
-    eventId: null,
-  });
-  console.log("Rendering APP");
-  const [authState, setAuthState] = useState(null);
-  const [roleState, setRoleState] = useState(null);
+  const [authState, setAuthState] = useState({ isAuthenticated: false });
+  const [roleState, setRoleState] = useState({ role: null });
+  const [eventState, setEventState] = useState({});
 
   return (
     <ChakraProvider theme={theme}>

@@ -6,46 +6,61 @@ import {
   Tabs,
   Box,
   TabIndicator,
+  useToast,
 } from "@chakra-ui/react";
 import ScoringTable from "../components/ScoringTable";
-import { useContext } from "react";
-import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 function Scoring() {
-  const { eventState, setEventState } = useContext(EventContext);
   const [listOfCategories, setListOfCategories] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [headers, setHeaders] = useState(null);
   const [listOfParticipants, setListOfParticipants] = useState(null);
+  const toast = useToast();
 
   const apiPath = process.env.REACT_APP_API_PATH;
   const original = ["Name", "Instagram Handle"];
 
   useEffect(() => {
-    console.log("Entered UseEffect-1 in Scoring Page");
+    console.log("useEffect");
     axios
-      .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
+      .get(
+        `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
+          "eventId"
+        )}`
+      )
       .then((response) => {
+        console.log("first api call");
         setListOfCategories(response.data);
         setCurrentCategory(response.data[0].category_id_pk);
         const first_data = response.data[0];
         axios
           .get(
-            `${apiPath}score/${eventState.eventId}/${first_data.category_id_pk}`
+            `${apiPath}score/${sessionStorage.getItem("eventId")}/${
+              first_data.category_id_pk
+            }`
           )
           .then((response) => {
-            console.log(response);
-            console.log("Entered UseEffect-1 in Scoring Page (Second)");
-            setHeaders([
-              ...original,
-              ...response.data[0].judges.map((item) => item.judge_name),
-              "Total Score",
-            ]);
-            console.log(
-              "Entered UseEffect-1 in Scoring Page (Second) Headers Set"
-            );
-            setListOfParticipants(response.data);
+            console.log("second api call");
+            if (response.data.error) {
+              console.error(response.data.error);
+              toast({
+                title: "No Participants",
+                description:
+                  "Check to see if participant attendance were marked/added",
+                duration: 5000,
+                isClosable: true,
+                status: "error",
+                position: "top",
+              });
+            } else {
+              setHeaders([
+                ...original,
+                ...response.data[0].judges.map((item) => item.judge_name),
+                "Total Score",
+              ]);
+              setListOfParticipants(response.data);
+            }
           });
       })
       .catch((error) => {
@@ -58,34 +73,38 @@ function Scoring() {
   }, []);
 
   const handleChange = (category) => {
-    console.log("Handling Change");
     axios
-      .get(`${apiPath}score/${eventState.eventId}/${category.category_id_pk}`)
+      .get(
+        `${apiPath}score/${sessionStorage.getItem("eventId")}/${
+          category.category_id_pk
+        }`
+      )
       .then((response) => {
-        console.log("Response after change", response.data);
-        setCurrentCategory(category.category_id_pk);
-        setHeaders([
-          ...original,
-          ...response.data[0].judges.map((item) => item.judge_name),
-          "Total Score",
-        ]);
-        setListOfParticipants(response.data);
+        if (response.data.error) {
+          console.error(response.data.error);
+          toast({
+            title: "No Participants",
+            description:
+              "Check to see if participant attendance were marked/added",
+            duration: 5000,
+            isClosable: true,
+            status: "error",
+            position: "top",
+          });
+        } else {
+          setCurrentCategory(category.category_id_pk);
+          setHeaders([
+            ...original,
+            ...response.data[0].judges.map((item) => item.judge_name),
+            "Total Score",
+          ]);
+          setListOfParticipants(response.data);
+        }
       });
   };
 
-  // useEffect(() => {}, [listOfParticipants]);
-
-  return listOfCategories &&
-    listOfParticipants &&
-    headers &&
-    currentCategory ? (
-    <Tabs
-      p={3}
-      // colorScheme="orange"
-      variant="unstyled"
-      defaultIndex={0}
-      overflow="auto"
-    >
+  return listOfCategories && currentCategory ? (
+    <Tabs p={3} variant="unstyled" defaultIndex={0} overflow="auto">
       <TabList>
         {listOfCategories.map((category, index) => (
           <Tab

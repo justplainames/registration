@@ -1,15 +1,9 @@
 import {
   Badge,
   Stack,
-  Box,
   Image,
   Button,
-  ButtonGroup,
-  Editable,
-  EditableInput,
-  EditablePreview,
   FormControl,
-  useEditableControls,
   Input,
   FormLabel,
   Tabs,
@@ -28,11 +22,8 @@ import {
   CardHeader,
   CardFooter,
   TabIndicator,
-  Avatar,
 } from "@chakra-ui/react";
-import react, { useRef, useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Form } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
 import axios from "axios";
 const Profile = () => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -44,19 +35,15 @@ const Profile = () => {
   useEffect(() => {
     axios.get(`${apiPath}profile/getInfo`).then((response) => {
       userDataRef.current = response.data;
-      console.log(response.data);
       setUserData(response.data);
     });
 
     axios.get(`${apiPath}profile/getEvents`).then((response) => {
       setUserEvents(response.data);
-      console.log(response.data);
     });
   }, []);
   const handleSubmit = () => {
-    axios.put(`${apiPath}profile/updateInfo`, userData).then((response) => {
-      console.log(response.data);
-    });
+    axios.put(`${apiPath}profile/updateInfo`, userData).then((response) => {});
     setIsEditing(!isEditing);
   };
 
@@ -65,10 +52,8 @@ const Profile = () => {
     setUserData({ ...userDataRef.current });
     axios.get(`${apiPath}profile/getInfo`).then((response) => {
       userDataRef.current = response.data;
-      console.log(response.data);
       setUserData(response.data);
     });
-    console.log(userData);
   };
 
   const handleInputChange = (e) => {
@@ -80,13 +65,7 @@ const Profile = () => {
   };
 
   return (
-    <Tabs
-      p={3}
-      // colorScheme="orange"
-      variant="unstyled"
-      defaultIndex={0}
-      overflow="auto"
-    >
+    <Tabs p={3} variant="unstyled" defaultIndex={0} overflow="auto">
       <TabList>
         <Tab textColor="gray.200" _selected={{ textColor: "white" }}>
           Profile Settings
@@ -166,7 +145,6 @@ const Profile = () => {
               }}
               onClick={() => setIsEditing(!isEditing)}
             >
-              {" "}
               Edit Settings
             </Button>
           ) : (
@@ -208,20 +186,11 @@ const Profile = () => {
                   bg="gray.900"
                   rounded={"lg"}
                   overflow={"hidden"}
-                  // p={6}
                   textAlign={"center"}
                   borderTop="8px"
                   borderColor="orange.400"
                 >
                   <CardHeader px="0" py="0">
-                    {/* <Avatar
-                      size={"xl"}
-                      src={
-                        "https://images.unsplash.com/photo-1611435263641-4656c4b188c3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZGFuY2UlMjBiYXR0bGV8ZW58MHx8MHx8fDA%3D"
-                      }
-                      mb={4}
-                      pos={"relative"}
-                    /> */}
                     <Image
                       src={
                         "https://images.unsplash.com/photo-1611435263641-4656c4b188c3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZGFuY2UlMjBiYXR0bGV8ZW58MHx8MHx8fDA%3D"
@@ -271,57 +240,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-{
-  /* function EditableControls() {
-    // Access this 4 components
-    const {
-      isEditing,
-      getSubmitButtonProps,
-      getCancelButtonProps,
-      getEditButtonProps,
-    } = useEditableControls();
-
-    // Get Default onClick behavior for the submit button
-    const handleDefaultSubmit = getSubmitButtonProps().onClick;
-
-    // Create a custom onClick Behaviour and add the handleDeafaultSubmit behaviour
-    const handleCustomSubmit = (event) => {
-      event.preventDefault();
-      console.log("Submitted", event.target.value);
-      axios.put(`${apiPath}profile/updateInfo`);
-
-      handleDefaultSubmit();
-    };
-
-    // Get Default onClick behavior for the cancel button
-    const handleDefaultCancel = getCancelButtonProps().onClick;
-    // Create a custom onClick Behaviour and add the handleDeafaultCancel behaviour
-    const handleCustomCancel = (event) => {
-      event.preventDefault();
-      console.log("Cancelling", userNameRef.current);
-      setUserName(userNameRef.current);
-      handleDefaultCancel();
-    };
-
-    // Now get the default submit button behaviour and change the onClick behaviour with customised button above
-    const customSubmitButtonProps = {
-      ...getSubmitButtonProps(),
-      onClick: handleCustomSubmit,
-    };
-
-    const customCancelbuttonProps = {
-      ...getCancelButtonProps(),
-      onClick: handleCustomCancel,
-    };
-
-    return isEditing ? (
-      <ButtonGroup>
-        <Button {...customSubmitButtonProps}> Submit! </Button>
-        <Button {...customCancelbuttonProps}> Cancel </Button>
-      </ButtonGroup>
-    ) : (
-      <Button {...getEditButtonProps()}>Edit</Button>
-    );
-  } */
-}

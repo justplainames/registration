@@ -12,6 +12,7 @@ const config = {
   database: process.env.DEVELOPMENT_DATABASE,
   host: process.env.DEVELOPMENT_HOST,
   dialect: process.env.DEVELOPMENT_DIALECT,
+  logging: false,
 };
 
 const db = {};

@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { EventContext } from "../helpers/EventContext";
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import {
@@ -26,19 +25,18 @@ import { Select } from "chakra-react-select";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import "../customThemes/custom-datepicker.css";
+import { EventContext } from "../helpers/EventContext";
 
 function EventInfo() {
-  const { eventState, setEventState } = useContext(EventContext);
   const navigate = useNavigate();
   const apiPath = process.env.REACT_APP_API_PATH;
   const [rawData, setRawData] = useState(null);
-  // const [selectedCategories, setSelectedCategories] = useState(null);
   const [availableCategories, setAvailableCategories] = useState(null);
   const [availableJudges, setAvailableJudges] = useState(null);
-  // const [selectedJudges, setSelectedJudges] = useState({});
   const [selectedData, setSelectedData] = useState(null);
   const [eventInfo, setEventInfo] = useState({});
   const [isEditing, setIsEditing] = useState(false);
+  const { setEventState } = useContext(EventContext);
   const { isOpen: isOpen, onOpen: onOpen, onClose: onClose } = useDisclosure();
   const {
     isOpen: warningIsOpen,
@@ -50,75 +48,36 @@ function EventInfo() {
     onOpen: confirmationOnOpen,
     onClose: confirmationOnClose,
   } = useDisclosure();
-  // const [toRemove, setToRemove] = useState(null);
 
+  // Get selected event info on component mount
   useEffect(() => {
-    console.log("Use efect [] - eventInfo");
     axios
-      .get(`${apiPath}editEvent/getEventInfo/${eventState.eventId}`)
+      .get(
+        `${apiPath}editEvent/getEventInfo/${sessionStorage.getItem("eventId")}`
+      )
       .then((response) => {
-        console.log("Respnse", response.data);
         setRawData(response.data);
+      })
+      .catch((error) => {
+        console.error(
+          "Error in getting selected event information for editing",
+          error
+        );
       });
   }, []);
 
+  // Get selected event info on component mount
+  // Set the state of available judges, data and categories
   useEffect(() => {
-    console.log("Use efect [rawdata] - EventInfo");
     if (rawData) {
-      console.log("rawData", rawData);
       setEventInfo(rawData.event_info);
       setAvailableJudges(rawData.available_judges);
       setSelectedData(rawData.selection_data);
       setAvailableCategories(rawData.available_categories);
-      // setSelectedCategories(
-      //   rawData.selection_data.map((category) => {
-      //     return {
-      //       category_id_fk: category.category_id_fk,
-      //       category_name: category["Category.category_name"],
-      //     };
-      //   })
-      // );
-      // setSelectedJudges(
-      //   rawData.selection_data.reduce(
-      //     (acc, category) => ({
-      //       ...acc,
-      //       [category.category_id_fk]: category.judges,
-      //     }),
-      //     {}
-      //   )
-      // );
     }
   }, [rawData]);
 
-  // useEffect(() => {
-  //   if (rawData) {
-  // ToRemove Select already itnernally keeps track based on
-  // map through every availbel cat if i
-  // const final_available_categories = rawData.available_categories.filter(
-  //   (availableRow) => {
-  //     // iterate through every Available cat, if available inside selected.category_id_fk inside return true
-  //     // True means that it has already been selected. Make it false
-  //     const result = selectedCategories.find((selectedRow) => {
-  //       return selectedRow.category_id_fk === availableRow.category_id_pk;
-  //     });
-  //     console.log(result);
-  //     return !result;
-  //   }
-  // );
-  // setAvailableCategories(final_available_categories);
-  //     setAvailableCategories(rawData.available_categories);
-  //   }
-  // }, [selectedCategories]);
-
-  // useEffect(() => {
-  //   console.log("\n\n\n");
-  //   console.log(selectedCategories);
-  //   console.log(selectedJudges);
-  // }, [selectedJudges]);
-
-  // useEffect(() => {}, [availableCategories]);
-
-  const handleSubmit = () => {
+  const handleEditEventSubmit = () => {
     setIsEditing(false);
     axios
       .put(`${apiPath}editEvent/editEventInfo`, {
@@ -126,25 +85,22 @@ function EventInfo() {
         event_info: eventInfo,
       })
       .then((response) => {
-        setEventState({
-          eventId: eventInfo.event_id_fk,
-          eventName: eventInfo.event_name,
-        });
         confirmationOnClose();
       })
       .catch((error) => {
-        console.error("Error while making PUT request:", error);
+        console.error(
+          "Error while making PUT request to update and edit event information:",
+          error
+        );
       });
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    console.log("cancel");
   };
 
+  // Handle changing of categories
   const handleCategoryChange = (selectedOptions) => {
-    console.log("Selected Options Before anything", selectedOptions);
-    console.log("selected Data before anything", selectedData);
     const to_add = [];
     selectedOptions.map((newOption) => {
       if (
@@ -154,7 +110,7 @@ function EventInfo() {
       ) {
         to_add.push({
           category_id_fk: newOption.value,
-          event_id_fk: eventState.eventId,
+          event_id_fk: sessionStorage.getItem("eventId"),
           "Category.category_name": newOption.label,
           judges: [],
         });
@@ -167,64 +123,17 @@ function EventInfo() {
       )
     );
 
-    console.log("Data after deletion", new_data);
-
     setSelectedData(new_data.concat(to_add));
-
-    // const new_selected_options = [];
-    // const removed_options = [];
-    // check for new elements
-    //New -- selectedOptionsRow
-    //Old -- SelectedCategoriesRow
-    //   selectedOptions.map((selectedOptionsRow) => {
-    //     if (
-    //       !selectedCategories.find(
-    //         (selectedCategoriesRow) =>
-    //           selectedOptionsRow.value === selectedCategoriesRow.category_id_fk
-    //       )
-    //     ) {
-    //       setSelectedJudges((prev) => [
-    //         ...prev,
-    //         { [selectedOptionsRow.value]: {} },
-    //       ]);
-    //     }
-    //     new_selected_options.push({
-    //       category_id_fk: selectedOptionsRow.value,
-    //       category_name: selectedOptionsRow.label,
-    //     });
-    //   });
-    //   selectedCategories.map((selectedCategoriesRow) => {
-    //     if (
-    //       !selectedOptions.find(
-    //         (selectedOptionsRow) =>
-    //           selectedOptionsRow.value === selectedCategoriesRow.category_id_fk
-    //       )
-    //     ) {
-    //       removed_options.push(selectedCategoriesRow.category_id_fk);
-    //     }
-    //   });
-    //   removed_options.forEach((id) => {
-    //     setSelectedJudges((prev) => {
-    //       const updatedPrev = { ...prev };
-    //       delete updatedPrev[id];
-    //       return updatedPrev;
-    //     });
-    //   });
-    //   console.log(selectedOptions);
-    //   console.log(selectedCategories);
-    //   console.log(selectedJudges);
-    //   // selectedCategories;
   };
+
+  // Handle changing of judges
   const handleJudgeChange = (selectedOptions, category_id_fk) => {
-    console.log(selectedOptions);
-    console.log(selectedData);
     const transformedArray = selectedOptions.map((item) => ({
       "Judge.judge_name": item.label,
       category_id_fk: category_id_fk,
-      event_id_fk: eventState.eventId,
+      event_id_fk: sessionStorage.getItem("eventId"),
       judge_id_fk: item.value,
     }));
-    console.log(transformedArray);
     setSelectedData((prev) =>
       prev.map((item) =>
         item.category_id_fk === category_id_fk
@@ -232,16 +141,9 @@ function EventInfo() {
           : item
       )
     );
-    //   console.log(selectedJudges);
-    //   // console.log(selectedJudges);
   };
-  // useEffect(() => {
-  //   const final_available_judges = availableJudges.filter()
-  //   // setAvailableJudges(response.data.availableJudges);
-  //   console.log("Result = ", selectedJudges);
-  // }, [selectedJudges]);
 
-  const handleDelete = () => {
+  const handleDeleteEvent = () => {
     onOpen();
   };
 
@@ -249,16 +151,20 @@ function EventInfo() {
     onClose();
   };
   const handleDeleteSubmit = () => {
-    console.log(eventInfo);
     axios
       .delete(`${apiPath}editEvent/deleteEvent`, {
         data: eventInfo,
       })
       .then((response) => {
+        sessionStorage.removeItem("eventId");
+        sessionStorage.removeItem("eventName");
         onClose();
-        setEventState({ eventName: "Select Event", eventId: null });
+        console.log("Enter HERE");
+        setEventState(null);
         navigate("/dashboard");
-        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error in deleting event: ", error);
       });
   };
   const handleWarningOnClose = () => {
@@ -274,15 +180,9 @@ function EventInfo() {
     warningOnOpen();
   };
 
-  const CustomMultiValueLabel = ({ children, ...props }) => {
-    return <span>{children}</span>;
-  };
-
   const chakraStyles = {
     control: (provided, state) => ({
       ...provided,
-      // borderWidth: "10px",
-      // borderColor: "rgb(237,137,51)",
       borderWidth: "1px",
       "& > div > span > span": {
         paddingY: "1px",
@@ -290,7 +190,6 @@ function EventInfo() {
       "& > div > span > div > svg > path": {
         fill: "gray.900",
       },
-      // _hover: { borderColor: "rgb(237,137,51)" },
       _focusVisible: {
         borderColor: "rgb(237,137,51)",
         borderWidth: "2px",
@@ -319,11 +218,6 @@ function EventInfo() {
       background: "gray.900",
       _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
     }),
-    // input: (provided, state) => ({
-    //   ...provided,
-    //   background: "red",
-    //   padding: "2px",
-    // }),
   };
 
   return (
@@ -479,7 +373,7 @@ function EventInfo() {
                   bg: "rgb(237,137,51)",
                   textColor: "gray.900",
                 }}
-                onClick={handleSubmit}
+                onClick={handleEditEventSubmit}
               >
                 Confirm
               </Button>
@@ -652,7 +546,7 @@ function EventInfo() {
               textDecoration: "none",
               bg: "rgb(213,44,77)",
             }}
-            onClick={() => handleDelete()}
+            onClick={() => handleDeleteEvent()}
           >
             Delete Event
           </Button>

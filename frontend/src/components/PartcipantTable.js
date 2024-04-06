@@ -28,7 +28,6 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { IconTrash } from "@tabler/icons-react";
-import { checkboxTheme } from "../customThemes/Checkbox";
 
 const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -38,12 +37,6 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   const [generatingNumber, setGeneratingNumber] = useState(false);
   const [updatingDatabase, setUpdatingDatabase] = useState(false);
   const toast = useToast();
-  // const headers = ["Name", "Instagram Handle", "Email", "Number", "Paid"];
-  // const data = [
-  //   ["John Doe", "@JohnDoe", "Popping 1v1"],
-  //   ["Jane Smith", "@JaneSmith", "Locking 1v1"],
-  // ];
-  console.log("ASLDKHASL", listOfParticipants);
 
   const showToast = () => {
     toast({
@@ -60,7 +53,6 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
 
   //
   async function updateOrder(to_update, to_remove) {
-    console.log("Entered Update Order function");
     try {
       setUpdatingDatabase(true);
       await axios
@@ -74,11 +66,10 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
         });
     } catch (error) {
       setUpdatingDatabase(false);
-      console.log("Error Updating Order", error);
     }
   }
 
-  //
+  // Function to retrieve a usable number of the user.
   async function getNumber(
     category_id_pk = category_id_pk,
     event_id_pk = event_id_pk,
@@ -89,13 +80,11 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
       const response = await axios.get(
         `${apiPath}addParticipant/usedNumbers/${event_id_pk}/${category_id_pk}/${user_id_pk}`
       );
-      console.log("returning response.data", response.data);
       setGeneratingNumber(false);
       return response.data;
     } catch (error) {
       setGeneratingNumber(false);
       onClose();
-      console.log("Error Getting an order Number", error);
       return null;
     }
   }
@@ -104,48 +93,37 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
     const updatedList = await Promise.all(
       listOfParticipants.map(async (row) => {
         if (row.user_id_fk === e.target.name) {
-          console.log("Hit");
           if (row.order === null) {
-            console.log("Value is null");
             const order = await getNumber(
               category_id_pk,
               event_id_pk,
               e.target.name
             );
-            console.log("CHEKCING =", order);
             if (order.status === "assigned") {
               showToast();
               setGeneratingNumber(false);
               setUpdatingDatabase(false);
-              console.log("inside the assigned", listOfParticipants);
-              console.log("inside the assigned", order.data);
               setListOfParticipants(order.data);
               onClose();
               const to_update = { ...row, order: order.data };
               return to_update;
             }
-            console.log("Order changed to ", order);
             const to_update = { ...row, order: order.data };
             if (order.data) {
-              console.log("returning", to_update);
               await updateOrder(to_update, false);
               return to_update;
             }
           } else {
-            console.log("Value is not Null");
             const to_update = { ...row, order: null };
             await updateOrder(row, true);
-            console.log("returning", to_update);
             return to_update;
           }
         } else {
-          console.log("Miss");
           return row;
         }
       })
     );
 
-    console.log("updated klist", updatedList);
     setListOfParticipants(updatedList);
   };
 
@@ -153,7 +131,6 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
     setListOfParticipants((prev) => {
       return prev.map((user) => {
         if (user.user_id_fk === user_id) {
-          console.log(typeof e);
           if (parseInt(e) === 0) {
             return {
               ...user,
@@ -171,11 +148,9 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   };
 
   const handleOnClickDelete = (user_id_fk) => {
-    console.log(user_id_fk);
     const user_info = listOfParticipants.find((user) => {
       return user.user_id_fk === user_id_fk;
     });
-    console.log(user_info);
     axios
       .delete(`${apiPath}addParticipant/deleteParticipant`, {
         data: user_info,
@@ -191,7 +166,6 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
 
   const handleOrderSubmit = async (e, user_id, event_id, category_id) => {
     setUpdatingDatabase(true);
-    console.log(e, user_id);
 
     const user_info = listOfParticipants.find((row) => {
       return row.user_id_fk === user_id;

@@ -67,7 +67,6 @@ function RoundRight() {
   const addedHeight = maxHeight + (numberOfSeeds / 2 - 1) * 30;
 
   function calculateSpacing(numberOfBlocks, columnIndex) {
-    console.log("Calculating roundRight ");
     if (maxHeight === numberOfBlocks * 55) {
       return 30;
     } else {

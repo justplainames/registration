@@ -6,22 +6,15 @@ import { HStack, Box, VStack } from "@chakra-ui/react";
 function RoundLeft() {
   const { matchData, setMatchData } = useContext(MatchContext);
   let check = parseInt(matchData.data.matchType.split("-")[1]) || null;
-  console.log("Round Left data");
 
   let fullComponents = [];
   const largest = check / 2;
 
   function calculateSpacing2(numberOfColumns, numberOfBlocks, columnIndex) {
-    // console.log("Number of Columns = ", numberOfColumns);
-    // console.log("number of Blocks = ", numberOfBlocks);
-    // console.log("columnImdex = ", columnIndex);
     const numberOfSeeds = 2 ** numberOfColumns;
     const maxHeight = (largest * 55) / 2;
     const addedHeight = maxHeight + (largest / 2 - 1) * 30;
 
-    // console.log("Number of Seeds = ", numberOfSeeds);
-    // console.log("Max Height = ", maxHeight);
-    // console.log("addedHeight = ", addedHeight);
     if (maxHeight === numberOfBlocks * 55) {
       return 46;
     } else {
@@ -30,7 +23,6 @@ function RoundLeft() {
 
       const numberOfGaps = numberOfBlocks - 1;
       const totalGapSize = numberOfBlocks * 55;
-      // console.log("To Return = ", (current - totalGapSize) / numberOfGaps);
       return (current - totalGapSize) / numberOfGaps / 2 + 31;
     }
   }
@@ -39,8 +31,7 @@ function RoundLeft() {
     while (check !== 1 && matchData.data.matches[`top${check}`]) {
       const column = [];
       let counter = Math.floor(check / 4);
-      matchData.data.matches[`top${check}`].every((array, index) => {
-        console.log("Array in roundleft = ", array);
+      matchData.data.matches[`top${check}`].every((array, _) => {
         if (parseInt(counter) === 0) {
           check = Math.floor(check / 2);
           return false;
@@ -75,7 +66,6 @@ function RoundLeft() {
   const addedHeight = maxHeight + (numberOfSeeds / 2 - 1) * 30;
 
   function calculateSpacing(numberOfBlocks, columnIndex) {
-    console.log("Calculating roundLeft ");
     if (maxHeight === numberOfBlocks * 55) {
       return 30;
     } else {

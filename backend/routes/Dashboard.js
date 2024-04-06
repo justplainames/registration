@@ -5,13 +5,18 @@ const { validateToken } = require("../middlewares/AuthMiddleware");
 router.use(validateToken);
 
 router.get("/getEvents", validateToken, async (req, res) => {
-  console.log("ENTERED DASHBOARD");
-  const events = await Events.findAll();
-  events.map((item) => {
-    const dateObject = new Date(item.dataValues.event_date);
-    item.dataValues.event_date = dateObject.toLocaleDateString("en-GB");
-  });
-  res.json(events);
+  try {
+    const events = await Events.findAll();
+    events.map((item) => {
+      const dateObject = new Date(item.dataValues.event_date);
+      item.dataValues.event_date = dateObject.toLocaleDateString("en-GB");
+    });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({
+      error: "Internal Server",
+    });
+  }
 });
 
 module.exports = router;

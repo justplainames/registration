@@ -40,160 +40,13 @@ const Brackets = () => {
   const [checkedState, setCheckedState] = useState(null);
   const [chosenName, setChosenNames] = useState(null);
   const [toChoose, setToChoose] = useState(null);
-  const { eventState, setEventState } = useContext(EventContext);
   const { roleState } = useContext(RoleContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { userErrorMessage, setUserErrorMessage } = "Loading";
-
   const toast = useToast();
-
-  const showToast = () => {
-    toast({
-      title: "Select the Right Amount",
-      description: `Requires ${toChoose.to_choose}, You Either didn't choose enough or too much`,
-      duration: 5000,
-      isClosable: true,
-      status: "error",
-      variant: "toastFail",
-      position: "top",
-    });
-  };
-
-  const showTiebreakerToast = () => {
-    toast({
-      title: "Tiebreaker!",
-      description: `Tiebreaker rounds required`,
-      duration: 5000,
-      isClosable: true,
-      status: "warning",
-      variant: "toastInfo",
-      position: "top",
-    });
-  };
-
-  const showNotEnoughParticipantsToast = (value) => {
-    console.log(value);
-    toast({
-      title: "Not Enough Participants",
-      description: `Requires ${value.error.needed} more participants`,
-      duration: 5000,
-      isClosable: true,
-      variant: "toastFail",
-      status: "error",
-      position: "top",
-    });
-  };
-
-  // Calls API on render.
-  // API retrieves categories of the particular event and sets the options ("top4 as default")
-  useEffect(() => {
-    axios
-      .get(`${apiPath}addParticipant/getCategories/${eventState.eventId}`)
-      .then((response) => {
-        setListOfCategories(response.data);
-        setCurrentCategory(response.data[0].category_id_pk);
-        setSelectedData("top4");
-        console.log("Entered useEffect in bracket,js", response);
-      });
-  }, []);
-
-  // Calls API on change of selectedCategory and Current Category
-  // Re-renders when user chooses a different category or on first render
-  useEffect(() => {
-    setBracketData(null);
-    if (selectedData) {
-      console.log("Checking the categories", listOfCategories, currentCategory);
-      axios
-        .get(
-          `${apiPath}bracket/${eventState.eventId}/${currentCategory}/${selectedData}`
-        )
-        .then((response) => {
-          console.log("THIS is a response", response);
-          // Theres an error with the brackets only show to admin. Users get something else
-          if (response.data.to_choose) {
-            if (roleState.role === "admin") {
-              console.log("SETTING", response.data);
-              setToChoose(response.data);
-              onOpen();
-            }
-            showTiebreakerToast();
-          } else {
-            console.log("SETTING BRACKET DATA", response.data);
-            setBracketData(response.data.bracket_data);
-          }
-        })
-        .catch((err) => {
-          console.log(err.response.data);
-          showNotEnoughParticipantsToast(err.response.data);
-        });
-    }
-  }, [selectedData, currentCategory]);
-
-  // When there's a tiebreaker toChoose gets set, triggering this effect
-  // Should not be called when user
-  useEffect(() => {
-    if (toChoose) {
-      setCheckedState(new Array(toChoose.data.length).fill(false));
-    }
-  }, [toChoose]);
-
-  const handleSelect = (selected) => {
-    console.log("Handle Select = ", selected);
-    setSelectedData(selected.value);
-  };
-
-  const handleChange = (value) => {
-    setCurrentCategory(value.category_id_pk);
-  };
-
-  const handleCheckboxChange = (position) => {
-    const new_setCheckedState = checkedState.map((item, index) =>
-      index === position ? !item : item
-    );
-
-    setCheckedState(new_setCheckedState);
-    const new_chosenName = new Array();
-    new_setCheckedState.map((value, index) => {
-      if (value) {
-        new_chosenName.push(toChoose.data[index]);
-      }
-    });
-    console.log(new_chosenName);
-
-    setChosenNames(new_chosenName);
-  };
-
-  const handleSubmit = () => {
-    console.log(chosenName);
-    console.log(toChoose.to_choose, chosenName.length);
-    if (chosenName.length !== toChoose.to_choose) {
-      console.log("Fail");
-      showToast();
-    } else {
-      axios
-        .post(
-          `${apiPath}bracket/${eventState.eventId}/${currentCategory}/${selectedData}`,
-          { number: toChoose.to_choose, data: chosenName }
-        )
-        .then((response) => {
-          setBracketData(response.data);
-          console.log(response);
-        });
-      handleOnClose();
-    }
-  };
-
-  const handleOnClose = () => {
-    setChosenNames(null);
-    setCheckedState(null);
-    onClose();
-  };
 
   const chakraStyles = {
     control: (provided, state) => ({
       ...provided,
-      // borderWidth: "10px",
-      // borderColor: "rgb(237,137,51)",
       borderWidth: "1px",
       "& > div > span > span": {
         paddingY: "1px",
@@ -202,7 +55,6 @@ const Brackets = () => {
         fill: "gray.900",
       },
       textColor: "white",
-      // _hover: { borderColor: "rgb(237,137,51)" },
       _focusVisible: {
         borderColor: "rgb(237,137,51)",
         borderWidth: "2px",
@@ -232,11 +84,151 @@ const Brackets = () => {
       background: "gray.900",
       _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
     }),
-    // input: (provided, state) => ({
-    //   ...provided,
-    //   background: "red",
-    //   padding: "2px",
-    // }),
+  };
+
+  const showToast = () => {
+    toast({
+      title: "Select the Right Amount",
+      description: `Requires ${toChoose.to_choose}, You Either didn't choose enough or too much`,
+      duration: 5000,
+      isClosable: true,
+      status: "error",
+      variant: "toastFail",
+      position: "top",
+    });
+  };
+
+  const showTiebreakerToast = () => {
+    toast({
+      title: "Tiebreaker!",
+      description: `Tiebreaker rounds required`,
+      duration: 5000,
+      isClosable: true,
+      status: "warning",
+      variant: "toastInfo",
+      position: "top",
+    });
+  };
+
+  const showNotEnoughParticipantsToast = (value) => {
+    toast({
+      title: "Not Enough Participants",
+      description: `Requires ${value} more participants`,
+      duration: 5000,
+      isClosable: true,
+      variant: "toastFail",
+      status: "error",
+      position: "top",
+    });
+  };
+
+  // Calls API on render.
+  // API retrieves categories of the particular event and sets the options ("top4 as default")
+  useEffect(() => {
+    axios
+      .get(
+        `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
+          "eventId"
+        )}`
+      )
+      .then((response) => {
+        setListOfCategories(response.data);
+        setCurrentCategory(response.data[0].category_id_pk);
+        setSelectedData("top4");
+      });
+  }, []);
+
+  // Calls API on change of selectedCategory and Current Category
+  // Re-renders when user chooses a different category or on first render
+  useEffect(() => {
+    setBracketData(null);
+    if (selectedData) {
+      axios
+        .get(
+          `${apiPath}bracket/${sessionStorage.getItem(
+            "eventId"
+          )}/${currentCategory}/${selectedData}`
+        )
+        .then((response) => {
+          // Theres an error with the brackets only show to admin. Users get something else
+          if (
+            response.data.message &&
+            response.data.message === "Not Enough Participants"
+          ) {
+            showNotEnoughParticipantsToast(response.data.needed);
+          } else {
+            if (response.data.to_choose) {
+              if (roleState.role === "admin") {
+                setToChoose(response.data);
+                onOpen();
+              }
+              showTiebreakerToast();
+            } else {
+              setBracketData(response.data.bracket_data);
+            }
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting bracket information: ", error);
+        });
+    }
+  }, [selectedData, currentCategory]);
+
+  // When there's a tiebreaker toChoose gets set, triggering this effect
+  // Should not be called when user
+  useEffect(() => {
+    if (toChoose) {
+      setCheckedState(new Array(toChoose.data.length).fill(false));
+    }
+  }, [toChoose]);
+
+  const handleSelect = (selected) => {
+    setSelectedData(selected.value);
+  };
+
+  const handleCategoryChange = (value) => {
+    setCurrentCategory(value.category_id_pk);
+  };
+
+  const handleCheckboxChange = (position) => {
+    const new_setCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
+    );
+
+    setCheckedState(new_setCheckedState);
+    const new_chosenName = new Array();
+    new_setCheckedState.map((value, index) => {
+      if (value) {
+        new_chosenName.push(toChoose.data[index]);
+      }
+    });
+
+    setChosenNames(new_chosenName);
+  };
+
+  //
+  const handleTieBreakerSubmit = () => {
+    if (chosenName.length !== toChoose.to_choose) {
+      showToast();
+    } else {
+      axios
+        .post(
+          `${apiPath}bracket/${sessionStorage.getItem(
+            "eventId"
+          )}/${currentCategory}/${selectedData}`,
+          { number: toChoose.to_choose, data: chosenName }
+        )
+        .then((response) => {
+          setBracketData(response.data);
+        });
+      handleOnClose();
+    }
+  };
+
+  const handleOnClose = () => {
+    setChosenNames(null);
+    setCheckedState(null);
+    onClose();
   };
 
   return listOfCategories ? (
@@ -302,7 +294,7 @@ const Brackets = () => {
                     bg: "rgb(237,137,51)",
                     textColor: "gray.900",
                   }}
-                  onClick={handleSubmit}
+                  onClick={handleTieBreakerSubmit}
                 >
                   Submit
                 </Button>
@@ -326,7 +318,7 @@ const Brackets = () => {
               out
               value={category}
               onClick={() => {
-                handleChange(category);
+                handleCategoryChange(category);
               }}
             >
               {category.category_name}

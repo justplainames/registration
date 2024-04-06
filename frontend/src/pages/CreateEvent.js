@@ -23,12 +23,17 @@ export default function CreateEvent() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [judgesByCategory, setJudgesByCategory] = useState({});
   const apiPath = process.env.REACT_APP_API_PATH;
-  const { eventState, setEventState } = useContext(EventContext);
 
+  // Get list of available judges and categories to use for event creation when component mount
   useEffect(() => {
-    axios.get(`${apiPath}createEvent/getJudges`).then((response) => {
-      setJudgeOptions(response.data);
-    });
+    axios
+      .get(`${apiPath}createEvent/getJudges`)
+      .then((response) => {
+        setJudgeOptions(response.data);
+      })
+      .catch((error) => {
+        console.error("Error Fetching Judges", error);
+      });
 
     axios
       .get(`${apiPath}createEvent/getCategories`)
@@ -44,6 +49,7 @@ export default function CreateEvent() {
       });
   }, []);
 
+  // handle select components to display selection of judges when categories are modified.
   const handleCategoryChange = (selectedOptions) => {
     setJudgesByCategory((prev) => {
       const judgesByCategoryObj = { ...prev };
@@ -72,6 +78,7 @@ export default function CreateEvent() {
     setSelectedCategories(selectedOptions);
   };
 
+  // handle the state for selected judges.
   const handleJudgeChange = (selectedOptions, categoryId) => {
     setJudgesByCategory((prev) => {
       const updatedJudgesByCategory = { ...prev };
@@ -129,11 +136,6 @@ export default function CreateEvent() {
       background: "gray.900",
       _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
     }),
-    // input: (provided, state) => ({
-    //   ...provided,
-    //   background: "red",
-    //   padding: "2px",
-    // }),
   };
 
   return (
@@ -273,7 +275,10 @@ export const createEventAction = async ({ request }) => {
 
   axios
     .post(`${apiPath}createEvent/updateEvent`, event)
-    .then((res) => console.log(res));
+    .then((res) => console.log(res))
+    .catch((error) => {
+      console.log("Unable to create event: ", error);
+    });
 
-  return redirect("/");
+  return redirect("/dashboard");
 };

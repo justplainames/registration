@@ -357,18 +357,10 @@ function LandingPage({ scrollToSection }) {
           >
             <Logo />
             <Stack direction={"row"} spacing={6}>
-              <Box as="a" href={"#"}>
-                Home
-              </Box>
-              <Box as="a" href={"#"}>
-                About
-              </Box>
-              <Box as="a" href={"#"}>
-                Blog
-              </Box>
-              <Box as="a" href={"#"}>
-                Contact
-              </Box>
+              <Box>Home</Box>
+              <Box>About</Box>
+              <Box>Blog</Box>
+              <Box>Contact</Box>
             </Stack>
           </Container>
 
@@ -388,13 +380,13 @@ function LandingPage({ scrollToSection }) {
             >
               <Text>© 2024 Event Mangement. All rights reserved</Text>
               <Stack direction={"row"} spacing={6}>
-                <SocialButton label={"Twitter"} href={"#"}>
+                <SocialButton label={"Twitter"}>
                   <FaTwitter />
                 </SocialButton>
-                <SocialButton label={"YouTube"} href={"#"}>
+                <SocialButton label={"YouTube"}>
                   <FaYoutube />
                 </SocialButton>
-                <SocialButton label={"Instagram"} href={"#"}>
+                <SocialButton label={"Instagram"}>
                   <FaInstagram />
                 </SocialButton>
               </Stack>
@@ -479,8 +471,6 @@ const SocialButton = ({ children, label, href }) => {
       w={8}
       h={8}
       cursor={"pointer"}
-      as={"a"}
-      href={href}
       display={"inline-flex"}
       alignItems={"center"}
       justifyContent={"center"}

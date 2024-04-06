@@ -14,13 +14,11 @@ import {
   EditableInput,
   useToast,
 } from "@chakra-ui/react";
-import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
 
 const ScoringTable = ({ headers, data }) => {
   const apiPath = process.env.REACT_APP_API_PATH;
 
-  const { eventState } = useContext(EventContext);
   const [dataset, setDataset] = useState(null);
   const [headerDataset, setHeaderDataset] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
@@ -29,8 +27,6 @@ const ScoringTable = ({ headers, data }) => {
   const toast = useToast();
 
   useEffect(() => {
-    console.log("Entered UseEffect-1 in Scoring Table");
-    console.log("DATA in useeffect 1 = ", data);
     setTotalScoreTracker(null);
 
     setDataset(data.listOfParticipants);
@@ -39,18 +35,16 @@ const ScoringTable = ({ headers, data }) => {
   }, [data]);
 
   useEffect(() => {
-    console.log("Entered UseEffect-2 in Scoring Table");
     // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id-judge_id'
-    console.log("Data = ", dataset);
-    console.log("Current-Category = ", currentCategory);
     const score = new Map();
     if (dataset) {
-      // console.log("dataset in UE2 - ", dataset);
       dataset.map((row) => {
         if (row) {
           row.judges.map((judge) => {
             score.set(
-              `${eventState.eventId}-${currentCategory}-${row.user_id}-${judge.judge_id}`,
+              `${sessionStorage.getItem("eventId")}-${currentCategory}-${
+                row.user_id
+              }-${judge.judge_id}`,
               judge.score
             );
           });
@@ -64,7 +58,6 @@ const ScoringTable = ({ headers, data }) => {
     const totalScore = new Map();
     // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id'
     if (dataset) {
-      // console.log("dataset in UE2 - ", dataset);
       dataset.map((row) => {
         if (row) {
           let total = 0;
@@ -72,7 +65,9 @@ const ScoringTable = ({ headers, data }) => {
             total += parseFloat(judge.score);
           });
           totalScore.set(
-            `${eventState.eventId}-${currentCategory}-${row.user_id}`,
+            `${sessionStorage.getItem("eventId")}-${currentCategory}-${
+              row.user_id
+            }`,
             total
           );
         }
@@ -81,30 +76,13 @@ const ScoringTable = ({ headers, data }) => {
     setTotalScoreTracker(totalScore);
   }, [scoreTracker]);
 
-  // useEffect(() => {
-  //   console.log({ totalScoreTracker });
-  // }, [totalScoreTracker]);
-
-  //   console.log(headerDataset);
-  // });
-
-  // useEffect(() => {
-  //   setDataset(data.listOfParticipants);
-  //   setHeaderDataset(headers);
-  //   setCurrentCategory(data.currentCategory);
-  //   const editTracker = new Map();
-  //   // dataset.map((participant) => {
-  //   //   participant.judges.map((entry) => {
-  //   //     editTracker.set(
-  //   //       `${participant.participant_id}-${entry.judge_name}-${currentCategory}`,
-  //   //       entry.score
-  //   //     );
-  //   //   });
-  //   // });
-  //   setEditingState(editTracker);
-  // }, [data, headers]);
-
-  const handleSubmit = (value, event_id, category_id, user_id, judge_id) => {
+  const handleUpdateScoreSubmit = (
+    value,
+    event_id,
+    category_id,
+    user_id,
+    judge_id
+  ) => {
     const test = dataset;
     const to_update = dataset.find((data) => data.user_id === user_id);
     const index = test.findIndex((user) => user.user_id === user_id);
@@ -123,9 +101,7 @@ const ScoringTable = ({ headers, data }) => {
           `${apiPath}score/updateScore/${event_id}/${category_id}/${judge_id}/${user_id}`,
           { new_score: value }
         )
-        .then((response) => {
-          console.log(response);
-        });
+        .then((response) => {});
       setDataset(updatedDataset);
     } else {
       toast({
@@ -137,8 +113,6 @@ const ScoringTable = ({ headers, data }) => {
         position: "top",
       });
     }
-
-    // console.log();
   };
   return dataset && headerDataset && scoreTracker && totalScoreTracker ? (
     <Box p={4}>
@@ -152,46 +126,6 @@ const ScoringTable = ({ headers, data }) => {
           </Tr>
         </Thead>
         <Tbody>
-          {/* {dataset &&
-            Array.isArray(dataset) &&
-            dataset.map((participant) => (
-              <Tr key={participant.participant_id_pk}>
-                <Td>{participant.participant_name}</Td>
-                <Td>{participant.participant_instagram}</Td>
-                {participant.judges &&
-                  Array.isArray(participant.judges) &&
-                  headerDataset
-                    .filter(
-                      (header) =>
-                        header !== "Name" &&
-                        header !== "Instagram Handle" &&
-                        header !== "Total Score"
-                    ) // Exclude non-judge headers
-                    .map((judgeName) => (
-                      <td key={judgeName}>
-                        <Editable
-                          defaultValue={
-                            participant.judges.find(
-                              (judge) => judge.judge_name === judgeName
-                            )?.score
-                          }
-                          onSubmit={(newValue) =>
-                            handleSubmit(
-                              judgeName,
-                              currentCategory,
-                              participant.participant_id_pk,
-                              newValue
-                            )
-                          }
-                        >
-                          <EditablePreview />
-                          <EditableInput />
-                        </Editable>
-                      </td>
-                    ))}
-                <Td>{participant.total_score}</Td>
-              </Tr>
-            ))} */}
           {dataset.map(
             (user) =>
               user && (
@@ -202,8 +136,6 @@ const ScoringTable = ({ headers, data }) => {
                   <Td fontSize="md" color="white" minWidth="100%">
                     {user.user_instagram}
                   </Td>
-                  {/* <Td>{participant.participant_phone_number}</Td>
-              <Td>{participant.participant_email}</Td> */}
                   {headerDataset
                     .filter(
                       (header) =>
@@ -217,17 +149,23 @@ const ScoringTable = ({ headers, data }) => {
                       });
 
                       const score = scoreTracker.get(
-                        `${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`
+                        `${sessionStorage.getItem(
+                          "eventId"
+                        )}-${currentCategory}-${user.user_id}-${judge.judge_id}`
                       );
-                      const event_id = eventState.eventId;
+                      const event_id = sessionStorage.getItem("eventId");
 
                       return score ? (
                         <Td>
                           <Editable
-                            key={`${eventState.eventId}-${currentCategory}-${user.user_id}-${judge.judge_id}`}
+                            key={`${sessionStorage.getItem(
+                              "eventId"
+                            )}-${currentCategory}-${user.user_id}-${
+                              judge.judge_id
+                            }`}
                             defaultValue={score}
                             onSubmit={(value, key) =>
-                              handleSubmit(
+                              handleUpdateScoreSubmit(
                                 value,
                                 event_id,
                                 currentCategory,
@@ -246,7 +184,9 @@ const ScoringTable = ({ headers, data }) => {
                     })}
                   <Td>
                     {totalScoreTracker.get(
-                      `${eventState.eventId}-${currentCategory}-${user.user_id}`
+                      `${sessionStorage.getItem(
+                        "eventId"
+                      )}-${currentCategory}-${user.user_id}`
                     )}
                   </Td>
                 </Tr>

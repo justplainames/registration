@@ -15,37 +15,36 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 dotenv.config();
 
 async function getUserData(access_token) {
-  console.log("\nACcess token is here ", access_token);
   const response = await axios.get(
     `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`
   );
-  console.log("\nUsing the accessToken API", response.data);
   return response.data;
 }
 router.use(cookieParser());
 
-// const REDIRECT_URI = process.env.REDIRECT_URI;
+// This application uses Oauth2.0
+// The event flow is as follows, the user clicks sign in on the application
+// The user gets redirected to Google where they login and grants the application access to the google account
+// It return the user from Google back to the browser together with an access token
+//
 
-router.get("/logout", validateToken, async (req, res) => {
-  console.log("Entered OAUTH LOGOUT");
-  res.clearCookie("access_token", "none", {
-    httpOnly: true,
-  });
-  res.clearCookie("id_token", "none", {
-    httpOnly: true,
-  });
-  res.json("Ok Logged Out!");
-});
-
+// After the user log in to google to grant client access, it generates an authorization code that changes after every request
+// The user then gets redirected to this API endpoint, the req is injected by Google with the authorization code
+// This authorization code be retrieved by accessing req.query.code
+// Another OAuth2Client gets generated with the CLIENT_ID and CLIENT_SECRET
+// With the OAuth2Client, it makes a request to google's server with the authorization code
+// It uses the authorization code to exchange it for a few tokens
+// Access tokens that allow the client to call google api to retrieve user information
+// Refresh tokens to allow the client to obtain a new access token
+// ID Token provides information about the authenticated user such as UUID, name and email.
+// The tokens get set in the client as an HTTPS only cookies to identify user
 router.get("/", async function (req, res, next) {
-  console.log("\nEntered the OAuth Endpoint");
   const code = req.query.code;
-  // console.log("Code = ", code);
   let access_token;
   let sub;
   let id_token;
   try {
-    // backend
+    // Create an OAuth2Client
     const REDIRECT_URI = `${BACKEND_API}oauth`;
     const oAuth2Client = new OAuth2Client(
       process.env.CLIENT_ID,
@@ -53,38 +52,24 @@ router.get("/", async function (req, res, next) {
       REDIRECT_URI
     );
 
-    // console.log("\nCreating the oAuth2Client in OAuth.endpoint");
+    // Get Access Token via the authorization code
     const res = await oAuth2Client.getToken(code);
-    // console.log("\nCreating the Token in OAuth.endpoint");
+
+    // Sets the credentials of the oAuth2Client
     await oAuth2Client.setCredentials(res.tokens);
-    // console.log(
-    // "\nSetting the Creds for oAuth2Client in OAuth.endpoint",
-    // oAuth2Client
-    // );
+
+    // Performs user checks.
     const user = oAuth2Client.credentials;
-    // console.log("\nGetting the Creds for oAuth2Client in OAuth.endpoint");
     access_token = user.access_token;
     id_token = user.id_token;
     user_data = await getUserData(access_token);
-    console.log("User = ", user);
-    console.log("USer Data = ", user_data);
-
     sub = user_data.sub;
-
-    // const found = awaitParticipant s.findOne({where: {
-    //   participants_sub: sub
-    // }})
-
-    // if (found) {
-    //   res.redirect
-    // }
   } catch (err) {
-    console.log("Error with signing in With Google", err);
+    console.error("Error with signing in With Google", err);
     res.json(err);
   }
 
   const found = await Users.findByPk(sub);
-  console.log("FOUND = ", found);
   res.cookie("access_token", access_token, {
     httpOnly: true,
     secure: true, // Set the Secure attribute
@@ -97,7 +82,6 @@ router.get("/", async function (req, res, next) {
   });
   if (found) {
     // frontend
-    console.log("THE FRONTEND URL IS =", FRONTEND_URL);
     res.redirect(`${FRONTEND_URL}/dashboard`);
   } else {
     const token = jwt.sign(
@@ -107,6 +91,16 @@ router.get("/", async function (req, res, next) {
     // frontend
     res.redirect(`${FRONTEND_URL}/signup?token=${token}`);
   }
+});
+
+router.get("/logout", validateToken, async (req, res) => {
+  res.clearCookie("access_token", "none", {
+    httpOnly: true,
+  });
+  res.clearCookie("id_token", "none", {
+    httpOnly: true,
+  });
+  res.json("Ok Logged Out!");
 });
 
 module.exports = router;
