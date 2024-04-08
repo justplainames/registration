@@ -4,9 +4,7 @@ import { Button } from "@chakra-ui/react";
 const apiPath = process.env.REACT_APP_API_PATH;
 
 async function auth() {
-  console.log(apiPath);
   axios.post(`${apiPath}request`).then((response) => {
-    console.log(response.data.url);
     window.location.href = response.data.url;
   });
 }

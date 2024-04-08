@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import {
   chakra,
   Box,
@@ -11,7 +11,6 @@ import {
   useBreakpointValue,
   useColorModeValue,
   IconButton,
-  IconProps,
   Container,
   Icon,
   createIcon,
@@ -19,10 +18,10 @@ import {
   VisuallyHidden,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { Link, Element } from "react-scroll";
+import { Element } from "react-scroll";
 import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 
-function LandingPage({ scrollToSection }) {
+function LandingPage() {
   return (
     <>
       <Element id="home">

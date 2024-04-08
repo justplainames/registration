@@ -135,6 +135,9 @@ const Brackets = () => {
         setListOfCategories(response.data);
         setCurrentCategory(response.data[0].category_id_pk);
         setSelectedData("top4");
+      })
+      .catch((error) => {
+        console.error("There is a an error getting Categories: ", error);
       });
   }, []);
 
@@ -169,7 +172,7 @@ const Brackets = () => {
           }
         })
         .catch((error) => {
-          console.log("Error getting bracket information: ", error);
+          console.error("Error getting bracket information: ", error);
         });
     }
   }, [selectedData, currentCategory]);

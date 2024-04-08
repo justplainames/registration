@@ -18,8 +18,6 @@ import AddParticipant from "./pages/AddParticipant";
 import CreateEvent from "./pages/CreateEvent";
 import FullstackTest from "./pages/FullstackTest";
 import LandingPage from "./pages/LandingPage";
-import LandingPage2 from "./pages/LandingPage2";
-import LandingPage3 from "./pages/LandingPage3";
 import Login from "./pages/Login";
 import Verification from "./pages/Verification";
 import ProtectedAuth from "./pages/ProtectedAuth";
@@ -42,8 +40,6 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<LandingPage />} />
-      <Route path="landingPage2" element={<LandingPage2 />} />
-      <Route path="landingPage3" element={<LandingPage3 />} />
       <Route path="fullstackTest" element={<FullstackTest />} />
       <Route
         path="scoring"
@@ -130,7 +126,6 @@ function App() {
   const [authState, setAuthState] = useState({ isAuthenticated: false });
   const [roleState, setRoleState] = useState({ role: null });
   const [eventState, setEventState] = useState({});
-
   return (
     <ChakraProvider theme={theme}>
       <AuthContext.Provider value={{ authState, setAuthState }}>

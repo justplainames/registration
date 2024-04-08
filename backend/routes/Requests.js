@@ -39,10 +39,14 @@ router.post("/", async (req, res, next) => {
 });
 
 router.get("/authenticate", validateToken, async (req, res, next) => {
-  if (req.sub) {
-    res.json("ok");
-  } else {
-    res.json("Unauthenticated");
+  try {
+    if (req.sub) {
+      res.json("ok");
+    } else {
+      res.json("Unauthenticated");
+    }
+  } catch (error) {
+    console.log("Error in Request", error);
   }
 });
 

@@ -14,7 +14,7 @@ function FullstackTest() {
         setCount(response.data.counts);
       })
       .catch((error) => {
-        console.log("Error Fetching Data: ", error);
+        console.error("Error Fetching Data: ", error);
       });
   }, []);
 

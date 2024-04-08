@@ -23,7 +23,7 @@ const validateToken = async (req, res, next) => {
     req.sub = { new_uuid: payload.sub };
     return next();
   } catch (err) {
-    next({ name: "UnauthorizedError", err: err });
+    return next({ name: "UnauthorizedError", err: err });
   }
 };
 

@@ -277,7 +277,7 @@ export const createEventAction = async ({ request }) => {
     .post(`${apiPath}createEvent/updateEvent`, event)
     .then((res) => console.log(res))
     .catch((error) => {
-      console.log("Unable to create event: ", error);
+      console.error("Unable to create event: ", error);
     });
 
   return redirect("/dashboard");

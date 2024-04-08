@@ -131,11 +131,9 @@ router.put("/editEventInfo/", async (req, res) => {
       },
       raw: true,
     });
-    console.log("POST Await EventCategories.findAll", old_data);
 
     let count = 0;
     old_data.forEach((old) => {
-      console.log("old_data for each - ", count);
       count += 1;
       const found = selected_data.find(
         (new_data) => new_data.category_id_fk === old.category_id_fk
@@ -271,7 +269,6 @@ router.put("/editEventInfo/", async (req, res) => {
         if (judges_to_delete.length !== 0) {
           // To delete Judges
           judges_to_delete.map(async (judge) => {
-            console.log("JUDGE =", judge);
             await JudgesCategories.destroy({
               where: {
                 judge_id_fk: judge,

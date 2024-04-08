@@ -39,7 +39,6 @@ export default function AddParticipant() {
           setAvailableOptions(response.data);
 
           axios.get(`${apiPath}addParticipant/getUsers`).then((response) => {
-            console.log("Response from adding participant page", response.data);
             setListOfUsers(response.data);
           });
         })
@@ -50,8 +49,8 @@ export default function AddParticipant() {
             console.error("Error making axios request:", error);
           }
         });
-    } catch {
-      console.log("Error in UseEffect in Add Participant");
+    } catch (error) {
+      console.error("Error caught ");
     }
   }, []);
 
@@ -65,7 +64,6 @@ export default function AddParticipant() {
           )}/${listOfUsers[0].user_id_pk}`
         )
         .then((response) => {
-          console.log("Response ", response.data);
           setAvailableOptions((prev) => {
             return response.data;
           });
@@ -76,19 +74,10 @@ export default function AddParticipant() {
   }, [listOfUsers]);
 
   useEffect(() => {
-    console.log(
-      "Category Options through second useEffect = ",
-      categoryOptions
-    );
-    console.log(
-      "Available Options through second useEffect = ",
-      availableOptions
-    );
     setIsTooltipOpen((prev) => {
       const newObj = {};
 
       categoryOptions.forEach((row) => {
-        console.log(row);
         newObj[row.category_id_pk] = false;
       });
 
@@ -120,7 +109,6 @@ export default function AddParticipant() {
           "eventId"
         )}/${event.value}`
       );
-      console.log("Response ", response.data);
       setAvailableOptions((prev) => {
         return response.data;
       });
@@ -129,9 +117,7 @@ export default function AddParticipant() {
     }
   };
 
-  useEffect(() => {
-    // console.log("dklsjhflaskdjhfasdk", isTooltipOpen);
-  }, isTooltipOpen);
+  useEffect(() => {}, isTooltipOpen);
 
   const handlePaid = () => {
     if (!paid) {
@@ -142,9 +128,6 @@ export default function AddParticipant() {
   };
 
   const handleTooltipEnter = (e) => {
-    const category_id_fk = e;
-    // console.log("E", e);
-    // console.log("Is ToolTIP OPEN ", isTooltipOpen);
     setIsTooltipOpen((prev) => ({
       ...prev,
       [e]: true,
@@ -152,7 +135,6 @@ export default function AddParticipant() {
   };
 
   const handleTooltipExit = (e) => {
-    // console.log("Is ToolTIP OPEN ", isTooltipOpen);
     const category_id_fk = e;
     setIsTooltipOpen((prev) => ({
       ...prev,
@@ -163,8 +145,6 @@ export default function AddParticipant() {
   const chakraStyles = {
     control: (provided, state) => ({
       ...provided,
-      // borderWidth: "10px",
-      // borderColor: "rgb(237,137,51)",
       borderWidth: "1px",
       "& > div > span > span": {
         paddingY: "1px",
@@ -173,7 +153,6 @@ export default function AddParticipant() {
         fill: "gray.900",
       },
       textColor: "white",
-      // _hover: { borderColor: "rgb(237,137,51)" },
       _focusVisible: {
         borderColor: "rgb(237,137,51)",
         borderWidth: "2px",
@@ -406,8 +385,6 @@ export const addParticipantAction = async ({ request }) => {
     user_categories: JSON.parse(data.get("selected_categories")),
     // user_paid: JSON.parse(data.get("user_paid")),
   };
-
-  console.log(user);
 
   axios
     .post(`${apiPath}addParticipant/${data.get("event_id_pk")}`, user)

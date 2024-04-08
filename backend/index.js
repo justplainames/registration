@@ -30,22 +30,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", "true");
   next();
 });
-// app.use((req, res, next) => {
-//   res.header(
-//     "Access-Control-Allow-Origin",
-//     "https://coruscating-cranachan-dee807.netlify.app"
-//   );
-//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-//   res.header("Access-Control-Allow-Headers", "Content-Type");
 
-//   // Handle preflight OPTIONS request
-//   if (req.method === "OPTIONS") {
-//     return res.status(200).end();
-//   }
-
-//   next();
-// });
-// Routes
 const landingPageRouter = require("./routes/LandingPage");
 app.use("/", landingPageRouter);
 const dashboardRouter = require("./routes/Dashboard");

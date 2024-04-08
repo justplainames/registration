@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Tab,
   TabList,
@@ -10,19 +10,20 @@ import {
 } from "@chakra-ui/react";
 import ScoringTable from "../components/ScoringTable";
 import axios from "axios";
+import { AuthContext } from "../helpers/AuthContext";
 
 function Scoring() {
   const [listOfCategories, setListOfCategories] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [headers, setHeaders] = useState(null);
   const [listOfParticipants, setListOfParticipants] = useState(null);
+  const { setAuthState } = useContext(AuthContext);
   const toast = useToast();
 
   const apiPath = process.env.REACT_APP_API_PATH;
   const original = ["Name", "Instagram Handle"];
 
   useEffect(() => {
-    console.log("useEffect");
     axios
       .get(
         `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
@@ -30,7 +31,6 @@ function Scoring() {
         )}`
       )
       .then((response) => {
-        console.log("first api call");
         setListOfCategories(response.data);
         setCurrentCategory(response.data[0].category_id_pk);
         const first_data = response.data[0];
@@ -41,7 +41,6 @@ function Scoring() {
             }`
           )
           .then((response) => {
-            console.log("second api call");
             if (response.data.error) {
               console.error(response.data.error);
               toast({

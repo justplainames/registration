@@ -7,23 +7,10 @@ import {
   FormHelperText,
   FormLabel,
   Input,
-  Checkbox,
-  Flex,
   Button,
-  CheckboxGroup,
   Heading,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
-const apiPath = process.env.REACT_APP_API_PATH;
-
-// async function auth() {
-//   axios.post(`${apiPath}request`).then((response) => {
-//     console.log(response.data.url);
-//     // const data = response.json();
-//     // console.log(data);
-//     window.location.href = response.data.url;
-//   });
-// }
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -132,7 +119,6 @@ export const signUpAction = async ({ request }) => {
     user_instagram: data.get("user_instagram"),
     user_phone_number: data.get("user_phone_number"),
   };
-  console.log(user);
 
   try {
     const response = await axios.post(`${apiPath}signup/`, user);

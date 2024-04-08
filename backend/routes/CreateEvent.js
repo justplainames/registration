@@ -106,7 +106,6 @@ router.post("/updateJudgesCategories", async (req, res) => {
   try {
     const content = req.body;
     Object.entries(content).forEach(([key, value]) => {
-      console.log(key);
       value.map(async (item) => {
         await JudgesCategories.create({
           judge_id_fk: item.value.judge_id_pk,

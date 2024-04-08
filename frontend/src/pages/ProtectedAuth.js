@@ -1,7 +1,6 @@
-import { Outlet, Route, useNavigate, Navigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
 import { AuthContext } from "../helpers/AuthContext";
-import { RoleContext } from "../helpers/RoleContext";
 import axios from "axios";
 
 const ProtectedAuth = ({ children }) => {

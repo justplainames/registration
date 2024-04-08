@@ -13,16 +13,18 @@ import {
   Menu,
   VStack,
   MenuButton,
+  Box,
+  Stack,
+  Collapse,
 } from "@chakra-ui/react";
 import "../styles/styles.css"; // Import the CSS file
 import { HamburgerIcon } from "@chakra-ui/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link, NavLink } from "react-router-dom";
 import { IconLogout } from "@tabler/icons-react";
 import { EventContext } from "../helpers/EventContext";
 import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
 import { RoleContext } from "../helpers/RoleContext";
-const apiPath = process.env.REACT_APP_API_PATH;
 
 export default function NavbarAuth({ isOpen, toggleNavbar }) {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
   const { authState, setAuthState } = useContext(AuthContext);
   const { roleState, setRoleState } = useContext(RoleContext);
   const [headingText, setHeadingText] = useState({});
+  const location = useLocation();
   const apiPath = process.env.REACT_APP_API_PATH;
 
   const showToast = async () => {
@@ -58,36 +61,83 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
     setHeadingText(eventState);
   }, [eventState, authState]);
   const backgroundColor = "gray.800";
+
+  const LinkItems = [
+    { name: "Home", link: "/dashboard" },
+    { name: "Participants", link: "/participants" },
+    { name: "Scoreboard", link: "/scoring" },
+    { name: "Profile", link: "/profile" },
+    { name: "Brackets", link: "/brackets" },
+    { name: "Fullstack", link: "/fullstack" },
+  ];
+
   return (
     <Flex
-      height="20"
+      justifyContent={
+        location.pathname === "/"
+          ? "space-between"
+          : { base: "space-between", md: "flex-end" }
+      }
       alignItems="center"
-      bg={backgroundColor}
       borderBottomWidth="1px"
       borderBottomColor="gray.600"
-      justifyContent={{ base: "space-between", md: "flex-end" }}
     >
-      <IconButton
-        display={{ base: "flex", md: "none" }}
-        onClick={() => {
-          toggleNavbar();
-        }}
-        variant="outline"
-        aria-label="open menu"
-        icon={<HamburgerIcon w={5} h={5} color="white" />}
-        color="white"
-      />
-
-      <Text
-        display={{ base: "flex", md: "none" }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-        textColor={"white"}
-      >
-        Logo
-      </Text>
-
+      {location.pathname === "/" && (
+        <Flex display={{ base: "none", md: "flex" }} ml={10}>
+          <DesktopNav props={LinkItems} />
+        </Flex>
+      )}
+      {location.pathname === "/" && (
+        <IconButton
+          display={{ base: "flex", md: "none" }}
+          onClick={() => {
+            toggleNavbar();
+          }}
+          variant="outline"
+          aria-label="open menu"
+          icon={<HamburgerIcon w={5} h={5} color="white" />}
+          color="white"
+        />
+      )}
+      {location.pathname === "/" && (
+        <Collapse in={isOpen} animateOpacity>
+          <MobileNav props={LinkItems} />
+        </Collapse>
+      )}
+      {location.pathname === "/" && (
+        <Text
+          display={{ base: "flex", md: "none" }}
+          fontSize="2xl"
+          fontFamily="monospace"
+          fontWeight="bold"
+          textColor="white"
+        >
+          Logo
+        </Text>
+      )}
+      {location.pathname !== "/" && (
+        <IconButton
+          display={{ base: "flex", md: "none" }}
+          onClick={() => {
+            toggleNavbar();
+          }}
+          variant="outline"
+          aria-label="open menu"
+          icon={<HamburgerIcon w={5} h={5} color="white" />}
+          color="white"
+        />
+      )}
+      {location.pathname !== "/" && (
+        <Text
+          display={{ base: "flex", md: "none" }}
+          fontSize="2xl"
+          fontFamily="monospace"
+          fontWeight="bold"
+          textColor="white"
+        >
+          Logo
+        </Text>
+      )}
       <HStack spacing={{ base: "0", md: "6" }}>
         {roleState && roleState.role === "admin" && (
           <Button
@@ -157,3 +207,86 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
     </Flex>
   );
 }
+
+const MobileNavLinks = (props) => {
+  const { link } = props;
+
+  const onHoverLink = "gray.700";
+  return (
+    <Box
+      py={1}
+      px={2}
+      justifyContent="space-between"
+      alignItems="center"
+      rounded={"md"}
+      textColor={"gray.200"}
+      _hover={{
+        textDecoration: "none",
+        bg: onHoverLink,
+      }}
+    >
+      <NavLink
+        color="white"
+        key={link.name}
+        className="nav-link"
+        to={link.link}
+      >
+        {link.name}
+      </NavLink>
+    </Box>
+  );
+};
+
+const DesktopNav = ({ props }) => {
+  return (
+    <Stack direction={"row"} spacing={4}>
+      {props.map((link) => {
+        if (sessionStorage.getItem("eventId") || link.name === "Home") {
+          return <DesktopNavLinks key={link.name} link={link} />;
+        }
+      })}
+    </Stack>
+  );
+};
+
+const DesktopNavLinks = (props) => {
+  const linkHoverColor = "gray.700";
+  const { link } = props;
+
+  return (
+    <Box
+      color="white"
+      px={2}
+      py={1}
+      rounded={"md"}
+      _hover={{
+        textDecoration: "none",
+        bg: linkHoverColor,
+      }}
+    >
+      <NavLink
+        color="white"
+        key={link.name}
+        className="nav-link"
+        to={link.link}
+      >
+        {link.name}
+      </NavLink>
+    </Box>
+  );
+};
+
+const MobileNav = ({ props }) => {
+  const BackgroundColor = "gray.800";
+  return (
+    <Stack bg={BackgroundColor} p={4} display={{ md: "none" }}>
+      {props.map((link) => {
+        return (
+          <MobileNavLinks key={link.name} link={link}>
+            {link}
+          </MobileNavLinks>
+        );
+      })}
+    </Stack>
+  );
+};

@@ -119,7 +119,7 @@ function Dashboard() {
         }
       );
     } catch (error) {
-      console.log("Error in handleJoinSubmit in page (Dashboard)", error);
+      console.error("Error in handleJoinSubmit in page (Dashboard)", error);
     }
 
     handleOnClose();

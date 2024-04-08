@@ -159,7 +159,6 @@ function EventInfo() {
         sessionStorage.removeItem("eventId");
         sessionStorage.removeItem("eventName");
         onClose();
-        console.log("Enter HERE");
         setEventState(null);
         navigate("/dashboard");
       })
