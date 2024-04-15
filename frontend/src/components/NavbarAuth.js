@@ -25,8 +25,10 @@ import { EventContext } from "../helpers/EventContext";
 import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
 import { RoleContext } from "../helpers/RoleContext";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function NavbarAuth({ isOpen, toggleNavbar }) {
+  const { user } = useAuth0();
   const navigate = useNavigate();
   const toast = useToast();
   const { eventState } = useContext(EventContext);
@@ -35,14 +37,14 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
   const [headingText, setHeadingText] = useState({});
   const location = useLocation();
   const apiPath = process.env.REACT_APP_API_PATH;
+  const { logout } = useAuth0();
 
   const showToast = async () => {
-    await axios.get(`${apiPath}oauth/logout`).then((response) => {});
-    setAuthState({ isAuthenticated: false });
+    logout({ logoutParams: { returnTo: "https://localhost:3001/" } });
     toast({
       title: "Logged Out",
       description: "Successfully logged out",
-      duration: 200000,
+      duration: 3000,
       isClosable: true,
       status: "success",
       variant: "solid",
@@ -139,7 +141,7 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
         </Text>
       )}
       <HStack spacing={{ base: "0", md: "6" }}>
-        {roleState && roleState.role === "admin" && (
+        {user["http://localhost:3000/roles"][0] === "Admin" && (
           <Button
             bg="rgb(237,137,51)"
             textColor="gray.900"

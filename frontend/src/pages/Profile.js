@@ -25,35 +25,72 @@ import {
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+
 const Profile = () => {
   const apiPath = process.env.REACT_APP_API_PATH;
   const [userData, setUserData] = useState(null);
   const [userEvents, setUserEvents] = useState(null);
   const [isEditing, setIsEditing] = useState(true);
   const userDataRef = useRef({});
+  const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
-    axios.get(`${apiPath}profile/getInfo`).then((response) => {
-      userDataRef.current = response.data;
-      setUserData(response.data);
-    });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .get(`${apiPath}/profile/getInfo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          userDataRef.current = response.data;
+          setUserData(response.data);
+        });
 
-    axios.get(`${apiPath}profile/getEvents`).then((response) => {
-      setUserEvents(response.data);
-    });
+      axios
+        .get(`${apiPath}/profile/getEvents`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setUserEvents(response.data);
+        });
+    };
+
+    func();
   }, []);
   const handleSubmit = () => {
-    axios.put(`${apiPath}profile/updateInfo`, userData).then((response) => {});
-    setIsEditing(!isEditing);
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      try {
+        axios
+          .put(`${apiPath}/profile/updateInfo`, userData, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {});
+        setIsEditing(!isEditing);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    func();
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    const token = await getAccessTokenSilently();
     setIsEditing(!isEditing);
     setUserData({ ...userDataRef.current });
-    axios.get(`${apiPath}profile/getInfo`).then((response) => {
-      userDataRef.current = response.data;
-      setUserData(response.data);
-    });
+    axios
+      .get(`${apiPath}/profile/getInfo`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        userDataRef.current = response.data;
+        setUserData(response.data);
+      });
   };
 
   const handleInputChange = (e) => {

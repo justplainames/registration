@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { Events } = require("../models");
-const { validateToken } = require("../middlewares/AuthMiddleware");
+// const { validateToken } = require("../middlewares/AuthMiddleware");
 
 // API endpoitn to get all event information
-router.get("/getEvents", validateToken, async (req, res) => {
+router.get("/getEvents", async (req, res) => {
   try {
     const events = await Events.findAll();
     events.map((item) => {

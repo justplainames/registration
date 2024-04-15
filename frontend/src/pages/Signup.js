@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, redirect } from "react-router-dom";
+import { Form } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -15,17 +15,26 @@ import { jwtDecode } from "jwt-decode";
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [decoded_auth0, setDecoded_auth0] = useState({});
+  const [state, setState] = useState("");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      setEmail(decodedToken.email);
-      setName(decodedToken.name);
-    }
+    const auth0 = urlParams.get("session_token");
+    const decoded_auth0 = jwtDecode(auth0);
+    setDecoded_auth0(decoded_auth0);
+    setState(urlParams.get("state"));
+    setEmail(decoded_auth0.email);
+    setName(decoded_auth0.name);
   }, []);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+
+    // Call the action with required parameters
+    signUpAction({ formData, decoded_auth0, state });
+  };
 
   return (
     <Box p={4} height="100%">
@@ -38,7 +47,11 @@ export default function Signup() {
       >
         Sign Up
       </Heading>
-      <Form method="post" action="/signup">
+      <Form
+        method="post"
+        action="/signup"
+        onSubmit={(event) => handleSubmit(event)}
+      >
         <FormControl textColor="white" mt="2%">
           <FormLabel>Name: </FormLabel>
           <Input
@@ -110,23 +123,25 @@ export default function Signup() {
   );
 }
 
-export const signUpAction = async ({ request }) => {
-  const data = await request.formData();
+export const signUpAction = async ({ formData, decoded_auth0, state }) => {
+  const data = formData;
   const apiPath = process.env.REACT_APP_API_PATH;
+  const issuerDomain = process.env.REACT_APP_ISSUER_DOMAIN;
   const user = {
+    user_id_pk: decoded_auth0.sub,
     user_name: data.get("user_name"),
     user_email: data.get("user_email"),
     user_instagram: data.get("user_instagram"),
     user_phone_number: data.get("user_phone_number"),
   };
 
-  try {
-    const response = await axios.post(`${apiPath}signup/`, user);
-    // Redirect to dashboard upon successful signup
-    return redirect("/dashboard");
-  } catch (error) {
-    console.error("Error making axios request:", error);
-    // Handle the error as needed
-    throw error; // Re-throw the error to propagate it
-  }
+  await axios
+    .post(`${apiPath}/signup/`, user)
+    .then((response) => {
+      window.location.href = `${issuerDomain}/continue?state=${state}`;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  // Redirect to dashboard upon successful signup
 };

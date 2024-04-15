@@ -20,7 +20,7 @@ async function getUserData(access_token) {
   );
   return response.data;
 }
-router.use(cookieParser());
+// router.use(cookieParser());
 
 // This application uses Oauth2.0
 // The event flow is as follows, the user clicks sign in on the application
@@ -64,22 +64,28 @@ router.get("/", async function (req, res, next) {
     id_token = user.id_token;
     user_data = await getUserData(access_token);
     sub = user_data.sub;
-  } catch (err) {
-    console.error("Error with signing in With Google", err);
-    res.json(err);
+  } catch (error) {
+    console.error("Error with signing in With Google", error);
+    res.status(500).json({ error: "Internal Server Error", message: error });
   }
 
   const found = await Users.findByPk(sub);
+  console.log(BACKEND_API);
   res.cookie("access_token", access_token, {
+    domain: "localhost:3000/",
+    path: "/",
     httpOnly: true,
     secure: true, // Set the Secure attribute
-    sameSite: "none", // Set the SameSite attribute to None
+    sameSite: "lax", // Set the SameSite attribute to None
   });
   res.cookie("id_token", id_token, {
+    domain: `.localhost:3000`,
+    path: "/",
     httpOnly: true,
     secure: true, // Set the Secure attribute
-    sameSite: "none", // Set the SameSite attribute to None
+    sameSite: "lax", // Set the SameSite attribute to None
   });
+  console.log(res.cookie["access_token"].domain);
   if (found) {
     // frontend
     res.redirect(`${FRONTEND_URL}/dashboard`);

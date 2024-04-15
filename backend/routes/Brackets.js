@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { Users, UsersCategories, Brackets } = require("../models");
 const { finals, top4, top8, top16 } = require("./template");
-const { validateToken } = require("../middlewares/AuthMiddleware");
-router.use(validateToken);
+// const { validateToken } = require("../middlewares/AuthMiddleware");
+// router.use(validateToken);
 
 // API endpoint to retrieve any bracket information based on the category and event.
 // Finds bracket information and retrieves it

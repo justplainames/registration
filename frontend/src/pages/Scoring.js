@@ -10,96 +10,116 @@ import {
 } from "@chakra-ui/react";
 import ScoringTable from "../components/ScoringTable";
 import axios from "axios";
-import { AuthContext } from "../helpers/AuthContext";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function Scoring() {
+  const { getAccessTokenSilently } = useAuth0();
   const [listOfCategories, setListOfCategories] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [headers, setHeaders] = useState(null);
   const [listOfParticipants, setListOfParticipants] = useState(null);
-  const { setAuthState } = useContext(AuthContext);
   const toast = useToast();
 
   const apiPath = process.env.REACT_APP_API_PATH;
   const original = ["Name", "Instagram Handle"];
 
   useEffect(() => {
-    axios
-      .get(
-        `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
-          "eventId"
-        )}`
-      )
-      .then((response) => {
-        setListOfCategories(response.data);
-        setCurrentCategory(response.data[0].category_id_pk);
-        const first_data = response.data[0];
-        axios
-          .get(
-            `${apiPath}score/${sessionStorage.getItem("eventId")}/${
-              first_data.category_id_pk
-            }`
-          )
-          .then((response) => {
-            if (response.data.error) {
-              console.error(response.data.error);
-              toast({
-                title: "No Participants",
-                description:
-                  "Check to see if participant attendance were marked/added",
-                duration: 5000,
-                isClosable: true,
-                status: "error",
-                position: "top",
-              });
-            } else {
-              setHeaders([
-                ...original,
-                ...response.data[0].judges.map((item) => item.judge_name),
-                "Total Score",
-              ]);
-              setListOfParticipants(response.data);
-            }
-          });
-      })
-      .catch((error) => {
-        if (error.response.data.error === "Unauthorized") {
-          window.location.href = "/";
-        } else {
-          console.error("Error making axios request:", error);
-        }
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .get(
+          `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
+            "eventId"
+          )}`,
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log("response,", response);
+          setListOfCategories(response.data);
+          setCurrentCategory(response.data[0].category_id_pk);
+          const first_data = response.data[0];
+          axios
+            .get(
+              `${apiPath}/score/${sessionStorage.getItem("eventId")}/${
+                first_data.category_id_pk
+              }`,
+              {
+                headers: {
+                  authorization: `Bearer ${token}`,
+                },
+              }
+            )
+            .then((response) => {
+              if (response.data.error) {
+                console.error(response.data.error);
+                toast({
+                  title: "No Participants",
+                  description:
+                    "Check to see if participant attendance were marked/added",
+                  duration: 5000,
+                  isClosable: true,
+                  status: "error",
+                  position: "top",
+                });
+              } else {
+                setHeaders([
+                  ...original,
+                  ...response.data[0].judges.map((item) => item.judge_name),
+                  "Total Score",
+                ]);
+                setListOfParticipants(response.data);
+              }
+            });
+        })
+        .catch((error) => {
+          if (error.response.data.error === "Unauthorized") {
+            window.location.href = "/";
+          } else {
+            console.error("Error making axios request:", error);
+          }
+        });
+    };
+    func();
   }, []);
 
   const handleChange = (category) => {
-    axios
-      .get(
-        `${apiPath}score/${sessionStorage.getItem("eventId")}/${
-          category.category_id_pk
-        }`
-      )
-      .then((response) => {
-        if (response.data.error) {
-          console.error(response.data.error);
-          toast({
-            title: "No Participants",
-            description:
-              "Check to see if participant attendance were marked/added",
-            duration: 5000,
-            isClosable: true,
-            status: "error",
-            position: "top",
-          });
-        } else {
-          setCurrentCategory(category.category_id_pk);
-          setHeaders([
-            ...original,
-            ...response.data[0].judges.map((item) => item.judge_name),
-            "Total Score",
-          ]);
-          setListOfParticipants(response.data);
-        }
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .get(
+          `${apiPath}/score/${sessionStorage.getItem("eventId")}/${
+            category.category_id_pk
+          }`,
+          { headers: { authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          if (response.data.error) {
+            console.error(response.data.error);
+            toast({
+              title: "No Participants",
+              description:
+                "Check to see if participant attendance were marked/added",
+              duration: 5000,
+              isClosable: true,
+              status: "error",
+              position: "top",
+            });
+          } else {
+            setCurrentCategory(category.category_id_pk);
+            setHeaders([
+              ...original,
+              ...response.data[0].judges.map((item) => item.judge_name),
+              "Total Score",
+            ]);
+            setListOfParticipants(response.data);
+          }
+        });
+    };
+    func();
   };
 
   return listOfCategories && currentCategory ? (

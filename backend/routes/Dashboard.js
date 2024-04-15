@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Events } = require("../models");
-const { validateToken } = require("../middlewares/AuthMiddleware");
-router.use(validateToken);
 
-router.get("/getEvents", validateToken, async (req, res) => {
+router.get("/getEvents", async (req, res) => {
   try {
     const events = await Events.findAll();
     events.map((item) => {
@@ -13,6 +11,7 @@ router.get("/getEvents", validateToken, async (req, res) => {
     });
     res.json(events);
   } catch (error) {
+    console.log("HERE");
     res.status(500).json({
       error: "Internal Server",
     });

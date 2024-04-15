@@ -30,6 +30,7 @@ import axios from "axios";
 import { EventContext } from "../helpers/EventContext.js";
 import { RoleContext } from "../helpers/RoleContext.js";
 import { Select } from "chakra-react-select";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Brackets = () => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -43,6 +44,7 @@ const Brackets = () => {
   const { roleState } = useContext(RoleContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const { getAccessTokenSilently, user } = useAuth0();
 
   const chakraStyles = {
     control: (provided, state) => ({
@@ -125,56 +127,67 @@ const Brackets = () => {
   // Calls API on render.
   // API retrieves categories of the particular event and sets the options ("top4 as default")
   useEffect(() => {
-    axios
-      .get(
-        `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
-          "eventId"
-        )}`
-      )
-      .then((response) => {
-        setListOfCategories(response.data);
-        setCurrentCategory(response.data[0].category_id_pk);
-        setSelectedData("top4");
-      })
-      .catch((error) => {
-        console.error("There is a an error getting Categories: ", error);
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .get(
+          `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
+            "eventId"
+          )}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          setListOfCategories(response.data);
+          setCurrentCategory(response.data[0].category_id_pk);
+          setSelectedData("top4");
+        })
+        .catch((error) => {
+          console.error("There is a an error getting Categories: ", error);
+        });
+    };
+    func();
   }, []);
 
   // Calls API on change of selectedCategory and Current Category
   // Re-renders when user chooses a different category or on first render
   useEffect(() => {
-    setBracketData(null);
-    if (selectedData) {
-      axios
-        .get(
-          `${apiPath}bracket/${sessionStorage.getItem(
-            "eventId"
-          )}/${currentCategory}/${selectedData}`
-        )
-        .then((response) => {
-          // Theres an error with the brackets only show to admin. Users get something else
-          if (
-            response.data.message &&
-            response.data.message === "Not Enough Participants"
-          ) {
-            showNotEnoughParticipantsToast(response.data.needed);
-          } else {
-            if (response.data.to_choose) {
-              if (roleState.role === "admin") {
-                setToChoose(response.data);
-                onOpen();
-              }
-              showTiebreakerToast();
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+
+      setBracketData(null);
+      if (selectedData) {
+        axios
+          .get(
+            `${apiPath}/bracket/${sessionStorage.getItem(
+              "eventId"
+            )}/${currentCategory}/${selectedData}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          .then((response) => {
+            // Theres an error with the brackets only show to admin. Users get something else
+            if (
+              response.data.message &&
+              response.data.message === "Not Enough Participants"
+            ) {
+              showNotEnoughParticipantsToast(response.data.needed);
             } else {
-              setBracketData(response.data.bracket_data);
+              if (response.data.to_choose) {
+                if (user["http://localhost:3000/roles"][0] === "Admin") {
+                  setToChoose(response.data);
+                  onOpen();
+                }
+                showTiebreakerToast();
+              } else {
+                setBracketData(response.data.bracket_data);
+              }
             }
-          }
-        })
-        .catch((error) => {
-          console.error("Error getting bracket information: ", error);
-        });
-    }
+          })
+          .catch((error) => {
+            console.error("Error getting bracket information: ", error);
+          });
+      }
+    };
+    func();
   }, [selectedData, currentCategory]);
 
   // When there's a tiebreaker toChoose gets set, triggering this effect
@@ -210,16 +223,18 @@ const Brackets = () => {
   };
 
   //
-  const handleTieBreakerSubmit = () => {
+  const handleTieBreakerSubmit = async () => {
+    const token = await getAccessTokenSilently();
     if (chosenName.length !== toChoose.to_choose) {
       showToast();
     } else {
       axios
         .post(
-          `${apiPath}bracket/${sessionStorage.getItem(
+          `${apiPath}/bracket/${sessionStorage.getItem(
             "eventId"
           )}/${currentCategory}/${selectedData}`,
-          { number: toChoose.to_choose, data: chosenName }
+          { number: toChoose.to_choose, data: chosenName },
+          { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => {
           setBracketData(response.data);

@@ -10,10 +10,7 @@ const {
   sequelize,
 } = require("../models");
 
-const { validateToken } = require("../middlewares/AuthMiddleware");
 const crypto = require("crypto");
-
-router.use(validateToken);
 
 // API to get retrueve all users
 router.get("/getUsers", async (req, res) => {
@@ -79,6 +76,11 @@ router.get("/getUserCategory/:event_id/:user_id", async (req, res) => {
 
 // API to get retrueve user information on which categories in a particular event they joined
 router.get("/getCategories/:id", async (req, res) => {
+  const authorizationHeader = req.headers["authorization"];
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   try {
     const categories = await EventCategories.findAll({
       where: {
@@ -91,7 +93,7 @@ router.get("/getCategories/:id", async (req, res) => {
         const category_name = await Categories.findByPk(cat_pk);
         const check = await UsersCategories.findOne({
           where: {
-            user_id_fk: req.sub.new_uuid,
+            user_id_fk: req.auth.payload.sub,
             event_id_fk: req.params.id,
             category_id_fk: cat_pk,
           },
@@ -106,7 +108,7 @@ router.get("/getCategories/:id", async (req, res) => {
     );
     res.json(data);
   } catch (error) {
-    console.error("Error Retrieving user catgory data:", error);
+    console.error("Error Retrieving user category data:", error);
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
@@ -160,13 +162,12 @@ router.get("/getParticipants/:event_id/:category_id", async (req, res) => {
 // TO COMMENT
 router.post("/:id", async (req, res) => {
   try {
-    const content = req.body;
     const event_id = req.params.id;
-    const temp = await Users.findByPk(req.sub.new_uuid, { raw: true });
-    const role = temp.user_role;
+    const content = req.body;
+    const role = req.auth.payload["http://localhost:3000/roles"][0];
     let user;
-    if (role === "user") {
-      user = temp;
+    if (role !== "Admin") {
+      user = await Users.findByPk(req.auth.payload.sub, { raw: true });
     } else {
       user = {
         user_id_pk: content.user_id_pk,
@@ -179,6 +180,7 @@ router.post("/:id", async (req, res) => {
     }
 
     const user_id = user.user_id_pk;
+    console.log("userid", content);
     for (category of content.user_categories) {
       const judges_ids = await JudgesCategories.findAll({
         where: {
@@ -186,6 +188,7 @@ router.post("/:id", async (req, res) => {
           event_id_fk: event_id,
         },
       });
+      console.log(judges_ids);
 
       await UsersCategories.create({
         user_id_fk: user_id,
@@ -226,6 +229,7 @@ router.get("/joinEvent/getRole", async (req, res) => {
       user_name: role.dataValues.user_name,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
@@ -472,6 +476,9 @@ router.put("/manual/updateOrder", async (req, res) => {
 
 // API to delete participant (NOT THE USER) from a particular event from a particular category
 router.delete("/deleteParticipant", async (req, res) => {
+  console.log("TEST");
+  console.log("here");
+  console.log(req);
   try {
     const user_info = req.body;
     const user_id_fk = user_info.user_id_fk;

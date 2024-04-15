@@ -5,11 +5,15 @@ import RoundLeft from "./RoundLeft";
 import { HStack, Box } from "@chakra-ui/react";
 import RoundMiddle from "./RoundMiddle";
 import RoundRight from "./RoundRight";
+import { useAuth0 } from "@auth0/auth0-react";
 function Match(data) {
+  const { user } = useAuth0();
   const [matchData, setMatchData] = useState(null);
   const [toRender, setToRender] = useState([]);
+  const [roleState, setRoleState] = useState("");
 
   useEffect(() => {
+    setRoleState(user["http://localhost:3000/roles"][0]);
     setMatchData(data);
     updateMatchData();
   }, []);
@@ -32,7 +36,7 @@ function Match(data) {
   };
 
   return (
-    <MatchContext.Provider value={{ matchData, setMatchData }}>
+    <MatchContext.Provider value={{ matchData, setMatchData, roleState }}>
       {matchData ? (
         <HStack spacing="30px">
           {toRender.map((comp, index) => (

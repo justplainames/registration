@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Form, redirect } from "react-router-dom";
+import { Form, redirect, useNavigate } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -14,39 +14,50 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select } from "chakra-react-select";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 import { EventContext } from "../helpers/EventContext";
 
 export default function CreateEvent() {
+  const { getAccessTokenSilently } = useAuth0();
   const [startDate, setStartDate] = useState(new Date());
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [judgeOptions, setJudgeOptions] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [judgesByCategory, setJudgesByCategory] = useState({});
   const apiPath = process.env.REACT_APP_API_PATH;
+  const navigate = useNavigate();
 
   // Get list of available judges and categories to use for event creation when component mount
   useEffect(() => {
-    axios
-      .get(`${apiPath}createEvent/getJudges`)
-      .then((response) => {
-        setJudgeOptions(response.data);
-      })
-      .catch((error) => {
-        console.error("Error Fetching Judges", error);
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .get(`${apiPath}/createEvent/getJudges`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          setJudgeOptions(response.data);
+        })
+        .catch((error) => {
+          console.error("Error Fetching Judges", error);
+        });
 
-    axios
-      .get(`${apiPath}createEvent/getCategories`)
-      .then((response) => {
-        setCategoryOptions(response.data);
-      })
-      .catch((error) => {
-        if (error.response.data.error === "Unauthorized") {
-          window.location.href = "/";
-        } else {
-          console.error("Error making axios request:", error);
-        }
-      });
+      axios
+        .get(`${apiPath}/createEvent/getCategories`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          setCategoryOptions(response.data);
+        })
+        .catch((error) => {
+          if (error.response.data.error === "Unauthorized") {
+            window.location.href = "/";
+          } else {
+            console.error("Error making axios request:", error);
+          }
+        });
+    };
+    func();
   }, []);
 
   // handle select components to display selection of judges when categories are modified.
@@ -96,8 +107,6 @@ export default function CreateEvent() {
   const chakraStyles = {
     control: (provided, state) => ({
       ...provided,
-      // borderWidth: "10px",
-      // borderColor: "rgb(237,137,51)",
       borderWidth: "1px",
       "& > div > span > span": {
         paddingY: "1px",
@@ -106,7 +115,6 @@ export default function CreateEvent() {
         fill: "gray.900",
       },
       textColor: "white",
-      // _hover: { borderColor: "rgb(237,137,51)" },
       _focusVisible: {
         borderColor: "rgb(237,137,51)",
         borderWidth: "2px",
@@ -138,6 +146,15 @@ export default function CreateEvent() {
     }),
   };
 
+  const handleSubmit = async (event, navigate) => {
+    event.preventDefault();
+    const token = await getAccessTokenSilently();
+    const formData = new FormData(event.target);
+
+    // Call the action with required parameters
+    createEventAction({ formData, token, navigate });
+  };
+
   return (
     <Box p={4}>
       <Heading
@@ -150,11 +167,12 @@ export default function CreateEvent() {
         Create Event
       </Heading>
 
-      <Form method="post" action="/createEvent">
+      <Form method="post" onSubmit={(event) => handleSubmit(event, navigate)}>
         <input
           type="hidden"
           name="judges_by_categories"
           value={JSON.stringify(judgesByCategory)}
+          isRequired
         />
         <Flex>
           <FormControl textColor="white" mr="5%">
@@ -261,10 +279,9 @@ export default function CreateEvent() {
   );
 }
 
-export const createEventAction = async ({ request }) => {
+export const createEventAction = async ({ formData, token, navigate }) => {
   const apiPath = process.env.REACT_APP_API_PATH;
-  const data = await request.formData();
-
+  const data = formData;
   const event = {
     event_name: data.get("event_name"),
     event_date: data.get("event_date"),
@@ -274,11 +291,12 @@ export const createEventAction = async ({ request }) => {
   };
 
   axios
-    .post(`${apiPath}createEvent/updateEvent`, event)
-    .then((res) => console.log(res))
+    .post(`${apiPath}/createEvent/updateEvent`, event, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
     .catch((error) => {
       console.error("Unable to create event: ", error);
     });
-
-  return redirect("/dashboard");
+  return navigate("/dashboard");
 };

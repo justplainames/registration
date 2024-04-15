@@ -1,15 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const cookieParser = require("cookie-parser");
 const { Users } = require("../models");
-const { validateToken } = require("../middlewares/AuthMiddleware");
 
-// router.use(cookieParser());
 // API endpoint to create User
-router.post("/", validateToken, async (req, res) => {
+router.post("/", async (req, res) => {
+  console.log("reached signup API");
   try {
     const users = {
-      user_id_pk: req.sub.new_uuid,
+      user_id_pk: req.body.user_id_pk,
       user_name: req.body.user_name,
       user_instagram: req.body.user_instagram,
       user_email: req.body.user_email,
@@ -17,8 +15,9 @@ router.post("/", validateToken, async (req, res) => {
     };
 
     await Users.create(users);
-    res.json("ok");
+    res.status(200).json("Successfully Added");
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,

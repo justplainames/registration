@@ -10,12 +10,15 @@ const hostname = "0.0.0.0";
 
 const app = express();
 
+const { auth } = require("express-oauth2-jwt-bearer");
+
 // Middleware
 app.use(express.json());
 
 app.use(
   cors({
     origin: [
+      "https://localhost:3001",
       "http://localhost:3000",
       "http://localhost:3001",
       `${process.env.FRONTEND_URL}`,
@@ -31,6 +34,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(
+  auth({
+    audience: process.env.AUDIENCE,
+    issuerBaseURL: `${process.env.AUTH0_ISSUER_DOMAIN}/`,
+    tokenSigningAlg: "RS256",
+  })
+);
+
 const landingPageRouter = require("./routes/LandingPage");
 app.use("/", landingPageRouter);
 const dashboardRouter = require("./routes/Dashboard");
@@ -43,10 +54,6 @@ const scoreRouter = require("./routes/Scoring");
 app.use("/score", scoreRouter);
 const bracketRouter = require("./routes/Brackets");
 app.use("/bracket", bracketRouter);
-const authRouter = require("./routes/Oauth");
-app.use("/oauth", authRouter);
-const requestRouter = require("./routes/Requests");
-app.use("/request", requestRouter);
 const signupRouter = require("./routes/Signup");
 app.use("/signup", signupRouter);
 const profileRouter = require("./routes/Profile");
@@ -55,14 +62,10 @@ const editEventRouter = require("./routes/EditEvent");
 app.use("/editEvent", editEventRouter);
 
 app.use((err, req, res, next) => {
-  console.error("The error is ", err); // Log the error for debugging purposes
-
   // Handle different types of errors
   if (err.name === "UnauthorizedError") {
     // Handle unauthorized errors (e.g., invalid token)
-    // res.status(401).json({ error: "Unauthorized" });
-    console.log("REACHED AN ERROR");
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized Accessed" });
   } else {
     // Handle other types of errors
     res.status(500).json({ error: "Internal Server Error" });

@@ -1,12 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { Users, UsersCategories, Events, Categories } = require("../models");
-const { validateToken } = require("../middlewares/AuthMiddleware");
 
 // API endpoint to get user profile
-router.get("/getInfo", validateToken, async (req, res) => {
+router.get("/getInfo", async (req, res) => {
+  const authorizationHeader = req.headers["authorization"];
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
   try {
-    const user = await Users.findByPk(req.sub.new_uuid);
+    const user = await Users.findByPk(req.auth.payload.sub);
     const data = {
       user_name: user.user_name,
       user_instagram: user.user_instagram,
@@ -23,11 +26,11 @@ router.get("/getInfo", validateToken, async (req, res) => {
 });
 
 // API endpoint to get all event info of the user
-router.get("/getEvents", validateToken, async (req, res) => {
+router.get("/getEvents", async (req, res) => {
   try {
     const all_events = await UsersCategories.findAll({
       where: {
-        user_id_fk: req.sub.new_uuid,
+        user_id_fk: req.auth.payload.sub,
       },
       include: [
         {
@@ -61,9 +64,11 @@ router.get("/getEvents", validateToken, async (req, res) => {
 });
 
 // API endpoint to update profile info
-router.put("/updateInfo", validateToken, async (req, res) => {
+router.put("/updateInfo", async (req, res) => {
   try {
-    await Users.update(req.body, { where: { user_id_pk: req.sub.new_uuid } });
+    await Users.update(req.body, {
+      where: { user_id_pk: req.auth.payload.sub },
+    });
     res.json("ok");
   } catch (error) {
     res.status(500).json({

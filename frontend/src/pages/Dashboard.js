@@ -28,18 +28,16 @@ import {
   Image,
   Stack,
 } from "@chakra-ui/react";
-import { AuthContext } from "../helpers/AuthContext";
+import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { RoleContext } from "../helpers/RoleContext";
 import { EventContext } from "../helpers/EventContext";
 axios.defaults.withCredentials = true;
 
 function Dashboard() {
   const [events, setEvents] = useState([]);
   const { setEventState } = useContext(EventContext);
-  const { authState, setAuthState } = useContext(AuthContext);
-  const { roleState, setRoleState } = useContext(RoleContext);
+  const { user, getAccessTokenSilently } = useAuth0();
   const [isTooltipOpen, setIsTooltipOpen] = useState({});
   const [categories, setCategories] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -59,19 +57,15 @@ function Dashboard() {
     }
   }, [categories]);
 
-  // Fetch role of the user when the component mounts
+  // // Fetch role of the user when the component mounts
   useEffect(() => {
-    setAuthState({ isAuthenticated: true });
     const fetchData = async () => {
+      const token = await getAccessTokenSilently();
       try {
-        const response = await axios.get(`${apiPath}dashboard/getEvents`);
+        const response = await axios.get(`${apiPath}/dashboard/getEvents`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setEvents(response.data);
-
-        axios
-          .get(`${apiPath}addParticipant/joinEvent/getRole`)
-          .then((response) => {
-            setRoleState(response.data);
-          });
       } catch (error) {
         console.error("Error making axios request:", error);
       }
@@ -84,27 +78,23 @@ function Dashboard() {
   // Calls API to retrieve event information
   const handleSelectEvent = async (event_name, event_id) => {
     try {
-      axios
-        .get(`${apiPath}addParticipant/joinEvent/getRole`)
-        .then((response) => {
-          setEventState(event_id);
-          sessionStorage.setItem("eventName", event_name);
-          sessionStorage.setItem("eventId", event_id);
-          if (response.data.role === "user") {
-            axios
-              .get(
-                `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
-                  "eventId"
-                )}`
-              )
-              .then((response) => {
-                setCategories(response.data);
-              });
-            onOpen();
-          } else {
-            navigate(`/eventInfo`);
-          }
-        });
+      setEventState(event_id);
+      sessionStorage.setItem("eventName", event_name);
+      sessionStorage.setItem("eventId", event_id);
+      if (user["http://localhost:3000/roles"][0] === "user") {
+        axios
+          .get(
+            `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
+              "eventId"
+            )}`
+          )
+          .then((response) => {
+            setCategories(response.data);
+          });
+        onOpen();
+      } else {
+        navigate(`/eventInfo`);
+      }
     } catch (error) {
       console.error("Error in handleSelectEvent in page (Dashboard):", error);
     }
@@ -113,7 +103,7 @@ function Dashboard() {
   const handleJoinSubmit = () => {
     try {
       axios.post(
-        `${apiPath}addParticipant/${sessionStorage.getItem("eventId")}`,
+        `${apiPath}/addParticipant/${sessionStorage.getItem("eventId")}`,
         {
           user_categories: selectedCategories,
         }
@@ -130,9 +120,9 @@ function Dashboard() {
     onClose();
   };
 
-  if (!authState.isAuthenticated) {
-    return <div>Loading...</div>;
-  }
+  // if (!authState.isAuthenticated) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <SimpleGrid spacing={10} minChildWidth="300px" p={3} justifyItems="center">

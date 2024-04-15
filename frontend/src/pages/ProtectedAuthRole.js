@@ -13,13 +13,13 @@ const ProtectedAuthRole = ({ children }) => {
 
   const fetchData = async () => {
     try {
-      const authResponse = await axios.get(`${apiPath}request/authenticate`, {
+      const authResponse = await axios.get(`${apiPath}/request/authenticate`, {
         withCredentials: true,
       });
       if (authResponse.data === "ok") {
         // setAuthState({isAuthenticated: true});
 
-        const roleResponse = await axios.get(`${apiPath}request/getRole`);
+        const roleResponse = await axios.get(`${apiPath}/request/getRole`);
         if (roleResponse.data.role === "admin") {
           // setRoleState(roleResponse.data);
         } else {

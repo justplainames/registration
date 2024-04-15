@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Form, redirect } from "react-router-dom";
+import { Form, redirect, useNavigate } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -15,6 +15,7 @@ import {
 import { Select } from "chakra-react-select";
 import { EventContext } from "../helpers/EventContext";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function AddParticipant() {
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -25,52 +26,68 @@ export default function AddParticipant() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isTooltipOpen, setIsTooltipOpen] = useState({});
   const apiPath = process.env.REACT_APP_API_PATH;
-
+  const { getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
   useEffect(() => {
-    try {
-      axios
-        .get(
-          `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
-            "eventId"
-          )}`
-        )
-        .then((response) => {
-          setCategoryOptions(response.data);
-          setAvailableOptions(response.data);
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      try {
+        axios
+          .get(
+            `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
+              "eventId"
+            )}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          .then((response) => {
+            setCategoryOptions(response.data);
+            setAvailableOptions(response.data);
 
-          axios.get(`${apiPath}addParticipant/getUsers`).then((response) => {
-            setListOfUsers(response.data);
+            axios
+              .get(`${apiPath}/addParticipant/getUsers`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+              .then((response) => {
+                setListOfUsers(response.data);
+              });
+          })
+          .catch((error) => {
+            if (error.response.data.error === "Unauthorized") {
+              window.location.href = "/";
+            } else {
+              console.error("Error making axios request:", error);
+            }
           });
-        })
-        .catch((error) => {
-          if (error.response.data.error === "Unauthorized") {
-            window.location.href = "/";
-          } else {
-            console.error("Error making axios request:", error);
-          }
-        });
-    } catch (error) {
-      console.error("Error caught ");
-    }
+      } catch (error) {
+        console.error("Error caught ");
+      }
+    };
+
+    func();
   }, []);
 
   useEffect(() => {
     setSelectedUser(listOfUsers[0]);
-    try {
-      axios
-        .get(
-          `${apiPath}addParticipant/getUserCategory/${sessionStorage.getItem(
-            "eventId"
-          )}/${listOfUsers[0].user_id_pk}`
-        )
-        .then((response) => {
-          setAvailableOptions((prev) => {
-            return response.data;
+    const func = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        axios
+          .get(
+            `${apiPath}/addParticipant/getUserCategory/${sessionStorage.getItem(
+              "eventId"
+            )}/${listOfUsers[0].user_id_pk}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          .then((response) => {
+            setAvailableOptions((prev) => {
+              return response.data;
+            });
           });
-        });
-    } catch (error) {
-      console.error("Error fetching user category data:", error);
-    }
+      } catch (error) {
+        console.error("Error fetching user category data:", error);
+      }
+    };
+    func();
   }, [listOfUsers]);
 
   useEffect(() => {
@@ -104,10 +121,12 @@ export default function AddParticipant() {
     const user = listOfUsers.find((row) => row.user_id_pk === event.value);
     setSelectedUser(user || null);
     try {
+      const token = await getAccessTokenSilently();
       const response = await axios.get(
-        `${apiPath}addParticipant/getUserCategory/${sessionStorage.getItem(
+        `${apiPath}/addParticipant/getUserCategory/${sessionStorage.getItem(
           "eventId"
-        )}/${event.value}`
+        )}/${event.value}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setAvailableOptions((prev) => {
         return response.data;
@@ -140,6 +159,16 @@ export default function AddParticipant() {
       ...prev,
       [e]: false,
     }));
+  };
+
+  const handleSubmit = async (event, navigate) => {
+    console.log(event.target);
+    event.preventDefault();
+    const token = await getAccessTokenSilently();
+    const formData = new FormData(event.target);
+
+    // Call the action with required parameters
+    addParticipantAction({ formData, token, navigate });
   };
 
   const chakraStyles = {
@@ -211,7 +240,11 @@ export default function AddParticipant() {
         }))}
       />
 
-      <Form method="post" action="/addParticipant">
+      <Form
+        method="post"
+        action="/addParticipant"
+        onSubmit={(event) => handleSubmit(event, navigate)}
+      >
         <Input
           type="hidden"
           name="event_id_pk"
@@ -372,8 +405,8 @@ export default function AddParticipant() {
   );
 }
 
-export const addParticipantAction = async ({ request }) => {
-  const data = await request.formData();
+export const addParticipantAction = async ({ formData, token, navigate }) => {
+  const data = formData;
   const apiPath = process.env.REACT_APP_API_PATH;
 
   const user = {
@@ -387,10 +420,12 @@ export const addParticipantAction = async ({ request }) => {
   };
 
   axios
-    .post(`${apiPath}addParticipant/${data.get("event_id_pk")}`, user)
+    .post(`${apiPath}/addParticipant/${data.get("event_id_pk")}`, user, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
     .catch((error) => {
       console.error("Error making axios request:", error);
       // Handle the error as needed
     });
-  return redirect("/participants");
+  return navigate("/participants");
 };

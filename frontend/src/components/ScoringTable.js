@@ -98,7 +98,7 @@ const ScoringTable = ({ headers, data }) => {
       updatedDataset[index] = to_update;
       axios
         .put(
-          `${apiPath}score/updateScore/${event_id}/${category_id}/${judge_id}/${user_id}`,
+          `${apiPath}/score/updateScore/${event_id}/${category_id}/${judge_id}/${user_id}`,
           { new_score: value }
         )
         .then((response) => {});

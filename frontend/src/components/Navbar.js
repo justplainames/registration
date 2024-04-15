@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Button,
@@ -9,19 +9,25 @@ import {
   useBreakpointValue,
   Stack,
   Collapse,
+  Heading,
+  Image,
 } from "@chakra-ui/react";
 import "../styles/styles.css"; // Import the CSS file
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
-import { RoleContext } from "../helpers/RoleContext";
+import { useAuth0 } from "@auth0/auth0-react";
 const apiPath = process.env.REACT_APP_API_PATH;
 
 async function auth() {
-  axios.post(`${apiPath}request`).then((response) => {
-    window.location.href = response.data.url;
-  });
+  axios
+    .post(`${apiPath}/request`)
+    .then((response) => {
+      window.location.href = response.data.url;
+    })
+    .catch((error) => {
+      console.error("User not authenticated", error);
+    });
 }
 
 const links = [
@@ -31,6 +37,7 @@ const links = [
 ];
 
 export default function Navbar({ scrollToSection }) {
+  const { loginWithRedirect } = useAuth0();
   const { isOpen, onToggle } = useDisclosure();
 
   return (
@@ -94,7 +101,7 @@ export default function Navbar({ scrollToSection }) {
             variant={"link"}
             _hover={{ cursor: "pointer" }}
             // href={"#"}
-            onClick={auth}
+            onClick={() => loginWithRedirect()}
           >
             Sign In
           </Button>
@@ -111,7 +118,6 @@ export default function Navbar({ scrollToSection }) {
           </Button>
         </Stack>
       </Flex>
-
       <Collapse in={isOpen} animateOpacity>
         <MobileNav props={links} />
       </Collapse>
@@ -130,7 +136,7 @@ const MobileNavLinks = (props) => {
       justifyContent="space-between"
       alignItems="center"
       rounded={"md"}
-      textColor={"gray.200"}
+      textcolor={"gray.200"}
       _hover={{
         textDecoration: "none",
         bg: onHoverLink,

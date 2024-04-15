@@ -4,13 +4,14 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import NavbarAuth from "../components/NavbarAuth";
 import "@fontsource/inter";
-import { AuthContext } from "../helpers/AuthContext";
+// import { AuthContext } from "../helpers/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function RootLayout() {
-  const { authState, setAuthState } = useContext(AuthContext);
-  const apiPath = process.env.REACT_APP_API_PATH;
+  // const { authState, setAuthState } = useContext(AuthContext);
+  const { isAuthenticated } = useAuth0();
   const [navbarOpen, setNavbarOpen] = useState(false);
   const location = useLocation();
   const scrollToSection = (sectionName) => {
@@ -20,24 +21,13 @@ export default function RootLayout() {
   const toggleNavbar = () => {
     setNavbarOpen(!navbarOpen);
   };
-  useEffect(() => {
-    axios
-      .get(`${apiPath}request/authenticate`)
-      .then((response) => {
-        if (response.data === "ok") {
-          setAuthState({ isAuthenticated: true });
-        } else {
-          setAuthState({ isAuthenticated: false });
-        }
-      })
-      .catch((error) => {
-        console.error("There is an error: ", error);
-      });
-  }, []);
+
   return (
     <Grid templateColumns="repeat(10, 1fr)" bg="gray.800">
-      {authState.isAuthenticated ? (
-        location.pathname === "/" ? (
+      {isAuthenticated ? (
+        location.pathname === "/" ||
+        location.pathname === "/login" ||
+        location.pathname.startsWith("/signup") ? (
           <>
             <GridItem colSpan={{ base: 10, md: 10 }}>
               <NavbarAuth isOpen={navbarOpen} toggleNavbar={toggleNavbar} />

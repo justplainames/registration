@@ -13,8 +13,6 @@ function Seed({
   y_direction,
   x_direction,
 }) {
-  // const apiPath = "https://registartion-backend.fly.dev/";
-  const { roleState } = useContext(RoleContext);
   const apiPath = process.env.REACT_APP_API_PATH;
   const toast = useToast();
   const showToast = () => {
@@ -29,7 +27,7 @@ function Seed({
   };
 
   // change to seed data
-  const { matchData, setMatchData } = useContext(MatchContext);
+  const { matchData, setMatchData, roleState } = useContext(MatchContext);
   const data = matchData;
   let next_match_info;
   let next_slot;
@@ -228,7 +226,7 @@ function Seed({
       match.seed_status = true;
       axios
         .post(
-          `${apiPath}bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
+          `${apiPath}/bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
           matchData
         )
         .catch((error) => {
@@ -281,7 +279,7 @@ function Seed({
         match.seed_status = true;
         axios
           .post(
-            `${apiPath}bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
+            `${apiPath}/bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
             matchData
           )
           .catch((error) => {
@@ -314,7 +312,7 @@ function Seed({
         py="1px"
         px="2px"
         justifyContent="space-between"
-        onClick={roleState.role === "admin" ? handleClick : null}
+        onClick={roleState === "Admin" ? handleClick : null}
         borderBottom="1px solid white"
         _hover={{
           background: "gray.800",
@@ -398,7 +396,7 @@ function Seed({
           borderBottomLeftRadius: "15px",
           borderBottomRightRadius: "15px",
         }}
-        onClick={roleState.role === "admin" ? handleClick : null}
+        onClick={roleState === "Admin" ? handleClick : null}
       >
         <Text marginLeft="5px">{secondOppenent}</Text>
         {secondResult === null ? (

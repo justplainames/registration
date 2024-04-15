@@ -26,9 +26,11 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import "../customThemes/custom-datepicker.css";
 import { EventContext } from "../helpers/EventContext";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function EventInfo() {
   const navigate = useNavigate();
+  const { getAccessTokenSilently } = useAuth0();
   const apiPath = process.env.REACT_APP_API_PATH;
   const [rawData, setRawData] = useState(null);
   const [availableCategories, setAvailableCategories] = useState(null);
@@ -51,19 +53,27 @@ function EventInfo() {
 
   // Get selected event info on component mount
   useEffect(() => {
-    axios
-      .get(
-        `${apiPath}editEvent/getEventInfo/${sessionStorage.getItem("eventId")}`
-      )
-      .then((response) => {
-        setRawData(response.data);
-      })
-      .catch((error) => {
-        console.error(
-          "Error in getting selected event information for editing",
-          error
-        );
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .get(
+          `${apiPath}/editEvent/getEventInfo/${sessionStorage.getItem(
+            "eventId"
+          )}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          setRawData(response.data);
+        })
+        .catch((error) => {
+          console.error(
+            "Error in getting selected event information for editing",
+            error
+          );
+        });
+    };
+
+    func();
   }, []);
 
   // Get selected event info on component mount
@@ -78,21 +88,30 @@ function EventInfo() {
   }, [rawData]);
 
   const handleEditEventSubmit = () => {
-    setIsEditing(false);
-    axios
-      .put(`${apiPath}editEvent/editEventInfo`, {
-        selected_data: selectedData,
-        event_info: eventInfo,
-      })
-      .then((response) => {
-        confirmationOnClose();
-      })
-      .catch((error) => {
-        console.error(
-          "Error while making PUT request to update and edit event information:",
-          error
-        );
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      setIsEditing(false);
+      axios
+        .put(
+          `${apiPath}/editEvent/editEventInfo`,
+          {
+            selected_data: selectedData,
+            event_info: eventInfo,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          console.log("test");
+          confirmationOnClose();
+        })
+        .catch((error) => {
+          console.error(
+            "Error while making PUT request to update and edit event information:",
+            error
+          );
+        });
+    };
+    func();
   };
 
   const handleCancel = () => {
@@ -151,20 +170,25 @@ function EventInfo() {
     onClose();
   };
   const handleDeleteSubmit = () => {
-    axios
-      .delete(`${apiPath}editEvent/deleteEvent`, {
-        data: eventInfo,
-      })
-      .then((response) => {
-        sessionStorage.removeItem("eventId");
-        sessionStorage.removeItem("eventName");
-        onClose();
-        setEventState(null);
-        navigate("/dashboard");
-      })
-      .catch((error) => {
-        console.error("Error in deleting event: ", error);
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      axios
+        .delete(`${apiPath}/editEvent/deleteEvent`, {
+          data: eventInfo,
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          sessionStorage.removeItem("eventId");
+          sessionStorage.removeItem("eventName");
+          onClose();
+          setEventState(null);
+          navigate("/dashboard");
+        })
+        .catch((error) => {
+          console.error("Error in deleting event: ", error);
+        });
+    };
+    func();
   };
   const handleWarningOnClose = () => {
     warningOnClose();
@@ -388,7 +412,7 @@ function EventInfo() {
         fontWeight="normal"
         mb="2%"
       >
-        User Registration
+        Event Information
       </Heading>
       <Flex>
         <FormControl mr="5%">

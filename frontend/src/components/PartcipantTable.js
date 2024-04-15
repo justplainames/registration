@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { IconTrash } from "@tabler/icons-react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -36,6 +37,7 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [generatingNumber, setGeneratingNumber] = useState(false);
   const [updatingDatabase, setUpdatingDatabase] = useState(false);
+  const { getAccessTokenSilently } = useAuth0();
   const toast = useToast();
 
   const showToast = () => {
@@ -53,13 +55,18 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
 
   //
   async function updateOrder(to_update, to_remove) {
+    const token = await getAccessTokenSilently();
     try {
       setUpdatingDatabase(true);
       await axios
-        .put(`${apiPath}addParticipant/updateOrder`, {
-          to_update: to_update,
-          to_remove: to_remove,
-        })
+        .put(
+          `${apiPath}/addParticipant/updateOrder`,
+          {
+            to_update: to_update,
+            to_remove: to_remove,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
         .then((response) => {
           setUpdatingDatabase(false);
           onClose();
@@ -76,9 +83,11 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
     user_id_pk
   ) {
     try {
+      const token = await getAccessTokenSilently();
       setGeneratingNumber(true);
       const response = await axios.get(
-        `${apiPath}addParticipant/usedNumbers/${event_id_pk}/${category_id_pk}/${user_id_pk}`
+        `${apiPath}/addParticipant/usedNumbers/${event_id_pk}/${category_id_pk}/${user_id_pk}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setGeneratingNumber(false);
       return response.data;
@@ -148,20 +157,31 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
   };
 
   const handleOnClickDelete = (user_id_fk) => {
-    const user_info = listOfParticipants.find((user) => {
-      return user.user_id_fk === user_id_fk;
-    });
-    axios
-      .delete(`${apiPath}addParticipant/deleteParticipant`, {
-        data: user_info,
-      })
-      .then((res) => {
-        if (res.data === "ok") {
-          setListOfParticipants((prev) => {
-            return prev.filter((user) => user.user_id_fk === user_id_fk);
+    const func = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const user_info = listOfParticipants.find((user) => {
+          return user.user_id_fk === user_id_fk;
+        });
+
+        axios
+          .delete(`${apiPath}/addParticipant/deleteParticipant`, {
+            data: user_info,
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            if (res.data === "ok") {
+              setListOfParticipants((prev) => {
+                return prev.filter((user) => user.user_id_fk === user_id_fk);
+              });
+            }
           });
-        }
-      });
+      } catch (error) {
+        console.log("skjhsd ");
+        console.error(error);
+      }
+    };
+    func();
   };
 
   const handleOrderSubmit = async (e, user_id, event_id, category_id) => {
@@ -172,7 +192,7 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
     });
 
     axios
-      .put(`${apiPath}addParticipant/manual/updateOrder`, {
+      .put(`${apiPath}/addParticipant/manual/updateOrder`, {
         value: e,
         user_info: user_info,
       })

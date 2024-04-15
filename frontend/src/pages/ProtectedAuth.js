@@ -4,13 +4,12 @@ import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
 
 const ProtectedAuth = ({ children }) => {
-  const { authState, setAuthState } = useContext(AuthContext);
   const navigate = useNavigate();
   const apiPath = process.env.REACT_APP_API_PATH;
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${apiPath}request/authenticate`, {
+      const response = await axios.get(`${apiPath}/request/authenticate`, {
         withCredentials: true,
       });
       if (response.data === "ok") {

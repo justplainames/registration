@@ -35,79 +35,30 @@ import Signup, { signUpAction } from "./pages/Signup";
 import { checkboxTheme } from "./customThemes/Checkbox";
 import { editableTheme } from "./customThemes/Editable";
 import { toastTheme } from "./customThemes/Toast";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<LandingPage />} />
       <Route path="fullstackTest" element={<FullstackTest />} />
-      <Route
-        path="scoring"
-        element={
-          <ProtectedAuthRole>
-            <Scoring />
-          </ProtectedAuthRole>
-        }
-      />
-      <Route
-        path="eventInfo"
-        element={
-          <ProtectedAuthRole>
-            <EventInfo />
-          </ProtectedAuthRole>
-        }
-      />
-      <Route
-        path="brackets"
-        element={
-          <ProtectedAuth>
-            <Brackets />
-          </ProtectedAuth>
-        }
-      />
-      <Route
-        path="profile"
-        element={
-          <ProtectedAuth>
-            <Profile />
-          </ProtectedAuth>
-        }
-      />
-      <Route
-        path="participants"
-        element={
-          <ProtectedAuthRole>
-            <Participants />
-          </ProtectedAuthRole>
-        }
-      />
+      <Route path="scoring" element={<Scoring />} />
+      <Route path="eventInfo" element={<EventInfo />} />
+      <Route path="brackets" element={<Brackets />} />
+      <Route path="profile" element={<Profile />} />
+      <Route path="participants" element={<Participants />} />
       <Route path="login" element={<Login />} />
-      <Route
-        path="dashboard"
-        element={
-          <ProtectedAuth>
-            <Dashboard />
-          </ProtectedAuth>
-        }
-      />
+      <Route path="dashboard" element={<Dashboard />} />
       <Route path="verification" element={<Verification />} />
       <Route path="signup" element={<Signup />} action={signUpAction} />
       <Route
         path="addParticipant"
-        element={
-          <ProtectedAuthRole>
-            <AddParticipant />
-          </ProtectedAuthRole>
-        }
+        element={<AddParticipant />}
         action={addParticipantAction}
       />
       <Route
         path="createEvent"
-        element={
-          <ProtectedAuthRole>
-            <CreateEvent />
-          </ProtectedAuthRole>
-        }
+        element={<CreateEvent />}
         action={createEventAction}
       />
     </Route>
@@ -123,18 +74,18 @@ const theme = extendTheme({
 });
 
 function App() {
-  const [authState, setAuthState] = useState({ isAuthenticated: false });
-  const [roleState, setRoleState] = useState({ role: null });
+  // const [authState, setAuthState] = useState({ isAuthenticated: false });
+  // const [roleState, setRoleState] = useState({ role: null });
   const [eventState, setEventState] = useState({});
   return (
     <ChakraProvider theme={theme}>
-      <AuthContext.Provider value={{ authState, setAuthState }}>
-        <RoleContext.Provider value={{ roleState, setRoleState }}>
-          <EventContext.Provider value={{ eventState, setEventState }}>
-            <RouterProvider router={router}></RouterProvider>
-          </EventContext.Provider>
-        </RoleContext.Provider>
-      </AuthContext.Provider>
+      {/* <AuthContext.Provider value={{ authState, setAuthState }}>
+        <RoleContext.Provider value={{ roleState, setRoleState }}> */}
+      <EventContext.Provider value={{ eventState, setEventState }}>
+        <RouterProvider router={router}></RouterProvider>
+      </EventContext.Provider>
+      {/* </RoleContext.Provider>
+      </AuthContext.Provider> */}
     </ChakraProvider>
   );
 }

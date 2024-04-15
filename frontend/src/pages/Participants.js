@@ -9,6 +9,7 @@ import {
   TabIndicator,
 } from "@chakra-ui/react";
 import ParticipantTable from "../components/PartcipantTable";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { EventContext } from "../helpers/EventContext";
@@ -26,6 +27,7 @@ const headers = [
 
 function Participants() {
   const { eventState } = useContext(EventContext);
+  const { user, getAccessTokenSilently } = useAuth0();
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -33,33 +35,49 @@ function Participants() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(
-        `${apiPath}addParticipant/getCategories/${sessionStorage.getItem(
-          "eventId"
-        )}`
-      )
-      .then((res) => {
-        setListOfCategories(res.data);
-        const first_data = res.data[0];
-        axios
-          .get(
-            `${apiPath}addParticipant/getParticipants/${sessionStorage.getItem(
-              "eventId"
-            )}/${first_data.category_id_pk}`
-          )
-          .then((res) => {
-            setSelectedCategory(first_data.category_id_pk);
-            setListOfParticipants(res.data);
-          });
-      })
-      .catch((error) => {
-        if (error.response.data.error === "Unauthorized") {
-          window.location.href = "/";
-        } else {
-          console.error("Error making axios request:", error);
-        }
-      });
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+
+      axios
+        .get(
+          `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
+            "eventId"
+          )}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((res) => {
+          setListOfCategories(res.data);
+          const first_data = res.data[0];
+          axios
+            .get(
+              `${apiPath}/addParticipant/getParticipants/${sessionStorage.getItem(
+                "eventId"
+              )}/${first_data.category_id_pk}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            )
+            .then((res) => {
+              setSelectedCategory(first_data.category_id_pk);
+              setListOfParticipants(res.data);
+            });
+        })
+        .catch((error) => {
+          console.log("pass", error);
+          if (error.response.data.error === "Unauthorized") {
+            window.location.href = "/";
+          } else {
+            console.error("Error making axios request:", error);
+          }
+        });
+    };
+    func();
   }, []);
 
   const AddParticipant = () => {
@@ -67,17 +85,31 @@ function Participants() {
   };
 
   const handleChange = (category) => {
-    axios
-      .get(
-        `${apiPath}addParticipant/getParticipants/${sessionStorage.getItem(
-          "eventId"
-        )}/${category.category_id_pk}`
-      )
+    const func = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        axios
+          .get(
+            `${apiPath}/addParticipant/getParticipants/${sessionStorage.getItem(
+              "eventId"
+            )}/${category.category_id_pk}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
 
-      .then((res) => {
-        setSelectedCategory(category.category_id_pk);
-        setListOfParticipants(res.data);
-      });
+          .then((res) => {
+            setSelectedCategory(category.category_id_pk);
+            setListOfParticipants(res.data);
+          });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    func();
   };
 
   return (
