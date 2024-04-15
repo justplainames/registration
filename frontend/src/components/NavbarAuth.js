@@ -40,7 +40,7 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
   const { logout } = useAuth0();
 
   const showToast = async () => {
-    logout({ logoutParams: { returnTo: "https://localhost:3001/" } });
+    logout({ logoutParams: { returnTo: window.location.origin } });
     toast({
       title: "Logged Out",
       description: "Successfully logged out",

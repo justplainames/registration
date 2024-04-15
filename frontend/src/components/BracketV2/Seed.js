@@ -1,8 +1,8 @@
 import { Checkbox, Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useState, useContext, useEffect } from "react";
 import { MatchContext } from "../../helpers/MatchContext";
-import { RoleContext } from "../../helpers/RoleContext";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 
 // Seed ID will be eventNumber-CatNumber-bracket-(1-64)
 function Seed({
@@ -15,6 +15,7 @@ function Seed({
 }) {
   const apiPath = process.env.REACT_APP_API_PATH;
   const toast = useToast();
+  const { getAccessTokenSilently } = useAuth0();
   const showToast = () => {
     toast({
       title: "Prior Bracket Not Chosen",
@@ -197,64 +198,17 @@ function Seed({
   }
 
   const handleClick = () => {
-    if (match.prevMatch === null) {
-      if (secondResult === null || secondResult === false) {
-        setFirstResult(false);
-        setSecondResult(true);
-
-        if (next_slot === "first") {
-          next_match_info.first.stage_name = secondOppenent;
-        } else {
-          next_match_info.second.stage_name = secondOppenent;
-        }
-
-        match.first.status = false;
-        match.second.status = true;
-        setMatchData({ ...matchData });
-      } else {
-        setFirstResult(true);
-        setSecondResult(false);
-        if (next_slot === "first") {
-          next_match_info.first.stage_name = firstOppenent;
-        } else {
-          next_match_info.second.stage_name = firstOppenent;
-        }
-        match.first.status = true;
-        match.second.status = false;
-        setMatchData({ ...matchData });
-      }
-      match.seed_status = true;
-      axios
-        .post(
-          `${apiPath}/bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
-          matchData
-        )
-        .catch((error) => {
-          console.error("Error updating the bracket status", error);
-        });
-    } else {
-      if (
-        data.data.matches[`top${match.prevMatch[0].split("-")[0]}`].find(
-          (round) => {
-            return round.seed === parseInt(match.prevMatch[0].split("-")[1]);
-          }
-        ).seed_status != null &&
-        data.data.matches[`top${match.prevMatch[1].split("-")[0]}`].find(
-          (round) => {
-            return round.seed === parseInt(match.prevMatch[1].split("-")[1]);
-          }
-        ).seed_status != null
-      ) {
+    const func = async () => {
+      const token = await getAccessTokenSilently();
+      if (match.prevMatch === null) {
         if (secondResult === null || secondResult === false) {
           setFirstResult(false);
           setSecondResult(true);
 
-          if (next_match_info) {
-            if (next_slot === "first") {
-              next_match_info.first.stage_name = secondOppenent;
-            } else {
-              next_match_info.second.stage_name = secondOppenent;
-            }
+          if (next_slot === "first") {
+            next_match_info.first.stage_name = secondOppenent;
+          } else {
+            next_match_info.second.stage_name = secondOppenent;
           }
 
           match.first.status = false;
@@ -263,15 +217,11 @@ function Seed({
         } else {
           setFirstResult(true);
           setSecondResult(false);
-
-          if (next_match_info) {
-            if (next_slot === "first") {
-              next_match_info.first.stage_name = firstOppenent;
-            } else {
-              next_match_info.second.stage_name = firstOppenent;
-            }
+          if (next_slot === "first") {
+            next_match_info.first.stage_name = firstOppenent;
+          } else {
+            next_match_info.second.stage_name = firstOppenent;
           }
-
           match.first.status = true;
           match.second.status = false;
           setMatchData({ ...matchData });
@@ -280,15 +230,72 @@ function Seed({
         axios
           .post(
             `${apiPath}/bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
-            matchData
+            matchData,
+            { headers: { Authorization: `Bearer ${token}` } }
           )
           .catch((error) => {
-            console.error("Error updating bracket status: ", error);
+            console.error("Error updating the bracket status", error);
           });
       } else {
-        showToast();
+        if (
+          data.data.matches[`top${match.prevMatch[0].split("-")[0]}`].find(
+            (round) => {
+              return round.seed === parseInt(match.prevMatch[0].split("-")[1]);
+            }
+          ).seed_status != null &&
+          data.data.matches[`top${match.prevMatch[1].split("-")[0]}`].find(
+            (round) => {
+              return round.seed === parseInt(match.prevMatch[1].split("-")[1]);
+            }
+          ).seed_status != null
+        ) {
+          if (secondResult === null || secondResult === false) {
+            setFirstResult(false);
+            setSecondResult(true);
+
+            if (next_match_info) {
+              if (next_slot === "first") {
+                next_match_info.first.stage_name = secondOppenent;
+              } else {
+                next_match_info.second.stage_name = secondOppenent;
+              }
+            }
+
+            match.first.status = false;
+            match.second.status = true;
+            setMatchData({ ...matchData });
+          } else {
+            setFirstResult(true);
+            setSecondResult(false);
+
+            if (next_match_info) {
+              if (next_slot === "first") {
+                next_match_info.first.stage_name = firstOppenent;
+              } else {
+                next_match_info.second.stage_name = firstOppenent;
+              }
+            }
+
+            match.first.status = true;
+            match.second.status = false;
+            setMatchData({ ...matchData });
+          }
+          match.seed_status = true;
+          axios
+            .post(
+              `${apiPath}/bracket/updateStatus/${data.data.eventId}/${data.data.catId}/${type}`,
+              matchData,
+              { headers: { Authorization: `Bearer ${token}` } }
+            )
+            .catch((error) => {
+              console.error("Error updating bracket status: ", error);
+            });
+        } else {
+          showToast();
+        }
       }
-    }
+    };
+    func();
   };
 
   return (
