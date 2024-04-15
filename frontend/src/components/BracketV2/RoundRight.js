@@ -60,7 +60,11 @@ function RoundRight() {
     }
   }
 
-  fullComponents = fullComponents.toReversed();
+  try {
+    fullComponents = fullComponents.toReversed();
+  } catch (error) {
+    console.error("Error reversing", error);
+  }
   const numberOfColumns = fullComponents.length;
   const numberOfSeeds = 2 ** numberOfColumns;
   const maxHeight = (numberOfSeeds * 55) / 2;
