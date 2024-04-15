@@ -11,7 +11,7 @@ const issuerDomain = process.env.REACT_APP_ISSUER_DOMAIN.replace(
 );
 console.log(issuerDomain);
 const auth0ClientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
-const audience = process.env.REACT_APP_API_PATH;
+const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
 
 root.render(
   <React.StrictMode>
