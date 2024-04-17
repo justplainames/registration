@@ -1,17 +1,16 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { MatchContext } from "../../helpers/MatchContext";
 import Seed from "./Seed";
 import { HStack, Box, VStack } from "@chakra-ui/react";
 
 function RoundLeft() {
-  const { matchData, setMatchData } = useContext(MatchContext);
+  const { matchData } = useContext(MatchContext);
   let check = parseInt(matchData.data.matchType.split("-")[1]) || null;
 
   let fullComponents = [];
   const largest = check / 2;
 
   function calculateSpacing2(numberOfColumns, numberOfBlocks, columnIndex) {
-    const numberOfSeeds = 2 ** numberOfColumns;
     const maxHeight = (largest * 55) / 2;
     const addedHeight = maxHeight + (largest / 2 - 1) * 30;
 
@@ -47,8 +46,8 @@ function RoundLeft() {
                 check / 4,
                 count
               )}
-              y_direction={Math.floor(array.seed / 2) % 2 === 1 ? "up" : "down"}
-              x_direction="right"
+              yDirection={Math.floor(array.seed / 2) % 2 === 1 ? "up" : "down"}
+              xDirection="right"
             />
           );
           counter -= 1;

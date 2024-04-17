@@ -1,36 +1,41 @@
+// External Libraries
 import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+
+// Chakra UI Components
 import {
-  TabList,
-  Tabs,
-  Tab,
-  TabPanels,
   Box,
-  Spacer,
   Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
   Checkbox,
   CheckboxGroup,
-  Stack,
-  useToast,
-  TabIndicator,
-  Text,
   FormControl,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spacer,
+  Stack,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanels,
+  Tabs,
+  Text,
   VStack,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
+
+// Custom Components
 import Match from "../components/BracketV2/Match";
-import { top8, top16, top32, top64 } from "./dataset.js";
-import axios from "axios";
-import { EventContext } from "../helpers/EventContext.js";
-import { RoleContext } from "../helpers/RoleContext.js";
+
+// Custom Themes
 import { Select } from "chakra-react-select";
-import { useAuth0 } from "@auth0/auth0-react";
+import { chakraSelectStyles } from "../customThemes/ChakraStyles";
 
 const Brackets = () => {
   const apiPath = process.env.REACT_APP_API_PATH;
@@ -41,52 +46,9 @@ const Brackets = () => {
   const [checkedState, setCheckedState] = useState(null);
   const [chosenName, setChosenNames] = useState(null);
   const [toChoose, setToChoose] = useState(null);
-  const { roleState } = useContext(RoleContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const { getAccessTokenSilently, user } = useAuth0();
-
-  const chakraStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      borderWidth: "1px",
-      "& > div > span > span": {
-        paddingY: "1px",
-      },
-      "& > div > span > div > svg > path": {
-        fill: "gray.900",
-      },
-      textColor: "white",
-      _focusVisible: {
-        borderColor: "rgb(237,137,51)",
-        borderWidth: "2px",
-        outline: "none", // Remove default focus outline
-      },
-    }),
-    dropdownIndicator: (provided, state) => ({
-      ...provided,
-      background: "transparent",
-    }),
-    crossIcon: (provided, state) => ({
-      ...provided,
-      textColor: "white",
-    }),
-    menuList: (provided, state) => ({
-      ...provided,
-      background: "gray.900",
-      textColor: "white",
-    }),
-    value: (provided, state) => ({
-      ...provided,
-      background: "rgb(237,137,51)",
-      textColor: "gray.900",
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      background: "gray.900",
-      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
-    }),
-  };
 
   const showToast = () => {
     toast({
@@ -345,7 +307,7 @@ const Brackets = () => {
           <Spacer />
 
           <Select
-            chakraStyles={chakraStyles}
+            chakraStyles={chakraSelectStyles}
             maxW="150px"
             onChange={(e) => {
               handleSelect(e);

@@ -1,38 +1,44 @@
+// External Libraries
 import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate } from "react-router-dom";
+
+// Icons
 import { IconClick } from "@tabler/icons-react";
+
+// Chakra UI Components
 import {
-  Divider,
-  Icon,
+  Box,
   Button,
-  Heading,
-  SimpleGrid,
   Card,
-  Text,
-  CardHeader,
   CardBody,
   CardFooter,
-  Box,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
+  CardHeader,
   Checkbox,
   CheckboxGroup,
-  Tooltip,
+  Divider,
   FormControl,
   FormLabel,
+  Heading,
   Image,
+  Icon,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  SimpleGrid,
   Stack,
+  Text,
+  Tooltip,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { useAuth0 } from "@auth0/auth0-react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+
+// Additional Contexts
 import { EventContext } from "../helpers/EventContext";
-axios.defaults.withCredentials = true;
 
 function Dashboard() {
   const [events, setEvents] = useState([]);
@@ -45,19 +51,7 @@ function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (categories) {
-      const data = {};
-      categories.forEach((category) => {
-        if (category.joined) {
-          data[category.category_id_pk] = false;
-        }
-      });
-      setIsTooltipOpen(data);
-    }
-  }, [categories]);
-
-  // // Fetch role of the user when the component mounts
+  // // Fetch role of the user when the component mount
   useEffect(() => {
     const fetchData = async () => {
       const token = await getAccessTokenSilently();
@@ -78,15 +72,18 @@ function Dashboard() {
   // Calls API to retrieve event information
   const handleSelectEvent = async (event_name, event_id) => {
     try {
+      const token = await getAccessTokenSilently();
       setEventState(event_id);
       sessionStorage.setItem("eventName", event_name);
       sessionStorage.setItem("eventId", event_id);
+      console.log(user);
       if (user["http://localhost:3000/roles"][0] === "user") {
         axios
           .get(
             `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
               "eventId"
-            )}`
+            )}`,
+            { headers: { Authorization: `Bearer ${token}` } }
           )
           .then((response) => {
             setCategories(response.data);
@@ -100,13 +97,15 @@ function Dashboard() {
     }
   };
 
-  const handleJoinSubmit = () => {
+  const handleJoinSubmit = async () => {
+    const token = await getAccessTokenSilently();
     try {
       axios.post(
         `${apiPath}/addParticipant/${sessionStorage.getItem("eventId")}`,
         {
           user_categories: selectedCategories,
-        }
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (error) {
       console.error("Error in handleJoinSubmit in page (Dashboard)", error);
@@ -119,10 +118,6 @@ function Dashboard() {
     setSelectedCategories([]);
     onClose();
   };
-
-  // if (!authState.isAuthenticated) {
-  //   return <div>Loading...</div>;
-  // }
 
   return (
     <SimpleGrid spacing={10} minChildWidth="300px" p={3} justifyItems="center">
@@ -179,7 +174,6 @@ function Dashboard() {
                           textColor="white"
                           control={{ bg: "red" }}
                           disabled={true}
-                          title="hello"
                           key={`${category.category_id}_${category.category_id_pk}`}
                           value={String(category.category_id_pk)} // Set value to category ID
                           onMouseEnter={() =>
@@ -203,7 +197,6 @@ function Dashboard() {
                     ) : (
                       <Checkbox
                         textColor="white"
-                        title="hello"
                         key={`${category.category_id}_${category.category_id_pk}`}
                         value={String(category.category_id_pk)} // Set value to category ID
                       >

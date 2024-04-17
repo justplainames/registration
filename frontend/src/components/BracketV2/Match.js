@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { MatchContext } from "../../helpers/MatchContext";
-import Seed from "./Seed";
 import RoundLeft from "./RoundLeft";
-import { HStack, Box } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 import RoundMiddle from "./RoundMiddle";
 import RoundRight from "./RoundRight";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -17,10 +16,6 @@ function Match(data) {
     setMatchData(data);
     updateMatchData();
   }, []);
-
-  useEffect(() => {
-    setMatchData(data);
-  }, [data]);
 
   useEffect(() => {
     updateMatchData();

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Tab,
   TabList,
@@ -23,11 +23,44 @@ function Scoring() {
   const apiPath = process.env.REACT_APP_API_PATH;
   const original = ["Name", "Instagram Handle"];
 
+  const fetchScores = async (token, categoryId) => {
+    const selectedCategoryScores = await axios.get(
+      `${apiPath}/score/${sessionStorage.getItem("eventId")}/${categoryId}`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (selectedCategoryScores.data.error) {
+      toast({
+        title: "No Participants",
+        description: "Check to see if participant attendance were marked/added",
+        duration: 5000,
+        isClosable: true,
+        status: "error",
+        position: "top",
+      });
+    } else {
+      setHeaders([
+        ...original,
+        ...selectedCategoryScores.data[0].judges.map((item) => item.judge_name),
+        "Total Score",
+      ]);
+      setListOfParticipants(selectedCategoryScores.data);
+    }
+    try {
+    } catch (error) {
+      console.error("Error fetching scores: ", error);
+    }
+  };
   useEffect(() => {
-    const func = async () => {
-      const token = await getAccessTokenSilently();
-      axios
-        .get(
+    const getScores = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+
+        const categories = await axios.get(
           `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
             "eventId"
           )}`,
@@ -36,90 +69,30 @@ function Scoring() {
               authorization: `Bearer ${token}`,
             },
           }
-        )
-        .then((response) => {
-          console.log("response,", response);
-          setListOfCategories(response.data);
-          setCurrentCategory(response.data[0].category_id_pk);
-          const first_data = response.data[0];
-          axios
-            .get(
-              `${apiPath}/score/${sessionStorage.getItem("eventId")}/${
-                first_data.category_id_pk
-              }`,
-              {
-                headers: {
-                  authorization: `Bearer ${token}`,
-                },
-              }
-            )
-            .then((response) => {
-              if (response.data.error) {
-                console.error(response.data.error);
-                toast({
-                  title: "No Participants",
-                  description:
-                    "Check to see if participant attendance were marked/added",
-                  duration: 5000,
-                  isClosable: true,
-                  status: "error",
-                  position: "top",
-                });
-              } else {
-                setHeaders([
-                  ...original,
-                  ...response.data[0].judges.map((item) => item.judge_name),
-                  "Total Score",
-                ]);
-                setListOfParticipants(response.data);
-              }
-            });
-        })
-        .catch((error) => {
-          if (error.response.data.error === "Unauthorized") {
-            window.location.href = "/";
-          } else {
-            console.error("Error making axios request:", error);
-          }
-        });
+        );
+        setListOfCategories(categories.data);
+        setCurrentCategory(categories.data[0].category_id_pk);
+
+        await fetchScores(token, categories.data[0].category_id_pk);
+      } catch (error) {
+        if (error.response.data.error === "Unauthorized") {
+          window.location.href = "/";
+        } else {
+          console.error("Error making axios request:", error);
+        }
+      }
     };
-    func();
+    getScores();
   }, []);
 
-  const handleChange = (category) => {
-    const func = async () => {
+  const handleChange = async (category) => {
+    try {
       const token = await getAccessTokenSilently();
-      axios
-        .get(
-          `${apiPath}/score/${sessionStorage.getItem("eventId")}/${
-            category.category_id_pk
-          }`,
-          { headers: { authorization: `Bearer ${token}` } }
-        )
-        .then((response) => {
-          if (response.data.error) {
-            console.error(response.data.error);
-            toast({
-              title: "No Participants",
-              description:
-                "Check to see if participant attendance were marked/added",
-              duration: 5000,
-              isClosable: true,
-              status: "error",
-              position: "top",
-            });
-          } else {
-            setCurrentCategory(category.category_id_pk);
-            setHeaders([
-              ...original,
-              ...response.data[0].judges.map((item) => item.judge_name),
-              "Total Score",
-            ]);
-            setListOfParticipants(response.data);
-          }
-        });
-    };
-    func();
+      await fetchScores(token, category.category_id_pk);
+      setCurrentCategory(category.category_id_pk);
+    } catch (error) {
+      console.error("Error changing category: ", error);
+    }
   };
 
   return listOfCategories && currentCategory ? (

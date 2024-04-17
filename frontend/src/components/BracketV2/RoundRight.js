@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { MatchContext } from "../../helpers/MatchContext";
 import Seed from "./Seed";
 import { HStack, Box, VStack } from "@chakra-ui/react";
@@ -47,8 +47,8 @@ function RoundRight() {
                 check / 4,
                 count
               )}
-              y_direction={Math.floor(array.seed / 2) % 2 === 1 ? "down" : "up"}
-              x_direction="left"
+              yDirection={Math.floor(array.seed / 2) % 2 === 1 ? "down" : "up"}
+              xDirection="left"
             />
           );
           counter -= 1;

@@ -36,49 +36,44 @@ const Profile = () => {
   const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
-    const func = async () => {
-      const token = await getAccessTokenSilently();
-      axios
-        .get(`${apiPath}/profile/getInfo`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          userDataRef.current = response.data;
-          setUserData(response.data);
-        });
-
-      axios
-        .get(`${apiPath}/profile/getEvents`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          setUserEvents(response.data);
-        });
-    };
-
-    func();
-  }, []);
-  const handleSubmit = () => {
-    const func = async () => {
+    const getProfileInfo = async () => {
       const token = await getAccessTokenSilently();
       try {
-        axios
-          .put(`${apiPath}/profile/updateInfo`, userData, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((response) => {});
-        setIsEditing(!isEditing);
+        const userProfile = await axios.get(`${apiPath}/profile/getInfo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const listOfEvents = await axios.get(`${apiPath}/profile/getEvents`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setUserData(userProfile.data);
+        setUserEvents(listOfEvents.data);
+        userDataRef.current = userProfile.data;
       } catch (error) {
-        console.error(error);
+        console.error("Error getting user profile: ", error);
       }
     };
-    func();
+
+    getProfileInfo();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      await axios.put(`${apiPath}/profile/updateInfo`, userData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIsEditing(!isEditing);
+    } catch (error) {
+      console.error("Error updating user profile: ", error);
+    }
   };
 
+  // TODO: Fix the logic to not call api to get original data
   const handleCancel = async () => {
     const token = await getAccessTokenSilently();
     setIsEditing(!isEditing);

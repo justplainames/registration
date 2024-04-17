@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Spacer,
@@ -12,7 +12,6 @@ import ParticipantTable from "../components/PartcipantTable";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { EventContext } from "../helpers/EventContext";
 import { participantContext } from "../helpers/ParticipantContext";
 
 const headers = [
@@ -26,8 +25,7 @@ const headers = [
 ];
 
 function Participants() {
-  const { eventState } = useContext(EventContext);
-  const { user, getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
   const [listOfCategories, setListOfCategories] = useState([]);
   const [listOfParticipants, setListOfParticipants] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -35,11 +33,10 @@ function Participants() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const func = async () => {
+    const getParticipantList = async () => {
       const token = await getAccessTokenSilently();
-
-      axios
-        .get(
+      try {
+        const categories = await axios.get(
           `${apiPath}/addParticipant/getCategories/${sessionStorage.getItem(
             "eventId"
           )}`,
@@ -48,68 +45,58 @@ function Participants() {
               Authorization: `Bearer ${token}`,
             },
           }
-        )
-        .then((res) => {
-          setListOfCategories(res.data);
-          const first_data = res.data[0];
-          axios
-            .get(
-              `${apiPath}/addParticipant/getParticipants/${sessionStorage.getItem(
-                "eventId"
-              )}/${first_data.category_id_pk}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            )
-            .then((res) => {
-              setSelectedCategory(first_data.category_id_pk);
-              setListOfParticipants(res.data);
-            });
-        })
-        .catch((error) => {
-          console.log("pass", error);
-          if (error.response.data.error === "Unauthorized") {
-            window.location.href = "/";
-          } else {
-            console.error("Error making axios request:", error);
+        );
+
+        setListOfCategories(categories.data);
+        const firstData = categories.data[0];
+        setSelectedCategory(firstData.category_id_pk);
+
+        const participants = await axios.get(
+          `${apiPath}/addParticipant/getParticipants/${sessionStorage.getItem(
+            "eventId"
+          )}/${firstData.category_id_pk}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
+
+        setListOfParticipants(participants.data);
+      } catch (error) {
+        if (error.response.data.error === "Unauthorized") {
+          window.location.href = "/";
+        } else {
+          console.error("Error making axios request:", error);
+        }
+      }
     };
-    func();
+    getParticipantList();
   }, []);
 
   const AddParticipant = () => {
     navigate("/addParticipant");
   };
 
-  const handleChange = (category) => {
-    const func = async () => {
-      try {
-        const token = await getAccessTokenSilently();
-        axios
-          .get(
-            `${apiPath}/addParticipant/getParticipants/${sessionStorage.getItem(
-              "eventId"
-            )}/${category.category_id_pk}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
+  const handleChange = async (category) => {
+    try {
+      const token = await getAccessTokenSilently();
+      const participants = await axios.get(
+        `${apiPath}/addParticipant/getParticipants/${sessionStorage.getItem(
+          "eventId"
+        )}/${category.category_id_pk}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-          .then((res) => {
-            setSelectedCategory(category.category_id_pk);
-            setListOfParticipants(res.data);
-          });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    func();
+      setSelectedCategory(category.category_id_pk);
+      setListOfParticipants(participants.data);
+    } catch (error) {
+      console.error("Error changing category: ", error);
+    }
   };
 
   return (

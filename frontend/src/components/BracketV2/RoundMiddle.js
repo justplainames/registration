@@ -1,5 +1,4 @@
-import React, { useState, useContext } from "react";
-import { MatchContext } from "../../helpers/MatchContext";
+import React from "react";
 import Seed from "./Seed";
 import { HStack } from "@chakra-ui/react";
 
@@ -10,7 +9,7 @@ function RoundMiddle() {
         nextMatch={null}
         seedNumber={1}
         bracket={"finals"}
-        x_direction="middle"
+        xDirection="middle"
       />
     </HStack>
   );

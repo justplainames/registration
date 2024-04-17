@@ -1,21 +1,30 @@
+// External Libraries
 import React, { useState, useEffect, useContext } from "react";
 import { Form, redirect, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+
+// Chakra UI Components
 import {
   Box,
+  Button,
   FormControl,
   FormHelperText,
   FormLabel,
-  Input,
-  Button,
   Heading,
+  Input,
   Flex,
 } from "@chakra-ui/react";
+
+// Additional Components
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { Select } from "chakra-react-select";
-import axios from "axios";
-import { useAuth0 } from "@auth0/auth0-react";
-import { EventContext } from "../helpers/EventContext";
+
+// Custom Themes
+import { chakraSelectStyles } from "../customThemes/ChakraStyles";
+
+// External CSS
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function CreateEvent() {
   const { getAccessTokenSilently } = useAuth0();
@@ -104,48 +113,6 @@ export default function CreateEvent() {
     });
   };
 
-  const chakraStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      borderWidth: "1px",
-      "& > div > span > span": {
-        paddingY: "1px",
-      },
-      "& > div > span > div > svg > path": {
-        fill: "gray.900",
-      },
-      textColor: "white",
-      _focusVisible: {
-        borderColor: "rgb(237,137,51)",
-        borderWidth: "2px",
-        outline: "none", // Remove default focus outline
-      },
-    }),
-    dropdownIndicator: (provided, state) => ({
-      ...provided,
-      background: "transparent",
-    }),
-    crossIcon: (provided, state) => ({
-      ...provided,
-      textColor: "white",
-    }),
-    menuList: (provided, state) => ({
-      ...provided,
-      background: "gray.900",
-      textColor: "white",
-    }),
-    multiValue: (provided, state) => ({
-      ...provided,
-      background: "rgb(237,137,51)",
-      textColor: "gray.900",
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      background: "gray.900",
-      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
-    }),
-  };
-
   const handleSubmit = async (event, navigate) => {
     event.preventDefault();
     const token = await getAccessTokenSilently();
@@ -225,7 +192,7 @@ export default function CreateEvent() {
         <FormControl textColor="white" mt="2%">
           <FormLabel>Categories:</FormLabel>
           <Select
-            chakraStyles={chakraStyles}
+            chakraStyles={chakraSelectStyles}
             options={categoryOptions}
             selectedOptionColorScheme="orange"
             focusBorderColor="orange.400"
@@ -251,7 +218,7 @@ export default function CreateEvent() {
               focusBorderColor="orange.400"
               selectedOptionColorScheme="orange"
               isMulti
-              chakraStyles={chakraStyles}
+              chakraStyles={chakraSelectStyles}
               onChange={(selectedOptions) =>
                 handleJudgeChange(
                   selectedOptions,

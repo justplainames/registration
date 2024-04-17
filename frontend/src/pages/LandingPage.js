@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
+import { Element } from "react-scroll";
 import {
   chakra,
   Box,
@@ -18,10 +19,7 @@ import {
   VisuallyHidden,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { Element } from "react-scroll";
 import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-import { useAuth0 } from "@auth0/auth0-react";
-import axios from "axios";
 function LandingPage() {
   return (
     <>

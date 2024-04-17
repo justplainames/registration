@@ -34,6 +34,9 @@ app.use((req, res, next) => {
   next();
 });
 
+const signupRouter = require("./routes/Signup");
+app.use("/signup", signupRouter);
+
 app.use(
   auth({
     audience: process.env.AUDIENCE,
@@ -54,8 +57,7 @@ const scoreRouter = require("./routes/Scoring");
 app.use("/score", scoreRouter);
 const bracketRouter = require("./routes/Brackets");
 app.use("/bracket", bracketRouter);
-const signupRouter = require("./routes/Signup");
-app.use("/signup", signupRouter);
+
 const profileRouter = require("./routes/Profile");
 app.use("/profile", profileRouter);
 const editEventRouter = require("./routes/EditEvent");

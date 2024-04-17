@@ -1,45 +1,54 @@
+// External Libraries
 import React, { useContext, useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+
+// Additional Components
+import DatePicker from "react-datepicker";
+import { Select } from "chakra-react-select";
+import { EventContext } from "../helpers/EventContext";
+
+// Chakra UI Components
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
+  Heading,
   Input,
-  Spacer,
   Modal,
   ModalBody,
-  ModalFooter,
-  ModalContent,
-  ModalHeader,
-  useDisclosure,
-  ModalOverlay,
   ModalCloseButton,
-  Heading,
-  Textarea,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spacer,
   Stack,
+  Textarea,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
-import { useNavigate } from "react-router-dom";
+
+// External CSS
 import "react-datepicker/dist/react-datepicker.css";
 import "../customThemes/custom-datepicker.css";
-import { EventContext } from "../helpers/EventContext";
-import { useAuth0 } from "@auth0/auth0-react";
+
+// Custom Themes
+import { chakraMultiSelectStyles } from "../customThemes/ChakraStyles";
 
 function EventInfo() {
   const navigate = useNavigate();
   const { getAccessTokenSilently } = useAuth0();
   const apiPath = process.env.REACT_APP_API_PATH;
-  const [rawData, setRawData] = useState(null);
   const [availableCategories, setAvailableCategories] = useState(null);
   const [availableJudges, setAvailableJudges] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
   const [eventInfo, setEventInfo] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const { setEventState } = useContext(EventContext);
-  const { isOpen: isOpen, onOpen: onOpen, onClose: onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: warningIsOpen,
     onOpen: warningOnOpen,
@@ -53,65 +62,55 @@ function EventInfo() {
 
   // Get selected event info on component mount
   useEffect(() => {
-    const func = async () => {
+    const getEventInfo = async () => {
       const token = await getAccessTokenSilently();
-      axios
-        .get(
+
+      try {
+        const eventInfo = await axios.get(
           `${apiPath}/editEvent/getEventInfo/${sessionStorage.getItem(
             "eventId"
           )}`,
           { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then((response) => {
-          setRawData(response.data);
-        })
-        .catch((error) => {
-          console.error(
-            "Error in getting selected event information for editing",
-            error
-          );
-        });
+        );
+
+        // Get selected event info on component mount
+        // Set the state of available judges, data and categories
+        if (eventInfo.data) {
+          setEventInfo(eventInfo.data.event_info);
+          setAvailableJudges(eventInfo.data.available_judges);
+          setSelectedData(eventInfo.data.selection_data);
+          setAvailableCategories(eventInfo.data.available_categories);
+        }
+      } catch (error) {
+        console.error(
+          "Error in getting selected event information for editing",
+          error
+        );
+      }
     };
 
-    func();
+    getEventInfo();
   }, []);
 
-  // Get selected event info on component mount
-  // Set the state of available judges, data and categories
-  useEffect(() => {
-    if (rawData) {
-      setEventInfo(rawData.event_info);
-      setAvailableJudges(rawData.available_judges);
-      setSelectedData(rawData.selection_data);
-      setAvailableCategories(rawData.available_categories);
-    }
-  }, [rawData]);
-
-  const handleEditEventSubmit = () => {
-    const func = async () => {
+  const handleEditEventSubmit = async () => {
+    try {
       const token = await getAccessTokenSilently();
       setIsEditing(false);
-      axios
-        .put(
-          `${apiPath}/editEvent/editEventInfo`,
-          {
-            selected_data: selectedData,
-            event_info: eventInfo,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then((response) => {
-          console.log("test");
-          confirmationOnClose();
-        })
-        .catch((error) => {
-          console.error(
-            "Error while making PUT request to update and edit event information:",
-            error
-          );
-        });
-    };
-    func();
+      await axios.put(
+        `${apiPath}/editEvent/editEventInfo`,
+        {
+          selected_data: selectedData,
+          event_info: eventInfo,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      confirmationOnClose();
+    } catch (error) {
+      console.error(
+        "Error while making PUT request to update and edit event information:",
+        error
+      );
+    }
   };
 
   const handleCancel = () => {
@@ -120,14 +119,14 @@ function EventInfo() {
 
   // Handle changing of categories
   const handleCategoryChange = (selectedOptions) => {
-    const to_add = [];
-    selectedOptions.map((newOption) => {
+    const toAdd = [];
+    selectedOptions.forEach((newOption) => {
       if (
         !selectedData.find(
           (oldOption) => oldOption.category_id_fk === newOption.value
         )
       ) {
-        to_add.push({
+        toAdd.push({
           category_id_fk: newOption.value,
           event_id_fk: sessionStorage.getItem("eventId"),
           "Category.category_name": newOption.label,
@@ -136,13 +135,13 @@ function EventInfo() {
       }
     });
 
-    const new_data = selectedData.filter((old) =>
+    const newData = selectedData.filter((old) =>
       selectedOptions.some(
         (newOption) => old.category_id_fk === newOption.value
       )
     );
 
-    setSelectedData(new_data.concat(to_add));
+    setSelectedData([...newData, ...toAdd]);
   };
 
   // Handle changing of judges
@@ -169,27 +168,24 @@ function EventInfo() {
   const handleOnClose = () => {
     onClose();
   };
-  const handleDeleteSubmit = () => {
-    const func = async () => {
+
+  const handleDeleteSubmit = async () => {
+    try {
       const token = await getAccessTokenSilently();
-      axios
-        .delete(`${apiPath}/editEvent/deleteEvent`, {
-          data: eventInfo,
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          sessionStorage.removeItem("eventId");
-          sessionStorage.removeItem("eventName");
-          onClose();
-          setEventState(null);
-          navigate("/dashboard");
-        })
-        .catch((error) => {
-          console.error("Error in deleting event: ", error);
-        });
-    };
-    func();
+      await axios.delete(`${apiPath}/editEvent/deleteEvent`, {
+        data: eventInfo,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      sessionStorage.removeItem("eventId");
+      sessionStorage.removeItem("eventName");
+      onClose();
+      setEventState(null);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error in deleting event: ", error);
+    }
   };
+
   const handleWarningOnClose = () => {
     warningOnClose();
   };
@@ -201,46 +197,6 @@ function EventInfo() {
   const handleEditButton = () => {
     setIsEditing(!isEditing);
     warningOnOpen();
-  };
-
-  const chakraStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      borderWidth: "1px",
-      "& > div > span > span": {
-        paddingY: "1px",
-      },
-      "& > div > span > div > svg > path": {
-        fill: "gray.900",
-      },
-      _focusVisible: {
-        borderColor: "rgb(237,137,51)",
-        borderWidth: "2px",
-        outline: "none", // Remove default focus outline
-      },
-    }),
-    dropdownIndicator: (provided, state) => ({
-      ...provided,
-      background: "transparent",
-    }),
-    crossIcon: (provided, state) => ({
-      ...provided,
-      textColor: "white",
-    }),
-    menuList: (provided, state) => ({
-      ...provided,
-      background: "gray.900",
-    }),
-    multiValue: (provided, state) => ({
-      ...provided,
-      background: "rgb(237,137,51)",
-      textColor: "gray.900",
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      background: "gray.900",
-      _hover: { background: "rgb(237,137,51)", textColor: "gray.900" },
-    }),
   };
 
   return (
@@ -470,13 +426,7 @@ function EventInfo() {
                 value: category.category_id_pk,
                 label: category.category_name,
               }))}
-              chakraStyles={chakraStyles}
-              // components={{
-              //   MultiValueLabel: CustomMultiValueLabel, // Use custom MultiValueLabel
-              // }}
-              // colorScheme="purple"
-              // focusBorderColor="purple.400"
-              // selectedOptionColorScheme="purple"
+              chakraStyles={chakraMultiSelectStyles}
               isMulti
               name="categories"
               value={selectedData.map((category) => ({
@@ -498,16 +448,13 @@ function EventInfo() {
             <FormControl textColor="white" style={{ maxWidth: "none" }} mt="2%">
               <FormLabel>{`Judges for ${category["Category.category_name"]}:`}</FormLabel>
               <Select
-                chakraStyles={chakraStyles}
+                chakraStyles={chakraMultiSelectStyles}
                 isReadOnly={!isEditing}
                 name="judges"
                 options={availableJudges.map((judge) => ({
                   value: judge.judge_id_pk,
                   label: judge.judge_name,
                 }))}
-                // colorScheme="purple"
-                // focusBorderColor="purple.400"
-                // selectedOptionColorScheme="purple"
                 isMulti
                 onChange={(selectedOptions) =>
                   handleJudgeChange(selectedOptions, category.category_id_fk)
