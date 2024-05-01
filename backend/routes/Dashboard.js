@@ -11,7 +11,6 @@ router.get("/getEvents", async (req, res) => {
     });
     res.json(events);
   } catch (error) {
-    console.log("HERE");
     res.status(500).json({
       error: "Internal Server",
     });

@@ -4,7 +4,6 @@ const { Users } = require("../models");
 
 // API endpoint to create User
 router.post("/", async (req, res) => {
-  console.log("reached signup API");
   try {
     const users = {
       user_id_pk: req.body.user_id_pk,

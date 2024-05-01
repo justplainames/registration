@@ -23,38 +23,6 @@ function Scoring() {
   const apiPath = process.env.REACT_APP_API_PATH;
   const original = ["Name", "Instagram Handle"];
 
-  const fetchScores = async (token, categoryId) => {
-    const selectedCategoryScores = await axios.get(
-      `${apiPath}/score/${sessionStorage.getItem("eventId")}/${categoryId}`,
-      {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (selectedCategoryScores.data.error) {
-      toast({
-        title: "No Participants",
-        description: "Check to see if participant attendance were marked/added",
-        duration: 5000,
-        isClosable: true,
-        status: "error",
-        position: "top",
-      });
-    } else {
-      setHeaders([
-        ...original,
-        ...selectedCategoryScores.data[0].judges.map((item) => item.judge_name),
-        "Total Score",
-      ]);
-      setListOfParticipants(selectedCategoryScores.data);
-    }
-    try {
-    } catch (error) {
-      console.error("Error fetching scores: ", error);
-    }
-  };
   useEffect(() => {
     const getScores = async () => {
       try {
@@ -84,6 +52,40 @@ function Scoring() {
     };
     getScores();
   }, []);
+
+  const fetchScores = async (token, categoryId) => {
+    const selectedCategoryScores = await axios.get(
+      `${apiPath}/score/${sessionStorage.getItem("eventId")}/${categoryId}`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (selectedCategoryScores.data.error) {
+      setListOfParticipants(null);
+      toast({
+        title: "No Participants",
+        description: "Check to see if participant attendance were marked/added",
+        duration: 5000,
+        isClosable: true,
+        status: "error",
+        position: "top",
+      });
+    } else {
+      setHeaders([
+        ...original,
+        ...selectedCategoryScores.data[0].judges.map((item) => item.judge_name),
+        "Total Score",
+      ]);
+      setListOfParticipants(selectedCategoryScores.data);
+    }
+    try {
+    } catch (error) {
+      console.error("Error fetching scores: ", error);
+    }
+  };
 
   const handleChange = async (category) => {
     try {

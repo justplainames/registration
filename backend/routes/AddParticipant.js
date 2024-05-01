@@ -180,7 +180,6 @@ router.post("/:id", async (req, res) => {
     }
 
     const user_id = user.user_id_pk;
-    console.log("userid", content);
     for (category of content.user_categories) {
       const judges_ids = await JudgesCategories.findAll({
         where: {
@@ -188,7 +187,6 @@ router.post("/:id", async (req, res) => {
           event_id_fk: event_id,
         },
       });
-      console.log(judges_ids);
 
       await UsersCategories.create({
         user_id_fk: user_id,
@@ -476,9 +474,6 @@ router.put("/manual/updateOrder", async (req, res) => {
 
 // API to delete participant (NOT THE USER) from a particular event from a particular category
 router.delete("/deleteParticipant", async (req, res) => {
-  console.log("TEST");
-  console.log("here");
-  console.log(req);
   try {
     const user_info = req.body;
     const user_id_fk = user_info.user_id_fk;

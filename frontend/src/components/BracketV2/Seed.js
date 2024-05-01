@@ -26,8 +26,8 @@ function Seed({
 }) {
   const apiPath = process.env.REACT_APP_API_PATH;
   const toast = useToast();
-  const { getAccessTokenSilently } = useAuth0();
-  const { matchData, setMatchData, roleState } = useContext(MatchContext);
+  const { getAccessTokenSilently, user } = useAuth0();
+  const { matchData, setMatchData } = useContext(MatchContext);
 
   const showToast = () => {
     toast({
@@ -211,7 +211,11 @@ function Seed({
 
       <Flex
         {...topSeedFlex}
-        onClick={roleState === "Admin" ? handleClick : null}
+        onClick={
+          user["http://localhost:3000/roles"][0] === "Admin"
+            ? handleClick
+            : null
+        }
       >
         <Text marginLeft="5px">{firstOppenent}</Text>
         {firstResult === null ? (
@@ -224,7 +228,11 @@ function Seed({
       </Flex>
       <Flex
         {...bottomSeedFlex}
-        onClick={roleState === "Admin" ? handleClick : null}
+        onClick={
+          user["http://localhost:3000/roles"][0] === "Admin"
+            ? handleClick
+            : null
+        }
       >
         <Text marginLeft="5px">{secondOppenent}</Text>
         {secondResult === null ? (

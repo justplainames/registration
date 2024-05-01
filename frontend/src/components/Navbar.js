@@ -13,7 +13,7 @@ import {
   Image,
 } from "@chakra-ui/react";
 import "../styles/styles.css"; // Import the CSS file
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";

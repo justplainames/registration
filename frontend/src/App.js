@@ -29,29 +29,32 @@ import Signup, { signUpAction } from "./pages/Signup";
 import { checkboxTheme } from "./customThemes/Checkbox";
 import { editableTheme } from "./customThemes/Editable";
 import { toastTheme } from "./customThemes/Toast";
+import PrivateRoute from "./pages/ProtectedRoute";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<LandingPage />} />
-      <Route path="fullstackTest" element={<FullstackTest />} />
-      <Route path="scoring" element={<Scoring />} />
-      <Route path="eventInfo" element={<EventInfo />} />
       <Route path="brackets" element={<Brackets />} />
-      <Route path="profile" element={<Profile />} />
-      <Route path="participants" element={<Participants />} />
       <Route path="dashboard" element={<Dashboard />} />
+      <Route path="fullstackTest" element={<FullstackTest />} />
       <Route path="signup" element={<Signup />} action={signUpAction} />
-      <Route
-        path="addParticipant"
-        element={<AddParticipant />}
-        action={addParticipantAction}
-      />
-      <Route
-        path="createEvent"
-        element={<CreateEvent />}
-        action={createEventAction}
-      />
+      <Route path="profile" element={<Profile />} />
+      <Route element={<PrivateRoute />}>
+        <Route
+          path="addParticipant"
+          element={<AddParticipant />}
+          action={addParticipantAction}
+        />
+        <Route
+          path="createEvent"
+          element={<CreateEvent />}
+          action={createEventAction}
+        />
+        <Route path="eventInfo" element={<EventInfo />} />
+        <Route path="participants" element={<Participants />} />
+        <Route path="scoring" element={<Scoring />} />
+      </Route>
     </Route>
   )
 );

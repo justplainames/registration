@@ -1,6 +1,6 @@
 // ReusableTable.jsx
 
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -14,6 +14,7 @@ import {
   EditableInput,
   useToast,
 } from "@chakra-ui/react";
+import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 
 const ScoringTable = ({ headers, data }) => {
@@ -24,94 +25,114 @@ const ScoringTable = ({ headers, data }) => {
   const [currentCategory, setCurrentCategory] = useState(null);
   const [scoreTracker, setScoreTracker] = useState(null);
   const [totalScoreTracker, setTotalScoreTracker] = useState(null);
+  const [accessToken, setAccessToken] = useState("");
   const toast = useToast();
 
-  useEffect(() => {
-    setTotalScoreTracker(null);
+  const { getAccessTokenSilently } = useAuth0();
 
-    setDataset(data.listOfParticipants);
-    setHeaderDataset(headers);
-    setCurrentCategory(data.currentCategory);
+  useEffect(() => {
+    const setUpPage = async () => {
+      const score = new Map();
+      const totalScore = new Map();
+      setAccessToken(await getAccessTokenSilently());
+      setTotalScoreTracker(null);
+      setDataset(data.listOfParticipants);
+      setHeaderDataset(headers);
+      setCurrentCategory(data.currentCategory);
+
+      // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id-judge_id'
+      if (data.listOfParticipants) {
+        data.listOfParticipants.map((row) => {
+          if (row) {
+            row.judges.map((judge) => {
+              score.set(
+                `${sessionStorage.getItem("eventId")}-${data.currentCategory}-${
+                  row.user_id
+                }-${judge.judge_id}`,
+                judge.score
+              );
+            });
+          }
+        });
+
+        // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id'
+        data.listOfParticipants.map((row) => {
+          if (row) {
+            let total = 0;
+            row.judges.map((judge) => {
+              total += parseFloat(judge.score);
+            });
+            totalScore.set(
+              `${sessionStorage.getItem("eventId")}-${data.currentCategory}-${
+                row.user_id
+              }`,
+              total
+            );
+          }
+        });
+      }
+      setScoreTracker(score);
+      setTotalScoreTracker(totalScore);
+    };
+    setUpPage();
   }, [data]);
 
-  useEffect(() => {
-    // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id-judge_id'
-    const score = new Map();
-    if (dataset) {
-      dataset.map((row) => {
-        if (row) {
-          row.judges.map((judge) => {
-            score.set(
-              `${sessionStorage.getItem("eventId")}-${currentCategory}-${
-                row.user_id
-              }-${judge.judge_id}`,
-              judge.score
-            );
-          });
-        }
-      });
-    }
-    setScoreTracker(score);
-  }, [dataset]);
-
-  useEffect(() => {
-    const totalScore = new Map();
-    // Set up scoreTracker, a map that points that uses 'event_id-cat_id-user_id'
-    if (dataset) {
-      dataset.map((row) => {
-        if (row) {
-          let total = 0;
-          row.judges.map((judge) => {
-            total += parseFloat(judge.score);
-          });
-          totalScore.set(
-            `${sessionStorage.getItem("eventId")}-${currentCategory}-${
-              row.user_id
-            }`,
-            total
-          );
-        }
-      });
-    }
-    setTotalScoreTracker(totalScore);
-  }, [scoreTracker]);
-
-  const handleUpdateScoreSubmit = (
+  const handleUpdateScoreSubmit = async (
     value,
     event_id,
     category_id,
     user_id,
     judge_id
   ) => {
-    const test = dataset;
-    const to_update = dataset.find((data) => data.user_id === user_id);
-    const index = test.findIndex((user) => user.user_id === user_id);
-    const updatedDataset = [...test];
-    if (
-      isNaN(value) === false &&
-      parseFloat(value) <= 10 &&
-      parseFloat(value) >= 0
-    ) {
-      to_update.judges.find((judge) => judge.judge_id === judge_id).score =
-        value;
+    try {
+      const test = dataset;
+      const to_update = dataset.find((data) => data.user_id === user_id);
+      const index = test.findIndex((user) => user.user_id === user_id);
+      const updatedDataset = [...test];
+      if (
+        isNaN(value) === false &&
+        parseFloat(value) <= 10 &&
+        parseFloat(value) >= 0
+      ) {
+        to_update.judges.find((judge) => judge.judge_id === judge_id).score =
+          value;
 
-      updatedDataset[index] = to_update;
-      axios
-        .put(
+        updatedDataset[index] = to_update;
+        await axios.put(
           `${apiPath}/score/updateScore/${event_id}/${category_id}/${judge_id}/${user_id}`,
-          { new_score: value }
-        )
-        .then((response) => {});
-      setDataset(updatedDataset);
-    } else {
-      toast({
-        title: "Invalid Input",
-        description: "Please submit a number from 1-10",
-        duration: 5000,
-        isClosable: true,
-        status: "error",
-        position: "top",
-      });
+          { new_score: value },
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+
+        const totalScore = new Map();
+        dataset.map((row) => {
+          if (row) {
+            let total = 0;
+            row.judges.map((judge) => {
+              total += parseFloat(judge.score);
+            });
+            totalScore.set(
+              `${sessionStorage.getItem("eventId")}-${data.currentCategory}-${
+                row.user_id
+              }`,
+              total
+            );
+          }
+        });
+        setTotalScoreTracker(totalScore);
+        setDataset(updatedDataset);
+      } else {
+        toast({
+          title: "Invalid Input",
+          description: "Please submit a number from 1-10",
+          duration: 5000,
+          isClosable: true,
+          status: "error",
+          position: "top",
+        });
+      }
+    } catch (error) {
+      console.log("Error updating score", error);
     }
   };
   return dataset && headerDataset && scoreTracker && totalScoreTracker ? (

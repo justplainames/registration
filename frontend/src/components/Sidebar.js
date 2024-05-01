@@ -16,11 +16,13 @@ import {
 } from "@tabler/icons-react";
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Sidebar({ isOpen, toggleNavbar }) {
   const handleToggleNavbar = () => {
     toggleNavbar(); // Invoke toggleNavbar function when Flex is clicked
   };
+  const { user } = useAuth0();
 
   const SidebarContent = ({ onClose, isOpen, toggleNavbar, ...rest }) => {
     return (
@@ -56,11 +58,22 @@ export default function Sidebar({ isOpen, toggleNavbar }) {
 
         {LinkItems.map((link) => {
           if (link.name == "Home" || sessionStorage.getItem("eventId")) {
-            return (
-              <NavItem key={link.name} icon={link.icon} link={link.link}>
-                {link.name}
-              </NavItem>
-            );
+            if (
+              user["http://localhost:3000/roles"][0] === "Admin" ||
+              link.name === "Home" ||
+              link.name === "Profile" ||
+              link.name === "Brackets"
+            )
+              return (
+                <NavItem
+                  key={link.name}
+                  icon={link.icon}
+                  link={link.link}
+                  // onClick={handleToggleNavbar}
+                >
+                  {link.name}
+                </NavItem>
+              );
           }
         })}
       </Box>

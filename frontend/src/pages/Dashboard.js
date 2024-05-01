@@ -76,7 +76,6 @@ function Dashboard() {
       setEventState(event_id);
       sessionStorage.setItem("eventName", event_name);
       sessionStorage.setItem("eventId", event_id);
-      console.log(user);
       if (user["http://localhost:3000/roles"][0] === "user") {
         axios
           .get(

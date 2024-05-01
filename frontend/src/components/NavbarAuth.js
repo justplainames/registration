@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import {
   Flex,
   Button,
@@ -21,25 +21,18 @@ import "../styles/styles.css"; // Import the CSS file
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate, useLocation, Link, NavLink } from "react-router-dom";
 import { IconLogout } from "@tabler/icons-react";
-import { EventContext } from "../helpers/EventContext";
-import { AuthContext } from "../helpers/AuthContext";
-import axios from "axios";
-import { RoleContext } from "../helpers/RoleContext";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function NavbarAuth({ isOpen, toggleNavbar }) {
   const { user } = useAuth0();
   const navigate = useNavigate();
   const toast = useToast();
-  const { eventState } = useContext(EventContext);
-  const { authState, setAuthState } = useContext(AuthContext);
-  const { roleState, setRoleState } = useContext(RoleContext);
-  const [headingText, setHeadingText] = useState({});
   const location = useLocation();
-  const apiPath = process.env.REACT_APP_API_PATH;
   const { logout } = useAuth0();
 
   const showToast = async () => {
+    sessionStorage.removeItem("eventName");
+    sessionStorage.removeItem("eventId");
     logout({ logoutParams: { returnTo: window.location.origin } });
     toast({
       title: "Logged Out",
@@ -58,11 +51,6 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
   const toCreateEvent = () => {
     navigate("/createEvent");
   };
-
-  useEffect(() => {
-    setHeadingText(eventState);
-  }, [eventState, authState]);
-  const backgroundColor = "gray.800";
 
   const LinkItems = [
     { name: "Home", link: "/dashboard" },
@@ -86,7 +74,10 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
     >
       {location.pathname === "/" && (
         <Flex display={{ base: "none", md: "flex" }} ml={10}>
-          <DesktopNav props={LinkItems} />
+          <DesktopNav
+            props={LinkItems}
+            role={user["http://localhost:3000/roles"][0]}
+          />
         </Flex>
       )}
       {location.pathname === "/" && (
@@ -103,7 +94,10 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
       )}
       {location.pathname === "/" && (
         <Collapse in={isOpen} animateOpacity>
-          <MobileNav props={LinkItems} />
+          <MobileNav
+            props={LinkItems}
+            role={user["http://localhost:3000/roles"][0]}
+          />
         </Collapse>
       )}
       {location.pathname === "/" && (
@@ -113,6 +107,7 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
           fontFamily="monospace"
           fontWeight="bold"
           textColor="white"
+          color="white"
         >
           Logo
         </Text>
@@ -169,12 +164,6 @@ export default function NavbarAuth({ isOpen, toggleNavbar }) {
                   spacing="1px"
                   ml="2"
                 >
-                  {roleState && (
-                    <Text fontSize="sm" color="white">
-                      {roleState.user_name}
-                    </Text>
-                  )}
-
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>
@@ -239,12 +228,18 @@ const MobileNavLinks = (props) => {
   );
 };
 
-const DesktopNav = ({ props }) => {
+const DesktopNav = ({ props, role }) => {
   return (
     <Stack direction={"row"} spacing={4}>
       {props.map((link) => {
         if (sessionStorage.getItem("eventId") || link.name === "Home") {
-          return <DesktopNavLinks key={link.name} link={link} />;
+          if (
+            role === "Admin" ||
+            link.name === "Home" ||
+            link.name === "Profile" ||
+            link.name === "Brackets"
+          )
+            return <DesktopNavLinks key={link.name} link={link} />;
         }
       })}
     </Stack>
@@ -278,16 +273,25 @@ const DesktopNavLinks = (props) => {
   );
 };
 
-const MobileNav = ({ props }) => {
+const MobileNav = ({ props, role }) => {
   const BackgroundColor = "gray.800";
   return (
     <Stack bg={BackgroundColor} p={4} display={{ md: "none" }}>
       {props.map((link) => {
-        return (
-          <MobileNavLinks key={link.name} link={link}>
-            {link}
-          </MobileNavLinks>
-        );
+        if (sessionStorage.getItem("eventId") || link.name === "Home") {
+          if (
+            role === "Admin" ||
+            link.name === "Home" ||
+            link.name === "Profile" ||
+            link.name === "Brackets"
+          ) {
+            return (
+              <MobileNavLinks key={link.name} link={link}>
+                {link}
+              </MobileNavLinks>
+            );
+          }
+        }
       })}
     </Stack>
   );

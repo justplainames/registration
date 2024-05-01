@@ -70,7 +70,6 @@ router.get("/", async function (req, res, next) {
   }
 
   const found = await Users.findByPk(sub);
-  console.log(BACKEND_API);
   res.cookie("access_token", access_token, {
     domain: "localhost:3000/",
     path: "/",
@@ -85,7 +84,6 @@ router.get("/", async function (req, res, next) {
     secure: true, // Set the Secure attribute
     sameSite: "lax", // Set the SameSite attribute to None
   });
-  console.log(res.cookie["access_token"].domain);
   if (found) {
     // frontend
     res.redirect(`${FRONTEND_URL}/dashboard`);

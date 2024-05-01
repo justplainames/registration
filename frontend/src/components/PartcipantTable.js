@@ -177,7 +177,6 @@ const ParticipantTable = ({ headers, event_id_pk, category_id_pk }) => {
             }
           });
       } catch (error) {
-        console.log("skjhsd ");
         console.error(error);
       }
     };
