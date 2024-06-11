@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="EventRegistrationBackend" type="Application" factoryName="Application">
+    <envs>
+      <env name="DEVELOPMENT_USERNAME" value="postgres.nxjijdobnvswemrlwwre" />
+      <env name="DEVELOPMENT_PASSWORD" value="Ryoko2456845j@ker54" />
+      <env name="DEVELOPMENT_DATABASE" value="postgres" />
+      <env name="DEVELOPMENT_HOST" value="jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres" />
+      <env name="AUTH0_ISSUER_DOMAIN" value="https://dev-1zb8k0zuzt6x1qmm.us.auth0.com" />
+      <env name="AUTH0_CLIENT_ID" value="XXvDesqw1tKeEEufSKvz7P4GscMUQH1v/" />
+      <env name="AUTH0_AUDIENCE" value="http://localhost:3000" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="com.myproject.backendSpringboot.BackendSpringbootApplication" />
+    <module name="backendSpringboot" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
