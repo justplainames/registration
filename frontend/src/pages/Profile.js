@@ -37,6 +37,7 @@ const Profile = () => {
 
   useEffect(() => {
     const test = async () => {
+      console.log("Getting Info");
       try {
         const token = await getAccessTokenSilently();
         const userProfile = await axios.get(`{apiPath}/api/profile/getInfo`, {
@@ -52,6 +53,7 @@ const Profile = () => {
             },
           }
         );
+        console.log(userProfile.data);
 
         setUserData(userProfile.data);
         setUserEvents(listOfEvents.data.eventsMap);
