@@ -124,6 +124,7 @@ export default function Signup() {
 }
 
 export const signUpAction = async ({ formData, decoded_auth0, state }) => {
+  console.log("Issuer Domain: ", issuerDomain);
   const data = formData;
   const apiPath = process.env.REACT_APP_API_PATH;
   const issuerDomain = process.env.REACT_APP_ISSUER_DOMAIN;

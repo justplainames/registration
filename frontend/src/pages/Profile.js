@@ -28,7 +28,7 @@ import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const Profile = () => {
-  const apiPath = process.env.REACT_APP_API_PATH;
+  const apiPath = process.env.REACT_APP_SPRINGBOOT_API_PATH;
   const [userData, setUserData] = useState(null);
   const [userEvents, setUserEvents] = useState(null);
   const [isEditing, setIsEditing] = useState(true);
@@ -36,6 +36,31 @@ const Profile = () => {
   const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
+    const test = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const userProfile = await axios.get(`{apiPath}/api/profile/getInfo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const listOfEvents = await axios.get(
+          `{apiPath}/api/profile/getEvents`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setUserData(userProfile.data);
+        setUserEvents(listOfEvents.data.eventsMap);
+        userDataRef.current = userProfile.data;
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+
     const getProfileInfo = async () => {
       const token = await getAccessTokenSilently();
       try {
@@ -57,16 +82,22 @@ const Profile = () => {
         console.error("Error getting user profile: ", error);
       }
     };
-
-    getProfileInfo();
+    test();
+    // getProfileInfo();
   }, []);
 
   const handleSubmit = async () => {
     try {
+      console.log(userData);
       const token = await getAccessTokenSilently();
-      await axios.put(`${apiPath}/profile/updateInfo`, userData, {
+      // await axios.put(`${apiPath}/profile/updateInfo`, userData, {
+      //   headers: { Authorization: `Bearer ${token}` },
+      // });
+
+      await axios.put(`{apiPath}/api/profile/updateInfo`, userData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setIsEditing(!isEditing);
     } catch (error) {
       console.error("Error updating user profile: ", error);
@@ -231,7 +262,7 @@ const Profile = () => {
                       w={"full"}
                     />
                     <Heading textColor="white" as="h3" size="sm" mt="2%">
-                      {userEvents[event_id][0]["Event.event_name"]}
+                      {userEvents[event_id][0]["event_name"]}
                     </Heading>
                     <Text fontSize={"sm"} color={"gray.500"}>
                       Followers
@@ -252,7 +283,7 @@ const Profile = () => {
                           bg="gray.800"
                           fontWeight={"400"}
                         >
-                          {category["Category.category_name"]}
+                          {category["category_name"]}
                         </Badge>
                       ))}
                     </Stack>

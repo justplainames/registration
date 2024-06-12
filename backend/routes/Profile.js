@@ -9,6 +9,7 @@ router.get("/getInfo", async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
+    console.log(req.auth);
     const user = await Users.findByPk(req.auth.payload.sub);
     const data = {
       user_name: user.user_name,

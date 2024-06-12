@@ -100,7 +100,6 @@ export default function Navbar({ scrollToSection }) {
             fontWeight={400}
             variant={"link"}
             _hover={{ cursor: "pointer" }}
-            // href={"#"}
             onClick={() => loginWithRedirect()}
           >
             Sign In
