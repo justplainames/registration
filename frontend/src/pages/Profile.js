@@ -40,13 +40,13 @@ const Profile = () => {
       console.log("Getting Info");
       try {
         const token = await getAccessTokenSilently();
-        const userProfile = await axios.get(`{apiPath}/api/profile/getInfo`, {
+        const userProfile = await axios.get(`${apiPath}/api/profile/getInfo`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const listOfEvents = await axios.get(
-          `{apiPath}/api/profile/getEvents`,
+          `${apiPath}/api/profile/getEvents`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ const Profile = () => {
       //   headers: { Authorization: `Bearer ${token}` },
       // });
 
-      await axios.put(`{apiPath}/api/profile/updateInfo`, userData, {
+      await axios.put(`${apiPath}/api/profile/updateInfo`, userData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
