@@ -26,7 +26,6 @@ import java.util.List;
 //
 @RestController
 @RequestMapping(path="api")
-@CrossOrigin("*")
 public class UserController {
 
     @Autowired
@@ -90,6 +89,7 @@ public class UserController {
         return test;
     }
 
+    @CrossOrigin
     @PutMapping("/profile/updateInfo")
     public String postInfo(@AuthenticationPrincipal Jwt jwt, @RequestBody UserDTO userDTO){
         String userId = jwt.getClaim("sub");
